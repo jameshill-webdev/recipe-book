@@ -1,11 +1,34 @@
 import { Link } from "react-router";
+import {
+    NavigationMenu,
+    NavigationMenuList,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    navigationMenuTriggerStyle,
+} from "./ui/navigation-menu";
 
 export default function Nav() {
     return (
-        <nav style={{ display: "flex", gap: "1rem" }}>
-            <Link to="/">Home</Link>
-            <Link to="/recipes">Recipes</Link>
-            <Link to="/ingredients">Ingredients</Link>
-        </nav>
+        <>
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                            <Link to="/">Home</Link>
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                            <Link to="/recipes">Recipes</Link>
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                            <Link to="/ingredients">Ingredients</Link>
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+        </>
     );
 }
