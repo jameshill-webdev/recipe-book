@@ -4,14 +4,14 @@ import { notFound } from "./middleware/404.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 export function initialiseApp(): Express {
-    const app = express();
+	const app = express();
 
-    app.use(express.json());
+	app.use(express.json());
 
-    app.use("/", appRouter);
+	app.use("/", appRouter);
 
-    app.use(notFound);
-    app.use(errorHandler);
+	app.use(notFound);
+	app.use(errorHandler);
 
-    return app;
+	return app;
 }
