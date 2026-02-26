@@ -6,6 +6,7 @@ export const ApiErrorCodes = {
 	RESOURCE_NOT_FOUND: "RESOURCE_NOT_FOUND",
 	UNIQUE_CONSTRAINT: "UNIQUE_CONSTRAINT",
 	INTERNAL_ERROR: "INTERNAL_ERROR",
+	EMAIL_ERROR: "EMAIL_ERROR",
 } as const;
 
 export type ApiErrorCode = (typeof ApiErrorCodes)[keyof typeof ApiErrorCodes];

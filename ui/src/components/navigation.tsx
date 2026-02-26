@@ -11,7 +11,7 @@ import { ThemeToggle } from "./theme-toggle";
 export default function Navigation() {
 	return (
 		<div className="flex flex-row justify-between p-2">
-			<NavigationMenu>
+			<NavigationMenu className="lg:justify-start">
 				<NavigationMenuList>
 					<NavigationMenuItem>
 						<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
@@ -20,12 +20,12 @@ export default function Navigation() {
 					</NavigationMenuItem>
 					<NavigationMenuItem>
 						<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-							<Link to="/recipes">Recipes</Link>
+							<Link to="/ingredients">Ingredients</Link>
 						</NavigationMenuLink>
 					</NavigationMenuItem>
 					<NavigationMenuItem>
 						<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-							<Link to="/ingredients">Ingredients</Link>
+							<Link to="/recipes">Recipes</Link>
 						</NavigationMenuLink>
 					</NavigationMenuItem>
 				</NavigationMenuList>
