@@ -7,6 +7,10 @@
 		"lib": ["ES2022"],
 		"rootDir": "src",
 		"outDir": "dist",
+		"baseUrl": ".", // set base url for paths
+		"paths": {
+			"@/*": ["./src/*"]
+		},
 		"types": ["node"],
 		"sourceMap": true,
 		"declaration": true,

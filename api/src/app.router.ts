@@ -1,10 +1,15 @@
 import { Router } from "express";
 import usersRouter from "./features/users/users.router.js";
 import { sendEmail } from "./utils/email.js";
+import { requireAuth } from "./middleware/requireAuth.js";
 
 const router = Router();
 
 router.use("/users", usersRouter);
+
+router.use("/authtest", requireAuth, async (req, res) => {
+	res.json({ ok: true });
+});
 
 // sendEmail test
 router.use("/sendemail", async (request, response, next) => {
