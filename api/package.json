@@ -11,7 +11,12 @@
 		"typecheck": "tsc --noEmit",
 		"build": "tsc",
 		"start": "node dist/server.js",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"prisma-format": "npx prisma format",
+		"prisma-validate": "npx prisma validate",
+		"prisma-migrate-dev": "npx prisma migrate dev",
+		"prisma-migrate-prod": "npx prisma migrate deploy",
+		"prisma-migrate-reset": "npx prisma migrate reset"
 	},
 	"dependencies": {
 		"@prisma/adapter-pg": "^7.4.1",
