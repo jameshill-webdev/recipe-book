@@ -1,17 +1,17 @@
 import { Routes, Route } from "react-router";
-import { ThemeProvider } from "./components/theme-provider";
-import { RequireAuth } from "./routes/RequireAuth";
-import Home from "./routes/Home";
-import Login from "./routes/login";
-import SignUp from "./routes/SignUp";
-import VerifyEmail from "./routes/VerifyEmail";
-import ForgotPassword from "./routes/ForgotPassword";
-import ResetPassword from "./routes/ResetPassword";
-import Recipes from "./routes/Recipes";
-import Ingredients from "./routes/Ingredients";
-import NotFound from "./routes/NotFound";
-import Navigation from "./components/navigation";
-import EmailVerified from "./routes/EmailVerified";
+import { ThemeProvider } from "@/components/theme-provider";
+import { RequireAuth } from "@/routes/require-auth";
+import Home from "@/routes/home";
+import Login from "@/routes/login";
+import SignUp from "@/routes/sign-up";
+import VerifyEmail from "@/routes/verify-email";
+import ForgotPassword from "@/routes/forgot-password";
+import ResetPassword from "@/routes/reset-password";
+import Recipes from "@/routes/recipes";
+import Ingredients from "@/routes/ingredients";
+import NotFound from "@/routes/not-found";
+import Navigation from "@/components/navigation";
+import EmailVerified from "@/routes/email-verified";
 
 function App() {
 	return (
@@ -19,6 +19,9 @@ function App() {
 			<Navigation />
 			<Routes>
 				{/* public routes */}
+				<Route path="/" element={<Home />} />
+				<Route path="/recipes" element={<Recipes />} />
+				<Route path="/ingredients" element={<Ingredients />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/signup" element={<SignUp />} />
 				<Route path="/verify-email" element={<VerifyEmail />} />
@@ -28,11 +31,11 @@ function App() {
 				<Route path="*" element={<NotFound />} />
 
 				{/* protected routes */}
-				<Route element={<RequireAuth />}>
+				{/* <Route element={<RequireAuth />}>
 					<Route path="/" element={<Home />} />
 					<Route path="/recipes" element={<Recipes />} />
 					<Route path="/ingredients" element={<Ingredients />} />
-				</Route>
+				</Route> */}
 			</Routes>
 		</ThemeProvider>
 	);

@@ -5,8 +5,8 @@ import {
 	NavigationMenuItem,
 	NavigationMenuLink,
 	navigationMenuTriggerStyle,
-} from "./ui/navigation-menu";
-import { ThemeToggle } from "./theme-toggle";
+} from "@/components/ui/navigation-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Navigation() {
 	return (

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, it, expect } from "vitest";
-import Login from "./index";
+import Login from "@/routes/login";
 
 describe("Login", () => {
   it("renders text", () => {

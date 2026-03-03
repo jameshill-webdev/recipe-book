@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router";
-import { authClient } from "../lib/auth";
+import { authClient } from "@/lib/auth";
 
 export function RequireAuth() {
 	const location = useLocation();
