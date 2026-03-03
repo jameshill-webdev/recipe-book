@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router";
 import { ThemeProvider } from "./components/theme-provider";
 import { RequireAuth } from "./routes/RequireAuth";
 import Home from "./routes/Home";
-import Login from "./routes/Login";
+import Login from "./routes/login";
 import SignUp from "./routes/SignUp";
 import VerifyEmail from "./routes/VerifyEmail";
 import ForgotPassword from "./routes/ForgotPassword";

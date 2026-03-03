@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router";
-import { authClient } from "../lib/auth";
+import { authClient } from "@/lib/auth";
 
 export default function Login() {
 	const nav = useNavigate();
@@ -14,8 +14,6 @@ export default function Login() {
 			},
 		);
 	}
-
-	// ...
 
 	return (
 		<>
