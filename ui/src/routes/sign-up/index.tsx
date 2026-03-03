@@ -39,8 +39,8 @@ export default function SignUp() {
 
 	return (
 		<>
-			<h1>Sign up</h1>
-			<form onSubmit={onSubmit}>
+			<h1 className="mb-4">Sign up</h1>
+			<form onSubmit={onSubmit} className="flex flex-col gap-4">
 				<input
 					value={email}
 					onChange={(error) => setEmail(error.target.value)}

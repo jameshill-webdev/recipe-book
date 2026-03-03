@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export default function Navigation() {
 	return (
 		<div className="flex flex-row justify-between p-2">
-			<NavigationMenu className="lg:justify-start">
+			<NavigationMenu className="mx-auto max-w-5xl px-4 lg:justify-start">
 				<NavigationMenuList>
 					<NavigationMenuItem>
 						<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
