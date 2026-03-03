@@ -19,9 +19,6 @@ function App() {
 			<Navigation />
 			<Routes>
 				{/* public routes */}
-				<Route path="/" element={<Home />} />
-				<Route path="/recipes" element={<Recipes />} />
-				<Route path="/ingredients" element={<Ingredients />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/signup" element={<SignUp />} />
 				<Route path="/verify-email" element={<VerifyEmail />} />
@@ -31,11 +28,11 @@ function App() {
 				<Route path="*" element={<NotFound />} />
 
 				{/* protected routes */}
-				{/* <Route element={<RequireAuth />}>
+				<Route element={<RequireAuth />}>
 					<Route path="/" element={<Home />} />
 					<Route path="/recipes" element={<Recipes />} />
 					<Route path="/ingredients" element={<Ingredients />} />
-				</Route> */}
+				</Route>
 			</Routes>
 		</ThemeProvider>
 	);

@@ -1,15 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, it, expect } from "vitest";
-import Login from "@/routes/login";
+import Recipes from "@/routes/recipes";
 
-describe("Login", () => {
+describe("Recipes", () => {
 	it("renders a level 1 heading with the correct text content", () => {
 		render(
 			<MemoryRouter>
-				<Login />
+				<Recipes />
 			</MemoryRouter>,
 		);
-		expect(screen.getByRole("heading", { level: 1, name: "Log In" })).toBeInTheDocument();
+		expect(screen.getByRole("heading", { level: 1, name: "Recipes" })).toBeInTheDocument();
 	});
 });

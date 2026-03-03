@@ -38,25 +38,28 @@ export default function SignUp() {
 	}
 
 	return (
-		<form onSubmit={onSubmit}>
-			<input
-				value={email}
-				onChange={(error) => setEmail(error.target.value)}
-				placeholder="Email"
-			/>
-			<input
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-				placeholder="Password"
-				type="password"
-			/>
-			<input
-				value={name}
-				onChange={(error) => setName(error.target.value)}
-				placeholder="Display name"
-			/>
-			<button type="submit">Create account</button>
-			{error && <div>{error}</div>}
-		</form>
+		<>
+			<h1>Sign up</h1>
+			<form onSubmit={onSubmit}>
+				<input
+					value={email}
+					onChange={(error) => setEmail(error.target.value)}
+					placeholder="Email"
+				/>
+				<input
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					placeholder="Password"
+					type="password"
+				/>
+				<input
+					value={name}
+					onChange={(error) => setName(error.target.value)}
+					placeholder="Display name"
+				/>
+				<button type="submit">Create account</button>
+				{error && <div>{error}</div>}
+			</form>
+		</>
 	);
 }
