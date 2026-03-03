@@ -24,7 +24,6 @@ export default function SignUp() {
 			return setError(signUpError.message ?? "Something went wrong");
 		}
 
-		// TODO: this currently sends the verification email twice due to better-auth's default behaviour of auto-sending on signup (plus this manual call). One option is to remove this manual call, but then the same callbackURL will be used for both signup (i.e. "verify your email") and after verification (i.e. "your email was verified"), which is not best-practice and creates complications regarding logic in that route/page to determine whether the user has verified yet. So, the preferred option is to add `sendOnSignUp: false,` to the better-auth config to disable the auto-sending, and rely on this instead, which makes it easy to have separate routes/callbackURLs for each state.
 		const { error: verifyError } = await authClient.sendVerificationEmail({
 			email,
 			callbackURL: `${window.location.origin}/email-verified`,
