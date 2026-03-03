@@ -39,8 +39,9 @@ export default function SignUp() {
 
 	return (
 		<>
-			<h1 className="mb-4">Sign up</h1>
-			<form onSubmit={onSubmit} className="flex flex-col gap-4">
+			<h1>Sign up</h1>
+			{/* TODO: use shadcn form components here */}
+			<form onSubmit={onSubmit}>
 				<input
 					value={email}
 					onChange={(error) => setEmail(error.target.value)}
