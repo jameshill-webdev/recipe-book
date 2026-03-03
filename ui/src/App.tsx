@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router";
+import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RequireAuth } from "@/routes/require-auth";
 import AppLayout from "./layouts/app-layout";
