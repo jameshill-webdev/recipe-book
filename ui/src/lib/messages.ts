@@ -1,0 +1,1 @@
+export const networkErrorMessage = "We couldn't reach the server. There may be an issue with the server or your internet connection.";

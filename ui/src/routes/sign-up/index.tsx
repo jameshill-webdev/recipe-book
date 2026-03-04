@@ -4,45 +4,51 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { networkErrorMessage } from "@/lib/messages";
 
 export default function SignUp() {
 	const navigate = useNavigate();
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState<string | null>(null);
+	const [formError, setFormError] = useState<string | null>(null);
 
 	async function onSubmit(event: React.SubmitEvent) {
 		event.preventDefault();
-		setError(null);
+		setFormError(null);
 
-		const { error: signUpError } = await authClient.signUp.email({
-			name,
-			email,
-			password,
-			callbackURL: `${window.location.origin}/verify-email`,
-		});
+		try {
+			const { error: signUpError } = await authClient.signUp.email({
+				name,
+				email,
+				password,
+				callbackURL: `${window.location.origin}/verify-email`,
+			});
 
-		if (signUpError) {
-			return setError(signUpError.message ?? "Something went wrong");
+			if (signUpError) {
+				return setFormError(signUpError.message ?? "Something went wrong");
+			}
+
+			const { error: verifyError } = await authClient.sendVerificationEmail({
+				email,
+				callbackURL: `${window.location.origin}/email-verified`,
+			});
+
+			if (verifyError) {
+				return setFormError(verifyError.message ?? "Something went wrong");
+			}
+
+			navigate("/verify-email?sent=1");
+		} catch {
+			setFormError(networkErrorMessage);
 		}
-
-		const { error: verifyError } = await authClient.sendVerificationEmail({
-			email,
-			callbackURL: `${window.location.origin}/email-verified`,
-		});
-
-		if (verifyError) {
-			return setError(verifyError.message ?? "Something went wrong");
-		}
-
-		navigate("/verify-email?sent=1");
 	}
 
 	return (
 		<>
 			<h1>Sign up</h1>
 			<form onSubmit={onSubmit} className="mx-auto w-full max-w-lg flex flex-col gap-6">
+				{formError && <FieldError>{formError}</FieldError>}
 				<Field>
 					<FieldLabel htmlFor="email">Email</FieldLabel>
 					<Input
@@ -81,7 +87,6 @@ export default function SignUp() {
 				<Button type="submit" className="mt-4">
 					Create account
 				</Button>
-				{error && <FieldError>{error}</FieldError>}
 			</form>
 		</>
 	);
