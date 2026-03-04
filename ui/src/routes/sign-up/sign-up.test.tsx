@@ -2,7 +2,20 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 import SignUp from "@/routes/sign-up";
-import { networkError } from "@/lib/messages";
+import {
+	DISPLAY_NAME_TOO_LONG,
+	DISPLAY_NAME_TOO_SHORT,
+	INVALID_EMAIL,
+	NETWORK_ERROR,
+	PASSWORD_TOO_LONG,
+	PASSWORD_TOO_SHORT,
+} from "@/lib/messages";
+import {
+	MAXIMUM_DISPLAY_NAME_LENGTH,
+	MAXIMUM_PASSWORD_LENGTH,
+	MINIMUM_DISPLAY_NAME_LENGTH,
+	MINIMUM_PASSWORD_LENGTH,
+} from "@/lib/constants";
 
 const { mockSignUpFunction, mockSendVerificationEmailFunction } = vi.hoisted(() => ({
 	mockSignUpFunction: vi.fn(),
@@ -27,84 +40,143 @@ describe("SignUp", () => {
 		cleanup();
 	});
 
-	it("shows multiple inline validation errors at once and skips API calls", () => {
-		render(
-			<MemoryRouter>
-				<SignUp />
-			</MemoryRouter>,
-		);
+	describe("UI elements", () => {
+		it("renders a level 1 heading with the correct text", () => {
+			render(
+				<MemoryRouter>
+					<SignUp />
+				</MemoryRouter>,
+			);
+			expect(screen.getByRole("heading", { level: 1, name: "Sign up" })).toBeInTheDocument();
+		});
 
-		fireEvent.change(screen.getByLabelText("Email"), {
-			target: { value: "invalid-email" },
-		});
-		fireEvent.change(screen.getByLabelText("Password"), {
-			target: { value: "12345" },
-		});
-		fireEvent.change(screen.getByLabelText("Display name"), {
-			target: { value: "   " },
-		});
-		fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+		it("renders email, password, and display name fields with correct labels", () => {
+			render(
+				<MemoryRouter>
+					<SignUp />
+				</MemoryRouter>,
+			);
 
-		expect(screen.getByText("Please enter a valid email")).toBeInTheDocument();
-		expect(screen.getByText("Password must be at least 8 characters")).toBeInTheDocument();
-		expect(screen.getByText("Display name is required")).toBeInTheDocument();
-		expect(mockSignUpFunction).not.toHaveBeenCalled();
-		expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+			expect(screen.getByText("Email")).toBeInTheDocument();
+			expect(screen.getByRole("textbox", { name: "Email" })).toBeInTheDocument();
+			expect(screen.getByText("Password")).toBeInTheDocument();
+			expect(screen.getByLabelText("Password")).toBeInTheDocument();
+			expect(screen.getByText("Display name")).toBeInTheDocument();
+			expect(screen.getByRole("textbox", { name: "Display name" })).toBeInTheDocument();
+		});
+
+		it("renders a submit button with the correct text", () => {
+			render(
+				<MemoryRouter>
+					<SignUp />
+				</MemoryRouter>,
+			);
+
+			expect(screen.getByRole("button", { name: "Create account" })).toBeInTheDocument();
+		});
 	});
 
-	it("shows a validation error and skips API calls when form data is invalid", () => {
-		render(
-			<MemoryRouter>
-				<SignUp />
-			</MemoryRouter>,
-		);
+	describe("form validation", () => {
+		const testData = {
+			valid: {
+				email: "test@email.com",
+				password: "a".repeat(MINIMUM_PASSWORD_LENGTH + 1),
+				displayName: "a".repeat(MINIMUM_DISPLAY_NAME_LENGTH + 1),
+			},
+			invalid: {
+				email: "invalidemail",
+				password: "",
+				displayName: "",
+			},
+			tooShort: {
+				password: "a".repeat(MINIMUM_PASSWORD_LENGTH - 1),
+				displayName: "a".repeat(MINIMUM_DISPLAY_NAME_LENGTH - 1),
+			},
+			tooLong: {
+				password: "a".repeat(MAXIMUM_PASSWORD_LENGTH + 1),
+				displayName: "a".repeat(MAXIMUM_DISPLAY_NAME_LENGTH + 1),
+			},
+		};
 
-		fireEvent.change(screen.getByLabelText("Email"), {
-			target: { value: "test@example.com" },
+		beforeEach(() => {
+			render(
+				<MemoryRouter>
+					<SignUp />
+				</MemoryRouter>,
+			);
 		});
-		fireEvent.change(screen.getByLabelText("Password"), {
-			target: { value: "12345" },
+
+		it("shows a network error message when sign-up request fails to reach server", async () => {
+			mockSignUpFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+			fireEvent.change(screen.getByLabelText("Email"), {
+				target: { value: testData.valid.email },
+			});
+			fireEvent.change(screen.getByLabelText("Password"), {
+				target: { value: testData.valid.password },
+			});
+			fireEvent.change(screen.getByLabelText("Display name"), {
+				target: { value: testData.valid.displayName },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+
+			expect(await screen.findByText(NETWORK_ERROR)).toBeInTheDocument();
+			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
 		});
-		fireEvent.change(screen.getByLabelText("Display name"), {
-			target: { value: "Test User" },
+
+		it("shows the correct validation error and skips API calls when email is invalid", () => {
+			fireEvent.change(screen.getByLabelText("Email"), {
+				target: { value: testData.invalid.email },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+
+			expect(screen.getByText(INVALID_EMAIL)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
 		});
-		fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
 
-		expect(screen.getByText("Password must be at least 8 characters")).toBeInTheDocument();
-		expect(mockSignUpFunction).not.toHaveBeenCalled();
-		expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
-	});
+		it("shows the correct validation error and skips API calls when password is too short", () => {
+			fireEvent.change(screen.getByLabelText("Password"), {
+				target: { value: testData.tooShort.password },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
 
-	it("shows a network error message when sign-up request fails to reach server", async () => {
-		mockSignUpFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
-
-		render(
-			<MemoryRouter>
-				<SignUp />
-			</MemoryRouter>,
-		);
-
-		fireEvent.change(screen.getByLabelText("Email"), {
-			target: { value: "test@example.com" },
+			expect(screen.getByText(PASSWORD_TOO_SHORT)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
 		});
-		fireEvent.change(screen.getByLabelText("Password"), {
-			target: { value: "password123" },
-		});
-		fireEvent.change(screen.getByLabelText("Display name"), {
-			target: { value: "Test User" },
-		});
-		fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
 
-		expect(await screen.findByText(networkError)).toBeInTheDocument();
-		expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
-	});
+		it("shows the correct validation error and skips API calls when password is too long", () => {
+			fireEvent.change(screen.getByLabelText("Password"), {
+				target: { value: testData.tooLong.password },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
 
-	it("renders a level 1 heading with the correct text content", () => {
-		render(
-			<MemoryRouter>
-				<SignUp />
-			</MemoryRouter>,
-		);
-		expect(screen.getByRole("heading", { level: 1, name: "Sign up" })).toBeInTheDocument();
+			expect(screen.getByText(PASSWORD_TOO_LONG)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when display name is too short", () => {
+			fireEvent.change(screen.getByLabelText("Display name"), {
+				target: { value: testData.tooShort.displayName },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+
+			expect(screen.getByText(DISPLAY_NAME_TOO_SHORT)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when display name is too long", () => {
+			fireEvent.change(screen.getByLabelText("Display name"), {
+				target: { value: testData.tooLong.displayName },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+
+			expect(screen.getByText(DISPLAY_NAME_TOO_LONG)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+		});
 	});
 });

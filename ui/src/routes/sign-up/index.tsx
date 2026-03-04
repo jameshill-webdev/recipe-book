@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-	displayNameTooLong,
-	displayNameTooShort,
-	genericError,
-	invalidEmail,
-	networkError,
-	passwordTooLong,
-	passwordTooShort,
+	DISPLAY_NAME_TOO_SHORT,
+	DISPLAY_NAME_TOO_LONG,
+	GENERIC_ERROR,
+	INVALID_EMAIL,
+	NETWORK_ERROR,
+	PASSWORD_TOO_SHORT,
+	PASSWORD_TOO_LONG,
 } from "@/lib/messages";
 import {
 	MAXIMUM_DISPLAY_NAME_LENGTH,
@@ -22,16 +22,16 @@ import {
 } from "@/lib/constants";
 
 const signUpSchema = z.object({
-	email: z.email(invalidEmail),
+	email: z.email(INVALID_EMAIL),
 	password: z
 		.string()
-		.min(MINIMUM_PASSWORD_LENGTH, passwordTooShort)
-		.max(MAXIMUM_PASSWORD_LENGTH, passwordTooLong),
+		.min(MINIMUM_PASSWORD_LENGTH, PASSWORD_TOO_SHORT)
+		.max(MAXIMUM_PASSWORD_LENGTH, PASSWORD_TOO_LONG),
 	name: z
 		.string()
 		.trim()
-		.min(MINIMUM_DISPLAY_NAME_LENGTH, displayNameTooShort)
-		.max(MAXIMUM_DISPLAY_NAME_LENGTH, displayNameTooLong),
+		.min(MINIMUM_DISPLAY_NAME_LENGTH, DISPLAY_NAME_TOO_SHORT)
+		.max(MAXIMUM_DISPLAY_NAME_LENGTH, DISPLAY_NAME_TOO_LONG),
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
@@ -87,7 +87,7 @@ export default function SignUp() {
 			});
 
 			if (signUpError) {
-				return setFormError(signUpError.message ?? genericError);
+				return setFormError(signUpError.message ?? GENERIC_ERROR);
 			}
 
 			const { error: verifyError } = await authClient.sendVerificationEmail({
@@ -96,12 +96,12 @@ export default function SignUp() {
 			});
 
 			if (verifyError) {
-				return setFormError(verifyError.message ?? genericError);
+				return setFormError(verifyError.message ?? GENERIC_ERROR);
 			}
 
 			navigate("/verify-email?sent=1");
 		} catch {
-			setFormError(networkError);
+			setFormError(NETWORK_ERROR);
 		}
 	}
 
