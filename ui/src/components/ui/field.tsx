@@ -22,15 +22,4 @@ function FieldLabel({ className, ...props }: React.ComponentProps<"label">) {
 	);
 }
 
-function FieldError({ className, ...props }: React.ComponentProps<"p">) {
-	return (
-		<p
-			data-slot="field-error"
-			className={cn("text-destructive text-sm", className)}
-			role="alert"
-			{...props}
-		/>
-	);
-}
-
-export { Field, FieldLabel, FieldError };
+export { Field, FieldLabel };

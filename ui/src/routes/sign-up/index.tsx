@@ -3,7 +3,8 @@ import { z } from "zod";
 import { authClient } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { InlineError } from "@/components/ui/error";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
 	DISPLAY_NAME_TOO_SHORT,
@@ -109,7 +110,7 @@ export default function SignUp() {
 		<>
 			<h1>Sign up</h1>
 			<form onSubmit={onSubmit} className="mx-auto w-full max-w-lg flex flex-col gap-6">
-				{formError && <FieldError>{formError}</FieldError>}
+				{formError && <InlineError alert>{formError}</InlineError>}
 				<Field>
 					<FieldLabel htmlFor="email">Email</FieldLabel>
 					<Input
@@ -127,7 +128,7 @@ export default function SignUp() {
 						placeholder="Email"
 						required
 					/>
-					{fieldErrors.email && <FieldError>{fieldErrors.email}</FieldError>}
+					{fieldErrors.email && <InlineError alert>{fieldErrors.email}</InlineError>}
 				</Field>
 				<Field>
 					<FieldLabel htmlFor="password">Password</FieldLabel>
@@ -146,7 +147,9 @@ export default function SignUp() {
 						autoComplete="new-password"
 						required
 					/>
-					{fieldErrors.password && <FieldError>{fieldErrors.password}</FieldError>}
+					{fieldErrors.password && (
+						<InlineError alert>{fieldErrors.password}</InlineError>
+					)}
 				</Field>
 				<Field>
 					<FieldLabel htmlFor="name">Display name</FieldLabel>
@@ -164,7 +167,7 @@ export default function SignUp() {
 						autoComplete="name"
 						required
 					/>
-					{fieldErrors.name && <FieldError>{fieldErrors.name}</FieldError>}
+					{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 				</Field>
 				<Button type="submit" className="mt-4">
 					Create account

@@ -13,3 +13,5 @@ export const PASSWORD_TOO_LONG = `Password cannot be longer than ${MAXIMUM_PASSW
 export const DISPLAY_NAME_TOO_SHORT = `Display name must be at least ${MINIMUM_DISPLAY_NAME_LENGTH} characters.`;
 export const DISPLAY_NAME_TOO_LONG = `Display name cannot be longer than ${MAXIMUM_DISPLAY_NAME_LENGTH} characters.`;
 export const GENERIC_ERROR = "Something went wrong.";
+export const LOGOUT_FAILED = "We couldn't log you out. Please try again.";
+export const LOGOUT_SUCCESS = "You have been logged out successfully.";
