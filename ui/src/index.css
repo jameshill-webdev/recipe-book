@@ -133,13 +133,4 @@
 	form {
 		@apply flex flex-col gap-4;
 	}
-	input, button {
-		@apply mx-auto w-full max-w-lg;
-	}
-	input {
-		@apply bg-input text-foreground rounded-md border border-border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50;
-	}
-	button[type="submit"] {
-		@apply bg-primary text-primary-foreground rounded-md px-4 py-2 mt-4 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50;
-	}
 }

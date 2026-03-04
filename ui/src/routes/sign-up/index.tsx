@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { authClient } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 export default function SignUp() {
 	const navigate = useNavigate();
@@ -39,26 +42,46 @@ export default function SignUp() {
 	return (
 		<>
 			<h1>Sign up</h1>
-			{/* TODO: use shadcn form components here */}
-			<form onSubmit={onSubmit}>
-				<input
-					value={email}
-					onChange={(error) => setEmail(error.target.value)}
-					placeholder="Email"
-				/>
-				<input
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					placeholder="Password"
-					type="password"
-				/>
-				<input
-					value={name}
-					onChange={(error) => setName(error.target.value)}
-					placeholder="Display name"
-				/>
-				<button type="submit">Create account</button>
-				{error && <div>{error}</div>}
+			<form onSubmit={onSubmit} className="mx-auto w-full max-w-lg flex flex-col gap-6">
+				<Field>
+					<FieldLabel htmlFor="email">Email</FieldLabel>
+					<Input
+						id="email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						type="email"
+						autoComplete="email"
+						placeholder="Email"
+						required
+					/>
+				</Field>
+				<Field>
+					<FieldLabel htmlFor="password">Password</FieldLabel>
+					<Input
+						id="password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						placeholder="Password"
+						type="password"
+						autoComplete="new-password"
+						required
+					/>
+				</Field>
+				<Field>
+					<FieldLabel htmlFor="name">Display name</FieldLabel>
+					<Input
+						id="name"
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+						placeholder="Display name"
+						autoComplete="name"
+						required
+					/>
+				</Field>
+				<Button type="submit" className="mt-4">
+					Create account
+				</Button>
+				{error && <FieldError>{error}</FieldError>}
 			</form>
 		</>
 	);
