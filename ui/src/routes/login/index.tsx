@@ -17,6 +17,8 @@ import {
 	SIGNUP_LINK_TEXT,
 } from "@/lib/content-strings";
 
+// TODO: add form validation using zod schema and display field errors using InlineError component
+
 export default function Login() {
 	const navigate = useNavigate();
 	const location = useLocation();

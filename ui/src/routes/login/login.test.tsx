@@ -168,5 +168,5 @@ describe("Login", () => {
 		expect(screen.getByText(LOGOUT_SUCCESS)).toBeInTheDocument();
 	});
 
-	// TODO: add form validation tests
+	// TODO: add tests for form validation errors and API error handling
 });
