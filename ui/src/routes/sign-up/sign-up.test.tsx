@@ -6,9 +6,12 @@ import {
 	DISPLAY_NAME_TOO_LONG,
 	DISPLAY_NAME_TOO_SHORT,
 	INVALID_EMAIL,
+	LOGIN_LINK_TEXT,
 	NETWORK_ERROR,
 	PASSWORD_TOO_LONG,
 	PASSWORD_TOO_SHORT,
+	SIGNUP_BUTTON_TEXT,
+	SIGNUP_FORM_LABEL,
 } from "@/lib/messages";
 import {
 	MAXIMUM_DISPLAY_NAME_LENGTH,
@@ -50,6 +53,16 @@ describe("SignUp", () => {
 			expect(screen.getByRole("heading", { level: 1, name: "Sign up" })).toBeInTheDocument();
 		});
 
+		it("renders a signup form", () => {
+			render(
+				<MemoryRouter>
+					<SignUp />
+				</MemoryRouter>,
+			);
+
+			expect(screen.getByRole("form", { name: SIGNUP_FORM_LABEL })).toBeInTheDocument();
+		});
+
 		it("renders email, password, and display name fields with correct labels", () => {
 			render(
 				<MemoryRouter>
@@ -72,7 +85,17 @@ describe("SignUp", () => {
 				</MemoryRouter>,
 			);
 
-			expect(screen.getByRole("button", { name: "Create account" })).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT })).toBeInTheDocument();
+		});
+
+		it("renders a login link with the correct text", () => {
+			render(
+				<MemoryRouter>
+					<SignUp />
+				</MemoryRouter>,
+			);
+
+			expect(screen.getByRole("link", { name: LOGIN_LINK_TEXT })).toBeInTheDocument();
 		});
 	});
 
@@ -118,7 +141,7 @@ describe("SignUp", () => {
 			fireEvent.change(screen.getByLabelText("Display name"), {
 				target: { value: testData.valid.displayName },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(await screen.findByText(NETWORK_ERROR)).toBeInTheDocument();
 			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
@@ -128,7 +151,7 @@ describe("SignUp", () => {
 			fireEvent.change(screen.getByLabelText("Email"), {
 				target: { value: testData.invalid.email },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(INVALID_EMAIL)).toBeInTheDocument();
 			expect(mockSignUpFunction).not.toHaveBeenCalled();
@@ -139,7 +162,7 @@ describe("SignUp", () => {
 			fireEvent.change(screen.getByLabelText("Password"), {
 				target: { value: testData.tooShort.password },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_TOO_SHORT)).toBeInTheDocument();
 			expect(mockSignUpFunction).not.toHaveBeenCalled();
@@ -150,7 +173,7 @@ describe("SignUp", () => {
 			fireEvent.change(screen.getByLabelText("Password"), {
 				target: { value: testData.tooLong.password },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_TOO_LONG)).toBeInTheDocument();
 			expect(mockSignUpFunction).not.toHaveBeenCalled();
@@ -161,7 +184,7 @@ describe("SignUp", () => {
 			fireEvent.change(screen.getByLabelText("Display name"), {
 				target: { value: testData.tooShort.displayName },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(DISPLAY_NAME_TOO_SHORT)).toBeInTheDocument();
 			expect(mockSignUpFunction).not.toHaveBeenCalled();
@@ -172,7 +195,7 @@ describe("SignUp", () => {
 			fireEvent.change(screen.getByLabelText("Display name"), {
 				target: { value: testData.tooLong.displayName },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: "Create account" }));
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(DISPLAY_NAME_TOO_LONG)).toBeInTheDocument();
 			expect(mockSignUpFunction).not.toHaveBeenCalled();

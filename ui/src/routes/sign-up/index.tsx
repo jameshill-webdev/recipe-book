@@ -14,6 +14,9 @@ import {
 	NETWORK_ERROR,
 	PASSWORD_TOO_SHORT,
 	PASSWORD_TOO_LONG,
+	LOGIN_LINK_TEXT,
+	SIGNUP_BUTTON_TEXT,
+	SIGNUP_FORM_LABEL,
 } from "@/lib/messages";
 import {
 	MAXIMUM_DISPLAY_NAME_LENGTH,
@@ -109,7 +112,11 @@ export default function SignUp() {
 	return (
 		<>
 			<h1>Sign up</h1>
-			<form onSubmit={onSubmit} className="mx-auto w-full max-w-lg flex flex-col gap-6">
+			<form
+				onSubmit={onSubmit}
+				className="mx-auto w-full max-w-lg flex flex-col gap-6"
+				aria-label={SIGNUP_FORM_LABEL}
+			>
 				{formError && <InlineError alert>{formError}</InlineError>}
 				<Field>
 					<FieldLabel htmlFor="email">Email</FieldLabel>
@@ -169,9 +176,15 @@ export default function SignUp() {
 					/>
 					{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 				</Field>
-				<Button type="submit" className="mt-4">
-					Create account
-				</Button>
+
+				<div className="flex flex-col">
+					<Button type="submit" className="mt-4 mb-5">
+						{SIGNUP_BUTTON_TEXT}
+					</Button>
+					<Button asLink to="/login" variant="link" className="w-full">
+						{LOGIN_LINK_TEXT}
+					</Button>
+				</div>
 			</form>
 		</>
 	);

@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ui/error";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { GENERIC_LOADING, LOGIN_FORM_LABEL, LOGOUT_SUCCESS } from "@/lib/messages";
+import {
+	FORGOT_PASSWORD_LINK_TEXT,
+	GENERIC_LOADING,
+	LOGIN_BUTTON_TEXT,
+	LOGIN_FORM_LABEL,
+	LOGOUT_SUCCESS,
+	SIGNUP_LINK_TEXT,
+} from "@/lib/messages";
 
 export default function Login() {
 	const navigate = useNavigate();
@@ -75,9 +82,17 @@ export default function Login() {
 						required
 					/>
 				</Field>
-				<Button type="submit" className="mt-4">
-					Log In
-				</Button>
+				<div className="flex flex-col">
+					<Button type="submit" className="mt-4 mb-5">
+						{LOGIN_BUTTON_TEXT}
+					</Button>
+					<Button asLink to="/forgot-password" variant="link" className="w-full">
+						{FORGOT_PASSWORD_LINK_TEXT}
+					</Button>
+					<Button asLink to="/signup" variant="link" className="w-full">
+						{SIGNUP_LINK_TEXT}
+					</Button>
+				</div>
 				{error && <InlineError alert>{error}</InlineError>}
 			</form>
 		</>
