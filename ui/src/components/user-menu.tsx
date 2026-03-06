@@ -40,6 +40,7 @@ export function UserMenu() {
 			<div className="flex flex-col gap-2">
 				<Item data-testid="user-menu" size="sm" variant="outline" className="py-1.5">
 					<ItemContent>
+						{/* TODO: replace with Skeleton or Spinner component */}
 						<ItemTitle>{GENERIC_LOADING}</ItemTitle>
 					</ItemContent>
 				</Item>

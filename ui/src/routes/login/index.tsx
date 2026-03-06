@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ui/error";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { LOGOUT_SUCCESS } from "@/lib/messages";
+import { GENERIC_LOADING, LOGOUT_SUCCESS } from "@/lib/messages";
 
 export default function Login() {
 	const navigate = useNavigate();
@@ -18,7 +18,10 @@ export default function Login() {
 	const [error, setError] = useState<string | null>(null);
 
 	if (isPending) {
-		return <div>Loading…</div>;
+		{
+			/* TODO: replace with Skeleton or Spinner component */
+		}
+		return <div>{GENERIC_LOADING}</div>;
 	}
 
 	if (session) {
