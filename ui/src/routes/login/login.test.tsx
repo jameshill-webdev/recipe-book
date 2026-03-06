@@ -1,9 +1,47 @@
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { describe, it, expect } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { beforeEach, describe, it, expect, vi } from "vitest";
 import Login from "@/routes/login";
 
+const { mockSignInEmail, mockUseSession } = vi.hoisted(() => ({
+	mockSignInEmail: vi.fn(),
+	mockUseSession: vi.fn(),
+}));
+
+vi.mock("@/lib/auth", () => ({
+	authClient: {
+		useSession: mockUseSession,
+		signIn: {
+			email: mockSignInEmail,
+		},
+	},
+}));
+
+beforeEach(() => {
+	mockSignInEmail.mockReset();
+	mockUseSession.mockReset();
+	mockUseSession.mockReturnValue({ data: null, isPending: false });
+});
+
 describe("Login", () => {
+	it("redirects to home when user is already logged in", async () => {
+		mockUseSession.mockReturnValueOnce({
+			data: { session: { id: "session_123" } },
+			isPending: false,
+		});
+
+		render(
+			<MemoryRouter initialEntries={["/login"]}>
+				<Routes>
+					<Route path="/login" element={<Login />} />
+					<Route path="/" element={<h1>Home</h1>} />
+				</Routes>
+			</MemoryRouter>,
+		);
+
+		expect(await screen.findByRole("heading", { level: 1, name: "Home" })).toBeInTheDocument();
+	});
+
 	it("renders a level 1 heading with the correct text content", () => {
 		render(
 			<MemoryRouter>
@@ -11,6 +49,47 @@ describe("Login", () => {
 			</MemoryRouter>,
 		);
 		expect(screen.getByRole("heading", { level: 1, name: "Log In" })).toBeInTheDocument();
+	});
+
+	it("renders a login form", () => {
+		render(
+			<MemoryRouter>
+				<Login />
+			</MemoryRouter>,
+		);
+
+		expect(screen.getByRole("form", { name: "Login form" })).toBeInTheDocument();
+		// TODO: Add more specific assertions about form fields and submit button
+	});
+
+	it("navigates to the home page after successful login", async () => {
+		mockSignInEmail.mockImplementationOnce(
+			async (
+				_credentials: { email: string; password: string },
+				options: { onSuccess?: () => void },
+			) => {
+				options.onSuccess?.();
+			},
+		);
+
+		render(
+			<MemoryRouter initialEntries={["/login"]}>
+				<Routes>
+					<Route path="/login" element={<Login />} />
+					<Route path="/" element={<h1>Home</h1>} />
+				</Routes>
+			</MemoryRouter>,
+		);
+
+		fireEvent.change(screen.getByLabelText("Email"), {
+			target: { value: "test@example.com" },
+		});
+		fireEvent.change(screen.getByLabelText("Password"), {
+			target: { value: "password123" },
+		});
+		fireEvent.click(screen.getByRole("button", { name: "Log In" }));
+
+		expect(await screen.findByRole("heading", { level: 1, name: "Home" })).toBeInTheDocument();
 	});
 
 	it("shows logout success message when redirected after logout", () => {

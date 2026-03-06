@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { authClient } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ui/error";
@@ -8,13 +8,22 @@ import { Input } from "@/components/ui/input";
 import { LOGOUT_SUCCESS } from "@/lib/messages";
 
 export default function Login() {
-	const nav = useNavigate();
+	const navigate = useNavigate();
 	const location = useLocation();
+	const { data: session, isPending } = authClient.useSession();
 	const from = (location.state as any)?.from ?? "/";
 	const didLogout = Boolean((location.state as any)?.loggedOut);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
+
+	if (isPending) {
+		return <div>Loading…</div>;
+	}
+
+	if (session) {
+		return <Navigate to="/" replace />;
+	}
 
 	async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -24,7 +33,7 @@ export default function Login() {
 			{ email, password },
 			{
 				onError: (ctx) => setError(ctx.error.message ?? "Something went wrong"),
-				onSuccess: () => nav(from, { replace: true }),
+				onSuccess: () => navigate(from, { replace: true }),
 			},
 		);
 	}
@@ -32,7 +41,11 @@ export default function Login() {
 	return (
 		<>
 			<h1>Log In</h1>
-			<form onSubmit={onSubmit} className="mx-auto w-full max-w-lg flex flex-col gap-6">
+			<form
+				onSubmit={onSubmit}
+				className="mx-auto w-full max-w-lg flex flex-col gap-6"
+				aria-label="Login form"
+			>
 				{/* TODO: refactor logout message to use shadcn alert/notification component if available (or custom equivalent if not) */}
 				{didLogout && <p>{LOGOUT_SUCCESS}</p>}{" "}
 				<Field>

@@ -1,54 +1,47 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import Navigation from "@/components/navigation";
+import { describe, expect, it, vi } from "vitest";
+import { Navigation } from "@/components/navigation";
+import {
+	NAVIGATION_LINK_TEXT_HOME,
+	NAVIGATION_LINK_TEXT_INGREDIENTS,
+	NAVIGATION_LINK_TEXT_RECIPES,
+} from "@/lib/messages";
 
-const useSessionMock = vi.fn();
-const signOutMock = vi.fn();
-
-vi.mock("@/lib/auth", () => ({
-	authClient: {
-		useSession: () => useSessionMock(),
-		signOut: (...args: unknown[]) => signOutMock(...args),
-	},
+vi.mock("@/components/user-menu", () => ({
+	UserMenu: () => <div data-testid="user-menu" />,
 }));
 
 describe("Navigation", () => {
-	beforeEach(() => {
-		useSessionMock.mockReset();
-		signOutMock.mockReset();
-	});
-
-	it("renders logout button when a session exists", () => {
-		useSessionMock.mockReturnValue({
-			data: { session: { id: "session-id" } },
-			isPending: false,
-		});
-
+	it("renders navigation links with the correct text content", () => {
 		render(
 			<MemoryRouter>
 				<Navigation />
 			</MemoryRouter>,
 		);
 
-		expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
+		expect(screen.getByText(NAVIGATION_LINK_TEXT_HOME)).toBeInTheDocument();
+		expect(screen.getByText(NAVIGATION_LINK_TEXT_INGREDIENTS)).toBeInTheDocument();
+		expect(screen.getByText(NAVIGATION_LINK_TEXT_RECIPES)).toBeInTheDocument();
 	});
 
-	it.only("calls signOut when logout button is clicked", async () => {
-		useSessionMock.mockReturnValue({
-			data: { session: { id: "session-id" } },
-			isPending: false,
-		});
-		signOutMock.mockResolvedValue({ error: null });
-
+	it("renders a user menu", () => {
 		render(
 			<MemoryRouter>
 				<Navigation />
 			</MemoryRouter>,
 		);
 
-		fireEvent.click(screen.getByRole("button", { name: "Log out" }));
+		expect(screen.getByTestId("user-menu")).toBeInTheDocument();
+	});
 
-		expect(signOutMock).toHaveBeenCalledTimes(1);
+	it("renders a theme toggle", () => {
+		render(
+			<MemoryRouter>
+				<Navigation />
+			</MemoryRouter>,
+		);
+
+		expect(screen.getByTestId("theme-toggle")).toBeInTheDocument();
 	});
 });
