@@ -1,11 +1,10 @@
+import { VERIFY_EMAIL_PAGE_HEADING, VERIFY_EMAIL_PAGE_MESSAGE } from "@/lib/content-strings";
+
 export default function VerifyEmail() {
 	return (
 		<>
-			<h1>Check your email</h1>
-			<p>
-				We have sent a verification email. Please follow the link contained in the email to
-				verify your email address. Your email must be verified before you can log in.
-			</p>
+			<h1>{VERIFY_EMAIL_PAGE_HEADING}</h1>
+			<p>{VERIFY_EMAIL_PAGE_MESSAGE}</p>
 		</>
 	);
 }

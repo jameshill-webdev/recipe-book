@@ -9,7 +9,7 @@ import {
 	LOGOUT_BUTTON_TEXT,
 	LOGOUT_FAILED,
 	NETWORK_ERROR,
-} from "@/lib/messages";
+} from "@/lib/content-strings";
 
 const signOutMock = vi.fn();
 const useSessionMock = vi.fn();
@@ -50,7 +50,7 @@ function renderUserMenu() {
 
 describe("UserMenu", () => {
 	// TODO: rename all testData instances to use CONSTANT_CASE (all test files)
-	const testData = { user: { name: "James" } };
+	const TEST_DATA = { user: { name: "TheUser" } };
 
 	beforeEach(() => {
 		signOutMock.mockReset();
@@ -67,7 +67,7 @@ describe("UserMenu", () => {
 		renderUserMenu();
 
 		expect(screen.getByText(GENERIC_LOADING)).toBeInTheDocument();
-		expect(screen.queryByText(testData.user.name)).not.toBeInTheDocument();
+		expect(screen.queryByText(TEST_DATA.user.name)).not.toBeInTheDocument();
 		expect(screen.queryByRole("button")).not.toBeInTheDocument();
 	});
 
@@ -80,26 +80,26 @@ describe("UserMenu", () => {
 		renderUserMenu();
 
 		expect(screen.getByRole("link", { name: LOGIN_BUTTON_TEXT })).toBeInTheDocument();
-		expect(screen.queryByText(testData.user.name)).not.toBeInTheDocument();
+		expect(screen.queryByText(TEST_DATA.user.name)).not.toBeInTheDocument();
 		expect(screen.queryByRole("button", { name: LOGOUT_BUTTON_TEXT })).not.toBeInTheDocument();
 	});
 
 	it("renders user name and logout button when a session exists", () => {
 		useSessionMock.mockReturnValue({
-			data: { user: testData.user },
+			data: { user: TEST_DATA.user },
 			isPending: false,
 		});
 
 		renderUserMenu();
 
-		expect(screen.getByText(testData.user.name)).toBeInTheDocument();
+		expect(screen.getByText(TEST_DATA.user.name)).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: LOGOUT_BUTTON_TEXT })).toBeInTheDocument();
 		expect(screen.queryByRole("link", { name: LOGIN_BUTTON_TEXT })).not.toBeInTheDocument();
 	});
 
 	it("calls signOut and navigates to the login page when logout button is clicked", async () => {
 		useSessionMock.mockReturnValue({
-			data: { user: testData.user },
+			data: { user: TEST_DATA.user },
 			isPending: false,
 		});
 		signOutMock.mockResolvedValue({ error: null });
@@ -123,7 +123,7 @@ describe("UserMenu", () => {
 		const signoutFailedMessage = "Sign out failed";
 
 		useSessionMock.mockReturnValue({
-			data: { user: testData.user },
+			data: { user: TEST_DATA.user },
 			isPending: false,
 		});
 		signOutMock.mockResolvedValue({ error: { message: signoutFailedMessage } });
@@ -141,7 +141,7 @@ describe("UserMenu", () => {
 
 	it("sets default logout error in global error store when API error has no message", async () => {
 		useSessionMock.mockReturnValue({
-			data: { user: testData.user },
+			data: { user: TEST_DATA.user },
 			isPending: false,
 		});
 		signOutMock.mockResolvedValue({ error: {} });
@@ -157,7 +157,7 @@ describe("UserMenu", () => {
 
 	it("sets network error in global error store when sign out throws", async () => {
 		useSessionMock.mockReturnValue({
-			data: { user: testData.user },
+			data: { user: TEST_DATA.user },
 			isPending: false,
 		});
 		signOutMock.mockRejectedValue(new Error("network"));

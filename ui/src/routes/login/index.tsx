@@ -6,13 +6,16 @@ import { InlineError } from "@/components/ui/error";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
+	FIELD_LABEL_EMAIL,
+	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
 	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
+	LOGIN_PAGE_HEADING,
 	LOGOUT_SUCCESS,
 	SIGNUP_LINK_TEXT,
-} from "@/lib/messages";
+} from "@/lib/content-strings";
 
 export default function Login() {
 	const navigate = useNavigate();
@@ -50,7 +53,7 @@ export default function Login() {
 
 	return (
 		<>
-			<h1>Log In</h1>
+			<h1>{LOGIN_PAGE_HEADING}</h1>
 			<form
 				onSubmit={onSubmit}
 				className="mx-auto w-full max-w-lg flex flex-col gap-6"
@@ -59,26 +62,26 @@ export default function Login() {
 				{/* TODO: refactor logout message to use shadcn alert/notification component if available (or custom equivalent if not) */}
 				{didLogout && <p>{LOGOUT_SUCCESS}</p>}{" "}
 				<Field>
-					<FieldLabel htmlFor="email">Email</FieldLabel>
+					<FieldLabel htmlFor="email">{FIELD_LABEL_EMAIL}</FieldLabel>
 					<Input
 						id="email"
 						type="email"
 						autoComplete="email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
-						placeholder="Email"
+						placeholder={FIELD_LABEL_EMAIL}
 						required
 					/>
 				</Field>
 				<Field>
-					<FieldLabel htmlFor="password">Password</FieldLabel>
+					<FieldLabel htmlFor="password">{FIELD_LABEL_PASSWORD}</FieldLabel>
 					<Input
 						id="password"
 						type="password"
 						autoComplete="current-password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
-						placeholder="Password"
+						placeholder={FIELD_LABEL_PASSWORD}
 						required
 					/>
 				</Field>

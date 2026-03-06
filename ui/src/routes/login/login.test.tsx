@@ -3,11 +3,16 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import Login from "@/routes/login";
 import {
+	FIELD_LABEL_EMAIL,
+	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
+	HOME_PAGE_HEADING,
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
+	LOGIN_PAGE_HEADING,
+	LOGOUT_SUCCESS,
 	SIGNUP_LINK_TEXT,
-} from "@/lib/messages";
+} from "@/lib/content-strings";
 
 const { mockSignInEmail, mockUseSession } = vi.hoisted(() => ({
 	mockSignInEmail: vi.fn(),
@@ -40,12 +45,14 @@ describe("Login", () => {
 			<MemoryRouter initialEntries={["/login"]}>
 				<Routes>
 					<Route path="/login" element={<Login />} />
-					<Route path="/" element={<h1>Home</h1>} />
+					<Route path="/" element={<h1>{HOME_PAGE_HEADING}</h1>} />
 				</Routes>
 			</MemoryRouter>,
 		);
 
-		expect(await screen.findByRole("heading", { level: 1, name: "Home" })).toBeInTheDocument();
+		expect(
+			await screen.findByRole("heading", { level: 1, name: HOME_PAGE_HEADING }),
+		).toBeInTheDocument();
 	});
 
 	it("renders a level 1 heading with the correct text content", () => {
@@ -54,7 +61,9 @@ describe("Login", () => {
 				<Login />
 			</MemoryRouter>,
 		);
-		expect(screen.getByRole("heading", { level: 1, name: "Log In" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("heading", { level: 1, name: LOGIN_PAGE_HEADING }),
+		).toBeInTheDocument();
 	});
 
 	it("renders a login form", () => {
@@ -74,10 +83,10 @@ describe("Login", () => {
 			</MemoryRouter>,
 		);
 
-		expect(screen.getByText("Email")).toBeInTheDocument();
-		expect(screen.getByRole("textbox", { name: "Email" })).toBeInTheDocument();
-		expect(screen.getByText("Password")).toBeInTheDocument();
-		expect(screen.getByLabelText("Password")).toBeInTheDocument();
+		expect(screen.getByText(FIELD_LABEL_EMAIL)).toBeInTheDocument();
+		expect(screen.getByRole("textbox", { name: FIELD_LABEL_EMAIL })).toBeInTheDocument();
+		expect(screen.getByText(FIELD_LABEL_PASSWORD)).toBeInTheDocument();
+		expect(screen.getByLabelText(FIELD_LABEL_PASSWORD)).toBeInTheDocument();
 	});
 
 	it("renders a submit button with the correct text", () => {
@@ -124,20 +133,22 @@ describe("Login", () => {
 			<MemoryRouter initialEntries={["/login"]}>
 				<Routes>
 					<Route path="/login" element={<Login />} />
-					<Route path="/" element={<h1>Home</h1>} />
+					<Route path="/" element={<h1>{HOME_PAGE_HEADING}</h1>} />
 				</Routes>
 			</MemoryRouter>,
 		);
 
-		fireEvent.change(screen.getByLabelText("Email"), {
+		fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
 			target: { value: "test@example.com" },
 		});
-		fireEvent.change(screen.getByLabelText("Password"), {
+		fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
 			target: { value: "password123" },
 		});
 		fireEvent.click(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
 
-		expect(await screen.findByRole("heading", { level: 1, name: "Home" })).toBeInTheDocument();
+		expect(
+			await screen.findByRole("heading", { level: 1, name: HOME_PAGE_HEADING }),
+		).toBeInTheDocument();
 	});
 
 	it("shows logout success message when redirected after logout", () => {
@@ -154,7 +165,7 @@ describe("Login", () => {
 			</MemoryRouter>,
 		);
 
-		expect(screen.getByText("You have been logged out successfully.")).toBeInTheDocument();
+		expect(screen.getByText(LOGOUT_SUCCESS)).toBeInTheDocument();
 	});
 
 	// TODO: add form validation tests

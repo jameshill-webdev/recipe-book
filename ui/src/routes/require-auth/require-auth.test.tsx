@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi } from "vitest";
 import { RequireAuth } from "@/routes/require-auth";
+import { GENERIC_LOADING } from "@/lib/content-strings";
 
 vi.mock("@/lib/auth", () => ({
 	authClient: {
@@ -16,6 +17,6 @@ describe("RequireAuth", () => {
 				<RequireAuth />
 			</MemoryRouter>,
 		);
-		expect(screen.getByText("Loading…")).toBeInTheDocument();
+		expect(screen.getByText(GENERIC_LOADING)).toBeInTheDocument();
 	});
 });

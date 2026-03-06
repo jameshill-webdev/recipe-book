@@ -1,8 +1,9 @@
+import { HOME_PAGE_HEADING } from "@/lib/content-strings";
+
 export default function Home() {
 	return (
 		<>
-			<h1>Home</h1>
-			<p>This is the homepage.</p>
+			<h1>{HOME_PAGE_HEADING}</h1>
 		</>
 	);
 }

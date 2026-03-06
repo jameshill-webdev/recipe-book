@@ -11,8 +11,12 @@ import {
 	PASSWORD_TOO_LONG,
 	PASSWORD_TOO_SHORT,
 	SIGNUP_BUTTON_TEXT,
+	FIELD_LABEL_EMAIL,
+	FIELD_LABEL_PASSWORD,
+	FIELD_LABEL_DISPLAY_NAME,
 	SIGNUP_FORM_LABEL,
-} from "@/lib/messages";
+	SIGNUP_PAGE_HEADING,
+} from "@/lib/content-strings";
 import {
 	MAXIMUM_DISPLAY_NAME_LENGTH,
 	MAXIMUM_PASSWORD_LENGTH,
@@ -50,7 +54,9 @@ describe("SignUp", () => {
 					<SignUp />
 				</MemoryRouter>,
 			);
-			expect(screen.getByRole("heading", { level: 1, name: "Sign up" })).toBeInTheDocument();
+			expect(
+				screen.getByRole("heading", { level: 1, name: SIGNUP_PAGE_HEADING }),
+			).toBeInTheDocument();
 		});
 
 		it("renders a signup form", () => {
@@ -70,12 +76,14 @@ describe("SignUp", () => {
 				</MemoryRouter>,
 			);
 
-			expect(screen.getByText("Email")).toBeInTheDocument();
-			expect(screen.getByRole("textbox", { name: "Email" })).toBeInTheDocument();
-			expect(screen.getByText("Password")).toBeInTheDocument();
-			expect(screen.getByLabelText("Password")).toBeInTheDocument();
-			expect(screen.getByText("Display name")).toBeInTheDocument();
-			expect(screen.getByRole("textbox", { name: "Display name" })).toBeInTheDocument();
+			expect(screen.getByText(FIELD_LABEL_EMAIL)).toBeInTheDocument();
+			expect(screen.getByRole("textbox", { name: FIELD_LABEL_EMAIL })).toBeInTheDocument();
+			expect(screen.getByText(FIELD_LABEL_PASSWORD)).toBeInTheDocument();
+			expect(screen.getByLabelText(FIELD_LABEL_PASSWORD)).toBeInTheDocument();
+			expect(screen.getByText(FIELD_LABEL_DISPLAY_NAME)).toBeInTheDocument();
+			expect(
+				screen.getByRole("textbox", { name: FIELD_LABEL_DISPLAY_NAME }),
+			).toBeInTheDocument();
 		});
 
 		it("renders a submit button with the correct text", () => {
@@ -132,13 +140,13 @@ describe("SignUp", () => {
 		it("shows a network error message when sign-up request fails to reach server", async () => {
 			mockSignUpFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
-			fireEvent.change(screen.getByLabelText("Email"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
 				target: { value: testData.valid.email },
 			});
-			fireEvent.change(screen.getByLabelText("Password"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
 				target: { value: testData.valid.password },
 			});
-			fireEvent.change(screen.getByLabelText("Display name"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_DISPLAY_NAME), {
 				target: { value: testData.valid.displayName },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
@@ -148,7 +156,7 @@ describe("SignUp", () => {
 		});
 
 		it("shows the correct validation error and skips API calls when email is invalid", () => {
-			fireEvent.change(screen.getByLabelText("Email"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
 				target: { value: testData.invalid.email },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
@@ -159,7 +167,7 @@ describe("SignUp", () => {
 		});
 
 		it("shows the correct validation error and skips API calls when password is too short", () => {
-			fireEvent.change(screen.getByLabelText("Password"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
 				target: { value: testData.tooShort.password },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
@@ -170,7 +178,7 @@ describe("SignUp", () => {
 		});
 
 		it("shows the correct validation error and skips API calls when password is too long", () => {
-			fireEvent.change(screen.getByLabelText("Password"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
 				target: { value: testData.tooLong.password },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
@@ -181,7 +189,7 @@ describe("SignUp", () => {
 		});
 
 		it("shows the correct validation error and skips API calls when display name is too short", () => {
-			fireEvent.change(screen.getByLabelText("Display name"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_DISPLAY_NAME), {
 				target: { value: testData.tooShort.displayName },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
@@ -192,7 +200,7 @@ describe("SignUp", () => {
 		});
 
 		it("shows the correct validation error and skips API calls when display name is too long", () => {
-			fireEvent.change(screen.getByLabelText("Display name"), {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_DISPLAY_NAME), {
 				target: { value: testData.tooLong.displayName },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));

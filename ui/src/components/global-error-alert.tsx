@@ -6,7 +6,7 @@ import {
 	GLOBAL_ERROR_ALERT_DISMISS_BUTTON_TEXT,
 	GLOBAL_ERROR_ALERT_LABEL,
 	GLOBAL_ERROR_ALERT_TITLE,
-} from "@/lib/messages";
+} from "@/lib/content-strings";
 
 export function GlobalErrorAlert() {
 	const { errorMessage, clearErrorMessage } = useGlobalErrorStore();

@@ -12,7 +12,7 @@ import {
 	NAVIGATION_LINK_TEXT_HOME,
 	NAVIGATION_LINK_TEXT_INGREDIENTS,
 	NAVIGATION_LINK_TEXT_RECIPES,
-} from "@/lib/messages";
+} from "@/lib/content-strings";
 
 export function Navigation() {
 	return (

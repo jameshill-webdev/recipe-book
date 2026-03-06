@@ -12,7 +12,6 @@ import ResetPassword from "@/routes/reset-password";
 import Recipes from "@/routes/recipes";
 import Ingredients from "@/routes/ingredients";
 import NotFound from "@/routes/not-found";
-import EmailVerified from "@/routes/email-verified";
 
 function App() {
 	return (
@@ -24,7 +23,6 @@ function App() {
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
 						<Route path="/verify-email" element={<VerifyEmail />} />
-						<Route path="/email-verified" element={<EmailVerified />} />
 						<Route path="/forgot-password" element={<ForgotPassword />} />
 						<Route path="/reset-password" element={<ResetPassword />} />
 						<Route path="*" element={<NotFound />} />

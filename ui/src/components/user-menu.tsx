@@ -11,7 +11,7 @@ import {
 	LOGOUT_BUTTON_TEXT,
 	LOGOUT_FAILED,
 	NETWORK_ERROR,
-} from "@/lib/messages";
+} from "@/lib/content-strings";
 
 export function UserMenu() {
 	const navigate = useNavigate();

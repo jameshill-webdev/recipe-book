@@ -17,7 +17,11 @@ import {
 	LOGIN_LINK_TEXT,
 	SIGNUP_BUTTON_TEXT,
 	SIGNUP_FORM_LABEL,
-} from "@/lib/messages";
+	SIGNUP_PAGE_HEADING,
+	FIELD_LABEL_EMAIL,
+	FIELD_LABEL_PASSWORD,
+	FIELD_LABEL_DISPLAY_NAME,
+} from "@/lib/content-strings";
 import {
 	MAXIMUM_DISPLAY_NAME_LENGTH,
 	MAXIMUM_PASSWORD_LENGTH,
@@ -96,7 +100,7 @@ export default function SignUp() {
 
 			const { error: verifyError } = await authClient.sendVerificationEmail({
 				email: validatedEmail,
-				callbackURL: `${window.location.origin}/email-verified`,
+				callbackURL: `${window.location.origin}/login`,
 			});
 
 			if (verifyError) {
@@ -111,7 +115,7 @@ export default function SignUp() {
 
 	return (
 		<>
-			<h1>Sign up</h1>
+			<h1>{SIGNUP_PAGE_HEADING}</h1>
 			<form
 				onSubmit={onSubmit}
 				className="mx-auto w-full max-w-lg flex flex-col gap-6"
@@ -119,7 +123,7 @@ export default function SignUp() {
 			>
 				{formError && <InlineError alert>{formError}</InlineError>}
 				<Field>
-					<FieldLabel htmlFor="email">Email</FieldLabel>
+					<FieldLabel htmlFor="email">{FIELD_LABEL_EMAIL}</FieldLabel>
 					<Input
 						id="email"
 						value={email}
@@ -132,13 +136,13 @@ export default function SignUp() {
 						}}
 						type="email"
 						autoComplete="email"
-						placeholder="Email"
+						placeholder={FIELD_LABEL_EMAIL}
 						required
 					/>
 					{fieldErrors.email && <InlineError alert>{fieldErrors.email}</InlineError>}
 				</Field>
 				<Field>
-					<FieldLabel htmlFor="password">Password</FieldLabel>
+					<FieldLabel htmlFor="password">{FIELD_LABEL_PASSWORD}</FieldLabel>
 					<Input
 						id="password"
 						value={password}
@@ -149,7 +153,7 @@ export default function SignUp() {
 								password: undefined,
 							}));
 						}}
-						placeholder="Password"
+						placeholder={FIELD_LABEL_PASSWORD}
 						type="password"
 						autoComplete="new-password"
 						required
@@ -159,7 +163,7 @@ export default function SignUp() {
 					)}
 				</Field>
 				<Field>
-					<FieldLabel htmlFor="name">Display name</FieldLabel>
+					<FieldLabel htmlFor="name">{FIELD_LABEL_DISPLAY_NAME}</FieldLabel>
 					<Input
 						id="name"
 						value={name}
@@ -170,13 +174,12 @@ export default function SignUp() {
 								name: undefined,
 							}));
 						}}
-						placeholder="Display name"
+						placeholder={FIELD_LABEL_DISPLAY_NAME}
 						autoComplete="name"
 						required
 					/>
 					{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 				</Field>
-
 				<div className="flex flex-col">
 					<Button type="submit" className="mt-4 mb-5">
 						{SIGNUP_BUTTON_TEXT}

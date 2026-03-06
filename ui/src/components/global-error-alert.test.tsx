@@ -3,9 +3,13 @@ import { describe, expect, it } from "vitest";
 import { GlobalErrorAlert } from "@/components/global-error-alert";
 import { Button } from "@/components/ui/button";
 import { GlobalErrorProvider, useGlobalErrorStore } from "@/lib/global-error-store";
-import { GLOBAL_ERROR_ALERT_DISMISS_BUTTON_LABEL, GLOBAL_ERROR_ALERT_TITLE } from "@/lib/messages";
+import {
+	GLOBAL_ERROR_ALERT_DISMISS_BUTTON_LABEL,
+	GLOBAL_ERROR_ALERT_TITLE,
+} from "@/lib/content-strings";
 
 const TEST_ERROR_MESSAGE = "Global test error message";
+const SET_ERROR_BUTTON_LABEL = "Set error";
 
 function BannerHarness() {
 	const { setErrorMessage } = useGlobalErrorStore();
@@ -13,7 +17,7 @@ function BannerHarness() {
 	return (
 		<>
 			<Button type="button" onClick={() => setErrorMessage(TEST_ERROR_MESSAGE)}>
-				Set error
+				{SET_ERROR_BUTTON_LABEL}
 			</Button>
 			<GlobalErrorAlert />
 		</>
@@ -44,7 +48,7 @@ describe("GlobalErrorAlert", () => {
 
 		expect(screen.queryByText(TEST_ERROR_MESSAGE)).not.toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole("button", { name: "Set error" }));
+		fireEvent.click(screen.getByRole("button", { name: SET_ERROR_BUTTON_LABEL }));
 
 		expect(screen.getByText(TEST_ERROR_MESSAGE)).toBeInTheDocument();
 		expect(screen.getByText(GLOBAL_ERROR_ALERT_TITLE)).toBeInTheDocument();
@@ -56,7 +60,7 @@ describe("GlobalErrorAlert", () => {
 	it("hides after dismiss is clicked", () => {
 		renderBannerHarness();
 
-		fireEvent.click(screen.getByRole("button", { name: "Set error" }));
+		fireEvent.click(screen.getByRole("button", { name: SET_ERROR_BUTTON_LABEL }));
 		expect(screen.getByText(TEST_ERROR_MESSAGE)).toBeInTheDocument();
 
 		fireEvent.click(
