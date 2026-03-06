@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ui/error";
 import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item";
 import { authClient } from "@/lib/auth";
+import { useGlobalErrorStore } from "@/lib/global-error-store";
 import {
 	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,
@@ -15,23 +16,25 @@ import {
 export function UserMenu() {
 	const navigate = useNavigate();
 	const { data: sessionData, isPending } = authClient.useSession();
-	const [error, setError] = useState<string | null>(null);
+	const { setErrorMessage, clearErrorMessage } = useGlobalErrorStore();
 	const userName = sessionData?.user?.name ?? null;
 
 	async function onLogout() {
-		setError(null);
+		clearErrorMessage();
 
 		try {
 			const { error: signOutError } = await authClient.signOut();
 
 			if (signOutError) {
-				setError(signOutError.message ?? LOGOUT_FAILED);
+				const message = signOutError.message ?? LOGOUT_FAILED;
+				setErrorMessage(message);
 				return;
 			}
 
+			clearErrorMessage();
 			navigate("/login", { replace: true, state: { loggedOut: true } });
 		} catch {
-			setError(NETWORK_ERROR);
+			setErrorMessage(NETWORK_ERROR);
 		}
 	}
 
@@ -44,7 +47,6 @@ export function UserMenu() {
 						<ItemTitle>{GENERIC_LOADING}</ItemTitle>
 					</ItemContent>
 				</Item>
-				{error && <InlineError>{error}</InlineError>}
 			</div>
 		);
 	}
@@ -59,7 +61,6 @@ export function UserMenu() {
 						</Button>
 					</ItemActions>
 				</Item>
-				{error && <InlineError>{error}</InlineError>}
 			</div>
 		);
 	}
@@ -76,7 +77,6 @@ export function UserMenu() {
 					</Button>
 				</ItemActions>
 			</Item>
-			{error && <InlineError>{error}</InlineError>}
 		</div>
 	);
 }

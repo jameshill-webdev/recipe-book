@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ui/error";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { GENERIC_LOADING, LOGOUT_SUCCESS } from "@/lib/messages";
+import { GENERIC_LOADING, LOGIN_FORM_LABEL, LOGOUT_SUCCESS } from "@/lib/messages";
 
 export default function Login() {
 	const navigate = useNavigate();
@@ -47,7 +47,7 @@ export default function Login() {
 			<form
 				onSubmit={onSubmit}
 				className="mx-auto w-full max-w-lg flex flex-col gap-6"
-				aria-label="Login form"
+				aria-label={LOGIN_FORM_LABEL}
 			>
 				{/* TODO: refactor logout message to use shadcn alert/notification component if available (or custom equivalent if not) */}
 				{didLogout && <p>{LOGOUT_SUCCESS}</p>}{" "}

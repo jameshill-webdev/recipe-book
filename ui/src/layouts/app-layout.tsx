@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { GlobalAlertBanner } from "@/components/global-alert-banner";
+import { GlobalErrorAlert } from "@/components/global-error-alert";
 import { Navigation } from "@/components/navigation";
 
 export default function AppLayout() {
@@ -8,7 +8,7 @@ export default function AppLayout() {
 			<header>
 				<Navigation />
 			</header>
-			<GlobalAlertBanner />
+			<GlobalErrorAlert />
 			<main>
 				<Outlet />
 			</main>

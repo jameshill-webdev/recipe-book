@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
+import { GlobalErrorProvider } from "@/lib/global-error-store";
 import { RequireAuth } from "@/routes/require-auth";
 import AppLayout from "./layouts/app-layout";
 import Home from "@/routes/home";
@@ -16,25 +17,27 @@ import EmailVerified from "@/routes/email-verified";
 function App() {
 	return (
 		<ThemeProvider defaultTheme="system" storageKey="recipebook-theme">
-			<Routes>
-				<Route element={<AppLayout />}>
-					{/* public routes */}
-					<Route path="/login" element={<Login />} />
-					<Route path="/signup" element={<SignUp />} />
-					<Route path="/verify-email" element={<VerifyEmail />} />
-					<Route path="/email-verified" element={<EmailVerified />} />
-					<Route path="/forgot-password" element={<ForgotPassword />} />
-					<Route path="/reset-password" element={<ResetPassword />} />
-					<Route path="*" element={<NotFound />} />
+			<GlobalErrorProvider>
+				<Routes>
+					<Route element={<AppLayout />}>
+						{/* public routes */}
+						<Route path="/login" element={<Login />} />
+						<Route path="/signup" element={<SignUp />} />
+						<Route path="/verify-email" element={<VerifyEmail />} />
+						<Route path="/email-verified" element={<EmailVerified />} />
+						<Route path="/forgot-password" element={<ForgotPassword />} />
+						<Route path="/reset-password" element={<ResetPassword />} />
+						<Route path="*" element={<NotFound />} />
 
-					{/* protected routes */}
-					<Route element={<RequireAuth />}>
-						<Route index path="/" element={<Home />} />
-						<Route path="/recipes" element={<Recipes />} />
-						<Route path="/ingredients" element={<Ingredients />} />
+						{/* protected routes */}
+						<Route element={<RequireAuth />}>
+							<Route index path="/" element={<Home />} />
+							<Route path="/recipes" element={<Recipes />} />
+							<Route path="/ingredients" element={<Ingredients />} />
+						</Route>
 					</Route>
-				</Route>
-			</Routes>
+				</Routes>
+			</GlobalErrorProvider>
 		</ThemeProvider>
 	);
 }

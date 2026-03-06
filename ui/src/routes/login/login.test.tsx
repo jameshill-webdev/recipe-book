@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import Login from "@/routes/login";
+import { LOGIN_FORM_LABEL } from "@/lib/messages";
 
 const { mockSignInEmail, mockUseSession } = vi.hoisted(() => ({
 	mockSignInEmail: vi.fn(),
@@ -58,7 +59,7 @@ describe("Login", () => {
 			</MemoryRouter>,
 		);
 
-		expect(screen.getByRole("form", { name: "Login form" })).toBeInTheDocument();
+		expect(screen.getByRole("form", { name: LOGIN_FORM_LABEL })).toBeInTheDocument();
 		// TODO: Add more specific assertions about form fields and submit button
 	});
 

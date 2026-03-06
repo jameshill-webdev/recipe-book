@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserMenu } from "@/components/user-menu";
+import { GlobalErrorProvider, useGlobalErrorStore } from "@/lib/global-error-store";
 import {
 	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,
@@ -13,6 +14,12 @@ import {
 const signOutMock = vi.fn();
 const useSessionMock = vi.fn();
 const navigateMock = vi.fn();
+
+function GlobalErrorStoreProbe() {
+	const { errorMessage } = useGlobalErrorStore();
+
+	return <div data-testid="global-error-message">{errorMessage}</div>;
+}
 
 vi.mock("react-router-dom", async () => {
 	const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
@@ -30,7 +37,19 @@ vi.mock("@/lib/auth", () => ({
 	},
 }));
 
+function renderUserMenu() {
+	return render(
+		<MemoryRouter>
+			<GlobalErrorProvider>
+				<GlobalErrorStoreProbe />
+				<UserMenu />
+			</GlobalErrorProvider>
+		</MemoryRouter>,
+	);
+}
+
 describe("UserMenu", () => {
+	// TODO: rename all testData instances to use CONSTANT_CASE (all test files)
 	const testData = { user: { name: "James" } };
 
 	beforeEach(() => {
@@ -45,11 +64,7 @@ describe("UserMenu", () => {
 			isPending: true,
 		});
 
-		render(
-			<MemoryRouter>
-				<UserMenu />
-			</MemoryRouter>,
-		);
+		renderUserMenu();
 
 		expect(screen.getByText(GENERIC_LOADING)).toBeInTheDocument();
 		expect(screen.queryByText(testData.user.name)).not.toBeInTheDocument();
@@ -62,11 +77,7 @@ describe("UserMenu", () => {
 			isPending: false,
 		});
 
-		render(
-			<MemoryRouter>
-				<UserMenu />
-			</MemoryRouter>,
-		);
+		renderUserMenu();
 
 		expect(screen.getByRole("link", { name: LOGIN_BUTTON_TEXT })).toBeInTheDocument();
 		expect(screen.queryByText(testData.user.name)).not.toBeInTheDocument();
@@ -79,11 +90,7 @@ describe("UserMenu", () => {
 			isPending: false,
 		});
 
-		render(
-			<MemoryRouter>
-				<UserMenu />
-			</MemoryRouter>,
-		);
+		renderUserMenu();
 
 		expect(screen.getByText(testData.user.name)).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: LOGOUT_BUTTON_TEXT })).toBeInTheDocument();
@@ -97,11 +104,7 @@ describe("UserMenu", () => {
 		});
 		signOutMock.mockResolvedValue({ error: null });
 
-		render(
-			<MemoryRouter>
-				<UserMenu />
-			</MemoryRouter>,
-		);
+		renderUserMenu();
 
 		fireEvent.click(screen.getByRole("button", { name: LOGOUT_BUTTON_TEXT }));
 
@@ -112,10 +115,11 @@ describe("UserMenu", () => {
 				replace: true,
 				state: { loggedOut: true },
 			});
+			expect(screen.getByTestId("global-error-message")).not.toHaveTextContent(/\S/);
 		});
 	});
 
-	it("renders API error when sign out fails", async () => {
+	it("sets API error message in global error store when sign out fails", async () => {
 		const signoutFailedMessage = "Sign out failed";
 
 		useSessionMock.mockReturnValue({
@@ -124,50 +128,46 @@ describe("UserMenu", () => {
 		});
 		signOutMock.mockResolvedValue({ error: { message: signoutFailedMessage } });
 
-		render(
-			<MemoryRouter>
-				<UserMenu />
-			</MemoryRouter>,
-		);
+		renderUserMenu();
 
 		fireEvent.click(screen.getByRole("button", { name: LOGOUT_BUTTON_TEXT }));
 
-		expect(await screen.findByText(signoutFailedMessage)).toBeInTheDocument();
+		await waitFor(() => {
+			expect(screen.getByTestId("global-error-message")).toHaveTextContent(
+				signoutFailedMessage,
+			);
+		});
 	});
 
-	it("renders default logout error when API error has no message", async () => {
+	it("sets default logout error in global error store when API error has no message", async () => {
 		useSessionMock.mockReturnValue({
 			data: { user: testData.user },
 			isPending: false,
 		});
 		signOutMock.mockResolvedValue({ error: {} });
 
-		render(
-			<MemoryRouter>
-				<UserMenu />
-			</MemoryRouter>,
-		);
+		renderUserMenu();
 
 		fireEvent.click(screen.getByRole("button", { name: LOGOUT_BUTTON_TEXT }));
 
-		expect(await screen.findByText(LOGOUT_FAILED)).toBeInTheDocument();
+		await waitFor(() => {
+			expect(screen.getByTestId("global-error-message")).toHaveTextContent(LOGOUT_FAILED);
+		});
 	});
 
-	it("renders network error when sign out throws", async () => {
+	it("sets network error in global error store when sign out throws", async () => {
 		useSessionMock.mockReturnValue({
 			data: { user: testData.user },
 			isPending: false,
 		});
 		signOutMock.mockRejectedValue(new Error("network"));
 
-		render(
-			<MemoryRouter>
-				<UserMenu />
-			</MemoryRouter>,
-		);
+		renderUserMenu();
 
 		fireEvent.click(screen.getByRole("button", { name: LOGOUT_BUTTON_TEXT }));
 
-		expect(await screen.findByText(NETWORK_ERROR)).toBeInTheDocument();
+		await waitFor(() => {
+			expect(screen.getByTestId("global-error-message")).toHaveTextContent(NETWORK_ERROR);
+		});
 	});
 });
