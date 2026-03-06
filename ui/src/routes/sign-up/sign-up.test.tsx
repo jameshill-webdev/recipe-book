@@ -108,7 +108,7 @@ describe("SignUp", () => {
 	});
 
 	describe("form validation", () => {
-		const testData = {
+		const TEST_DATA = {
 			valid: {
 				email: "test@email.com",
 				password: "a".repeat(MINIMUM_PASSWORD_LENGTH + 1),
@@ -141,13 +141,13 @@ describe("SignUp", () => {
 			mockSignUpFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
-				target: { value: testData.valid.email },
+				target: { value: TEST_DATA.valid.email },
 			});
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
-				target: { value: testData.valid.password },
+				target: { value: TEST_DATA.valid.password },
 			});
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_DISPLAY_NAME), {
-				target: { value: testData.valid.displayName },
+				target: { value: TEST_DATA.valid.displayName },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
@@ -157,7 +157,7 @@ describe("SignUp", () => {
 
 		it("shows the correct validation error and skips API calls when email is invalid", () => {
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
-				target: { value: testData.invalid.email },
+				target: { value: TEST_DATA.invalid.email },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
@@ -168,7 +168,7 @@ describe("SignUp", () => {
 
 		it("shows the correct validation error and skips API calls when password is too short", () => {
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
-				target: { value: testData.tooShort.password },
+				target: { value: TEST_DATA.tooShort.password },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
@@ -179,7 +179,7 @@ describe("SignUp", () => {
 
 		it("shows the correct validation error and skips API calls when password is too long", () => {
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
-				target: { value: testData.tooLong.password },
+				target: { value: TEST_DATA.tooLong.password },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
@@ -190,7 +190,7 @@ describe("SignUp", () => {
 
 		it("shows the correct validation error and skips API calls when display name is too short", () => {
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_DISPLAY_NAME), {
-				target: { value: testData.tooShort.displayName },
+				target: { value: TEST_DATA.tooShort.displayName },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
@@ -201,7 +201,7 @@ describe("SignUp", () => {
 
 		it("shows the correct validation error and skips API calls when display name is too long", () => {
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_DISPLAY_NAME), {
-				target: { value: testData.tooLong.displayName },
+				target: { value: TEST_DATA.tooLong.displayName },
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 

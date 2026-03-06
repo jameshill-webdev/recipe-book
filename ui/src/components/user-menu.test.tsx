@@ -49,7 +49,6 @@ function renderUserMenu() {
 }
 
 describe("UserMenu", () => {
-	// TODO: rename all testData instances to use CONSTANT_CASE (all test files)
 	const TEST_DATA = { user: { name: "TheUser" } };
 
 	beforeEach(() => {
