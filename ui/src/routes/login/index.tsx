@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { z } from "zod";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { authClient } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -9,15 +10,26 @@ import {
 	FIELD_LABEL_EMAIL,
 	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
+	GENERIC_ERROR,
 	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
 	LOGIN_PAGE_HEADING,
 	LOGOUT_SUCCESS,
+	NETWORK_ERROR,
 	SIGNUP_LINK_TEXT,
 } from "@/lib/content-strings";
+import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
+import { emailFieldSchema, passwordFieldSchema } from "@/lib/validation/fields";
 
-// TODO: add form validation using zod schema and display field errors using InlineError component
+const loginSchema = z.object({
+	email: emailFieldSchema,
+	password: passwordFieldSchema,
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginField = keyof LoginFormValues;
+type LoginFieldErrors = Partial<Record<LoginField, string>>;
 
 export default function Login() {
 	const navigate = useNavigate();
@@ -27,7 +39,8 @@ export default function Login() {
 	const didLogout = Boolean((location.state as any)?.loggedOut);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState<string | null>(null);
+	const [formError, setFormError] = useState<string | null>(null);
+	const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
 
 	if (isPending) {
 		{
@@ -42,15 +55,34 @@ export default function Login() {
 
 	async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		setError(null);
+		setFormError(null);
+		setFieldErrors({});
 
-		await authClient.signIn.email(
-			{ email, password },
-			{
-				onError: (ctx) => setError(ctx.error.message ?? "Something went wrong"),
-				onSuccess: () => navigate(from, { replace: true }),
-			},
-		);
+		const parsedLoginData = loginSchema.safeParse({
+			email,
+			password,
+		});
+
+		if (!parsedLoginData.success) {
+			setFieldErrors(mapIssuesToFieldErrors<LoginField>(parsedLoginData.error.issues));
+			return;
+		}
+
+		try {
+			const { error: loginError } = await authClient.signIn.email(
+				{ email, password },
+				{
+					onError: (ctx) => setFormError(ctx.error.message ?? GENERIC_ERROR),
+					onSuccess: () => navigate(from, { replace: true }),
+				},
+			);
+
+			if (loginError) {
+				return setFormError(loginError.message ?? GENERIC_ERROR);
+			}
+		} catch (error) {
+			setFormError(NETWORK_ERROR);
+		}
 	}
 
 	return (
@@ -70,10 +102,17 @@ export default function Login() {
 						type="email"
 						autoComplete="email"
 						value={email}
-						onChange={(e) => setEmail(e.target.value)}
+						onChange={(e) => {
+							setEmail(e.target.value);
+							setFieldErrors((currentErrors) => ({
+								...currentErrors,
+								email: undefined,
+							}));
+						}}
 						placeholder={FIELD_LABEL_EMAIL}
 						required
 					/>
+					{fieldErrors.email && <InlineError alert>{fieldErrors.email}</InlineError>}
 				</Field>
 				<Field>
 					<FieldLabel htmlFor="password">{FIELD_LABEL_PASSWORD}</FieldLabel>
@@ -82,10 +121,19 @@ export default function Login() {
 						type="password"
 						autoComplete="current-password"
 						value={password}
-						onChange={(e) => setPassword(e.target.value)}
+						onChange={(e) => {
+							setPassword(e.target.value);
+							setFieldErrors((currentErrors) => ({
+								...currentErrors,
+								password: undefined,
+							}));
+						}}
 						placeholder={FIELD_LABEL_PASSWORD}
 						required
 					/>
+					{fieldErrors.password && (
+						<InlineError alert>{fieldErrors.password}</InlineError>
+					)}
 				</Field>
 				<div className="flex flex-col">
 					<Button type="submit" className="mt-4 mb-5">
@@ -98,7 +146,7 @@ export default function Login() {
 						{SIGNUP_LINK_TEXT}
 					</Button>
 				</div>
-				{error && <InlineError alert>{error}</InlineError>}
+				{formError && <InlineError alert>{formError}</InlineError>}
 			</form>
 		</>
 	);

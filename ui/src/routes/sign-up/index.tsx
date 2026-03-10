@@ -7,13 +7,8 @@ import { InlineError } from "@/components/ui/error";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-	DISPLAY_NAME_TOO_SHORT,
-	DISPLAY_NAME_TOO_LONG,
 	GENERIC_ERROR,
-	INVALID_EMAIL,
 	NETWORK_ERROR,
-	PASSWORD_TOO_SHORT,
-	PASSWORD_TOO_LONG,
 	LOGIN_LINK_TEXT,
 	SIGNUP_BUTTON_TEXT,
 	SIGNUP_FORM_LABEL,
@@ -22,24 +17,17 @@ import {
 	FIELD_LABEL_PASSWORD,
 	FIELD_LABEL_DISPLAY_NAME,
 } from "@/lib/content-strings";
+import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
 import {
-	MAXIMUM_DISPLAY_NAME_LENGTH,
-	MAXIMUM_PASSWORD_LENGTH,
-	MINIMUM_DISPLAY_NAME_LENGTH,
-	MINIMUM_PASSWORD_LENGTH,
-} from "@/lib/constants";
+	displayNameFieldSchema,
+	emailFieldSchema,
+	passwordFieldSchema,
+} from "@/lib/validation/fields";
 
 const signUpSchema = z.object({
-	email: z.email(INVALID_EMAIL),
-	password: z
-		.string()
-		.min(MINIMUM_PASSWORD_LENGTH, PASSWORD_TOO_SHORT)
-		.max(MAXIMUM_PASSWORD_LENGTH, PASSWORD_TOO_LONG),
-	name: z
-		.string()
-		.trim()
-		.min(MINIMUM_DISPLAY_NAME_LENGTH, DISPLAY_NAME_TOO_SHORT)
-		.max(MAXIMUM_DISPLAY_NAME_LENGTH, DISPLAY_NAME_TOO_LONG),
+	email: emailFieldSchema,
+	password: passwordFieldSchema,
+	name: displayNameFieldSchema,
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
@@ -66,17 +54,7 @@ export default function SignUp() {
 		});
 
 		if (!parsedSignUpData.success) {
-			const validationErrors: SignUpFieldErrors = {};
-
-			for (const issue of parsedSignUpData.error.issues) {
-				const field = issue.path[0];
-
-				if (typeof field === "string" && !(field in validationErrors)) {
-					validationErrors[field as SignUpField] = issue.message;
-				}
-			}
-
-			setFieldErrors(validationErrors);
+			setFieldErrors(mapIssuesToFieldErrors<SignUpField>(parsedSignUpData.error.issues));
 			return;
 		}
 

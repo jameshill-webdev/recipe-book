@@ -7,6 +7,9 @@ import {
 
 export const NETWORK_ERROR =
 	"We couldn't reach the server. There may be an issue with the server or your internet connection.";
+export const EMAIL_REQUIRED = "Email is required.";
+export const PASSWORD_REQUIRED = "Password is required.";
+export const DISPLAY_NAME_REQUIRED = "Display name is required.";
 export const INVALID_EMAIL = "Please enter a valid email address.";
 export const PASSWORD_TOO_SHORT = `Password must be at least ${MINIMUM_PASSWORD_LENGTH} characters.`;
 export const PASSWORD_TOO_LONG = `Password cannot be longer than ${MAXIMUM_PASSWORD_LENGTH} characters.`;
