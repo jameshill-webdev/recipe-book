@@ -16,6 +16,9 @@ import {
 	FIELD_LABEL_DISPLAY_NAME,
 	SIGNUP_FORM_LABEL,
 	SIGNUP_PAGE_HEADING,
+	EMAIL_REQUIRED,
+	PASSWORD_REQUIRED,
+	DISPLAY_NAME_REQUIRED,
 } from "@/lib/content-strings";
 import {
 	MAXIMUM_DISPLAY_NAME_LENGTH,
@@ -153,6 +156,36 @@ describe("SignUp", () => {
 
 			expect(await screen.findByText(NETWORK_ERROR)).toBeInTheDocument();
 			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when email is missing", () => {
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
+
+			expect(screen.getByText(EMAIL_REQUIRED)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when password is missing", () => {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
+
+			expect(screen.getByText(PASSWORD_REQUIRED)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when display name is missing", () => {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
+				target: { value: TEST_DATA.valid.password },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
+
+			expect(screen.getByText(DISPLAY_NAME_REQUIRED)).toBeInTheDocument();
+			expect(mockSignUpFunction).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when email is invalid", () => {

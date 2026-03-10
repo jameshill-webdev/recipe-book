@@ -3,19 +3,26 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import Login from "@/routes/login";
 import {
+	EMAIL_REQUIRED,
 	FIELD_LABEL_EMAIL,
 	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
 	HOME_PAGE_HEADING,
+	INVALID_EMAIL,
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
 	LOGIN_PAGE_HEADING,
 	LOGOUT_SUCCESS,
+	NETWORK_ERROR,
+	PASSWORD_REQUIRED,
+	PASSWORD_TOO_LONG,
+	PASSWORD_TOO_SHORT,
 	SIGNUP_LINK_TEXT,
 } from "@/lib/content-strings";
+import { MINIMUM_PASSWORD_LENGTH, MAXIMUM_PASSWORD_LENGTH } from "@/lib/constants";
 
-const { mockSignInEmail, mockUseSession } = vi.hoisted(() => ({
-	mockSignInEmail: vi.fn(),
+const { mockLoginFunction, mockUseSession } = vi.hoisted(() => ({
+	mockLoginFunction: vi.fn(),
 	mockUseSession: vi.fn(),
 }));
 
@@ -23,13 +30,13 @@ vi.mock("@/lib/auth", () => ({
 	authClient: {
 		useSession: mockUseSession,
 		signIn: {
-			email: mockSignInEmail,
+			email: mockLoginFunction,
 		},
 	},
 }));
 
 beforeEach(() => {
-	mockSignInEmail.mockReset();
+	mockLoginFunction.mockReset();
 	mockUseSession.mockReset();
 	mockUseSession.mockReturnValue({ data: null, isPending: false });
 });
@@ -120,7 +127,7 @@ describe("Login", () => {
 	});
 
 	it("navigates to the home page after successful login", async () => {
-		mockSignInEmail.mockImplementationOnce(
+		mockLoginFunction.mockImplementationOnce(
 			async (
 				_credentials: { email: string; password: string },
 				options: { onSuccess?: () => void },
@@ -168,5 +175,93 @@ describe("Login", () => {
 		expect(screen.getByText(LOGOUT_SUCCESS)).toBeInTheDocument();
 	});
 
-	// TODO: add tests for form validation errors and API error handling
+	describe("form validation", () => {
+		const TEST_DATA = {
+			valid: {
+				email: "test@email.com",
+				password: "a".repeat(MINIMUM_PASSWORD_LENGTH + 1),
+			},
+			invalid: {
+				email: "invalidemail",
+				password: "",
+			},
+			tooShort: {
+				password: "a".repeat(MINIMUM_PASSWORD_LENGTH - 1),
+			},
+			tooLong: {
+				password: "a".repeat(MAXIMUM_PASSWORD_LENGTH + 1),
+			},
+		};
+
+		beforeEach(() => {
+			render(
+				<MemoryRouter>
+					<Login />
+				</MemoryRouter>,
+			);
+		});
+
+		it("shows a network error message when login request fails to reach server", async () => {
+			mockLoginFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
+				target: { value: TEST_DATA.valid.password },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+
+			expect(await screen.findByText(NETWORK_ERROR)).toBeInTheDocument();
+		});
+
+		it("shows the correct validation error and skips API calls when email is missing", () => {
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+
+			expect(screen.getByText(EMAIL_REQUIRED)).toBeInTheDocument();
+			expect(mockLoginFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when password is missing", () => {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+
+			expect(screen.getByText(PASSWORD_REQUIRED)).toBeInTheDocument();
+			expect(mockLoginFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when email is invalid", () => {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.invalid.email },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+
+			expect(screen.getByText(INVALID_EMAIL)).toBeInTheDocument();
+			expect(mockLoginFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when password is too short", () => {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
+				target: { value: TEST_DATA.tooShort.password },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+
+			expect(screen.getByText(PASSWORD_TOO_SHORT)).toBeInTheDocument();
+			expect(mockLoginFunction).not.toHaveBeenCalled();
+		});
+
+		it("shows the correct validation error and skips API calls when password is too long", () => {
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
+				target: { value: TEST_DATA.tooLong.password },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+
+			expect(screen.getByText(PASSWORD_TOO_LONG)).toBeInTheDocument();
+			expect(mockLoginFunction).not.toHaveBeenCalled();
+		});
+
+		// TODO: add tests to ensure validation errors are cleared when user corrects input
+	});
 });
