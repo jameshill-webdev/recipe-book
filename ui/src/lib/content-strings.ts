@@ -3,7 +3,7 @@ import {
 	MAXIMUM_PASSWORD_LENGTH,
 	MINIMUM_DISPLAY_NAME_LENGTH,
 	MAXIMUM_DISPLAY_NAME_LENGTH,
-} from "./constants";
+} from "@recipe-book/shared/lib/constants";
 
 export const NETWORK_ERROR =
 	"We couldn't reach the server. There may be an issue with the server or your internet connection.";

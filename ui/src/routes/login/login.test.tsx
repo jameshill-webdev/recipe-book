@@ -19,7 +19,10 @@ import {
 	PASSWORD_TOO_SHORT,
 	SIGNUP_LINK_TEXT,
 } from "@/lib/content-strings";
-import { MINIMUM_PASSWORD_LENGTH, MAXIMUM_PASSWORD_LENGTH } from "@/lib/constants";
+import {
+	MINIMUM_PASSWORD_LENGTH,
+	MAXIMUM_PASSWORD_LENGTH,
+} from "@recipe-book/shared/lib/constants";
 
 const { mockLoginFunction, mockUseSession } = vi.hoisted(() => ({
 	mockLoginFunction: vi.fn(),

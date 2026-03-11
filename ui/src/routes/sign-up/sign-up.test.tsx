@@ -25,7 +25,7 @@ import {
 	MAXIMUM_PASSWORD_LENGTH,
 	MINIMUM_DISPLAY_NAME_LENGTH,
 	MINIMUM_PASSWORD_LENGTH,
-} from "@/lib/constants";
+} from "@recipe-book/shared/lib/constants";
 
 const { mockSignUpFunction, mockSendVerificationEmailFunction } = vi.hoisted(() => ({
 	mockSignUpFunction: vi.fn(),

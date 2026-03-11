@@ -1,0 +1,7 @@
+{
+    "name": "@recipe-book/shared",
+    "type": "module",
+    "exports": {
+        "./*": "./*.ts"
+    }
+}

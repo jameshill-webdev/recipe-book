@@ -3,6 +3,10 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 // If your Prisma file is located elsewhere, you can change the path
 import prisma from "@/database/prisma.js";
 import { sendEmail } from "./email.js";
+import {
+	MINIMUM_PASSWORD_LENGTH,
+	MAXIMUM_PASSWORD_LENGTH,
+} from "@recipe-book/shared/lib/constants";
 
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, {
@@ -14,7 +18,8 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
-		minPasswordLength: 4, // TODO: change for production (only set this low to enable easier development testing)
+		minPasswordLength: MINIMUM_PASSWORD_LENGTH,
+		maxPasswordLength: MAXIMUM_PASSWORD_LENGTH,
 		sendResetPassword: async ({ user, url }) => {
 			// Better Auth recommends not awaiting email sends (avoid timing attacks)
 			void sendEmail({
@@ -24,6 +29,10 @@ export const auth = betterAuth({
 			}).catch((err) => {
 				console.error("Failed to send reset password email:", err);
 			});
+		},
+		onPasswordReset: async ({ user }, request) => {
+			console.log(`Password was reset for user ${user.email}`);
+			// TODO: send notification email about password reset
 		},
 	},
 	emailVerification: {

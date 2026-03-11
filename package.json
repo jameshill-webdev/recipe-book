@@ -4,5 +4,10 @@
 	},
 	"devDependencies": {
 		"prettier": "^3.8.1"
-	}
+	},
+	"workspaces": [
+		"ui",
+		"api",
+		"shared"
+	]
 }
