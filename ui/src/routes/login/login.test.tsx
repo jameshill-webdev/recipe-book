@@ -262,6 +262,26 @@ describe("Login", () => {
 			expect(mockLoginFunction).not.toHaveBeenCalled();
 		});
 
-		// TODO: add tests to ensure validation errors are cleared when user corrects input
+		it("clears email validation error when user corrects email input", () => {
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+			expect(screen.getByText(EMAIL_REQUIRED)).toBeInTheDocument();
+
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+
+			expect(screen.queryByText(EMAIL_REQUIRED)).not.toBeInTheDocument();
+		});
+
+		it("clears password validation error when user corrects password input", () => {
+			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
+			expect(screen.getByText(PASSWORD_REQUIRED)).toBeInTheDocument();
+
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
+				target: { value: TEST_DATA.valid.password },
+			});
+
+			expect(screen.queryByText(PASSWORD_REQUIRED)).not.toBeInTheDocument();
+		});
 	});
 });
