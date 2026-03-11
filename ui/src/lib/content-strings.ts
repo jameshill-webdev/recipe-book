@@ -52,8 +52,12 @@ export const GLOBAL_ERROR_ALERT_DISMISS_BUTTON_TEXT = "Dismiss";
 export const FORGOT_PASSWORD_LINK_TEXT = "Forgot your password?";
 export const SIGNUP_LINK_TEXT = "Don't have an account? Sign up";
 export const LOGIN_LINK_TEXT = "Already have an account? Log in";
-export const FORGOT_PASSWORD_PAGE_HEADING = "Reset your password";
+export const FORGOT_PASSWORD_PAGE_HEADING = "Forgot your password?";
 export const FORGOT_PASSWORD_FORM_LABEL = "Forgot password form";
+export const FORGOT_PASSWORD_INSTRUCTIONAL_TEXT =
+	"Submit your email address below and we'll send you a link to reset your password.";
+export const FORGOT_PASSWORD_SUCCESS_TEXT =
+	"If the email address you entered is associated with an account, you will receive a password reset email shortly.";
 export const FORGOT_PASSWORD_BUTTON_TEXT = "Send reset link";
 export const THEME_TOGGLE_LABEL = "Toggle theme";
 export const THEME_TOGGLE_OPTION_LIGHT = "Light";
