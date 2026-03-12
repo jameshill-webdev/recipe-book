@@ -7,12 +7,21 @@ import {
 
 export const NETWORK_ERROR =
 	"We couldn't reach the server. There may be an issue with the server or your internet connection.";
+export const TOKEN_ERROR =
+	"Missing token. Please make sure you used the link provided in your email.";
 export const EMAIL_REQUIRED = "Email is required.";
 export const PASSWORD_REQUIRED = "Password is required.";
+export const NEW_PASSWORD_REQUIRED = "New password is required.";
+export const CONFIRM_PASSWORD_REQUIRED = "Confirm password is required.";
 export const DISPLAY_NAME_REQUIRED = "Display name is required.";
 export const INVALID_EMAIL = "Please enter a valid email address.";
 export const PASSWORD_TOO_SHORT = `Password must be at least ${MINIMUM_PASSWORD_LENGTH} characters.`;
 export const PASSWORD_TOO_LONG = `Password cannot be longer than ${MAXIMUM_PASSWORD_LENGTH} characters.`;
+export const NEW_PASSWORD_TOO_SHORT = `New password must be at least ${MINIMUM_PASSWORD_LENGTH} characters.`;
+export const NEW_PASSWORD_TOO_LONG = `New password cannot be longer than ${MAXIMUM_PASSWORD_LENGTH} characters.`;
+export const CONFIRM_PASSWORD_TOO_SHORT = `Confirm password must be at least ${MINIMUM_PASSWORD_LENGTH} characters.`;
+export const CONFIRM_PASSWORD_TOO_LONG = `Confirm password cannot be longer than ${MAXIMUM_PASSWORD_LENGTH} characters.`;
+export const PASSWORDS_DO_NOT_MATCH = "Passwords do not match.";
 export const DISPLAY_NAME_TOO_SHORT = `Display name must be at least ${MINIMUM_DISPLAY_NAME_LENGTH} characters.`;
 export const DISPLAY_NAME_TOO_LONG = `Display name cannot be longer than ${MAXIMUM_DISPLAY_NAME_LENGTH} characters.`;
 export const GENERIC_ERROR = "Something went wrong.";
@@ -38,7 +47,7 @@ export const FIELD_LABEL_CONFIRM_PASSWORD = "Confirm password";
 export const SIGNUP_BUTTON_TEXT = "Sign up";
 export const RESET_PASSWORD_PAGE_HEADING = "Reset your password";
 export const RESET_PASSWORD_FORM_LABEL = "Reset password form";
-export const RESET_PASSWORD_BUTTON_TEXT = "Send reset link";
+export const RESET_PASSWORD_BUTTON_TEXT = "Reset password";
 export const VERIFY_EMAIL_PAGE_HEADING = "Check your email";
 export const VERIFY_EMAIL_PAGE_MESSAGE =
 	"We have sent a verification email. Please follow the link contained in the email to verify your email address. Your email must be verified before you can log in.";

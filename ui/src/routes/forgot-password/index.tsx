@@ -51,13 +51,13 @@ export default function ForgotPassword() {
 		const { email: validatedEmail } = parsedForgotPasswordData.data;
 
 		try {
-			const { error: resetPasswordError } = await authClient.requestPasswordReset({
+			const { error: requestPasswordResetError } = await authClient.requestPasswordReset({
 				email: validatedEmail,
 				redirectTo: new URL("/reset-password", window.location.origin).toString(),
 			});
 
-			if (resetPasswordError) {
-				return setFormError(resetPasswordError.message ?? GENERIC_ERROR);
+			if (requestPasswordResetError) {
+				return setFormError(requestPasswordResetError.message ?? GENERIC_ERROR);
 			}
 
 			setResetSubmitted(true);

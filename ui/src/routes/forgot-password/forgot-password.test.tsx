@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import ForgotPassword from "@/routes/forgot-password";
@@ -97,29 +97,7 @@ describe("Forgot Password", () => {
 		});
 	});
 
-	describe("render after form submission", () => {
-		it("renders an introductory paragraph with the correct text content, and does not render the form", async () => {
-			mockRequestPasswordResetFunction.mockResolvedValueOnce({ error: null });
-
-			render(
-				<MemoryRouter>
-					<ForgotPassword />
-				</MemoryRouter>,
-			);
-
-			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
-				target: { value: TEST_DATA.valid.email },
-			});
-			fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
-
-			expect(await screen.findByText(FORGOT_PASSWORD_SUCCESS_TEXT)).toBeInTheDocument();
-			expect(
-				screen.queryByRole("form", { name: FORGOT_PASSWORD_FORM_LABEL }),
-			).not.toBeInTheDocument();
-		});
-	});
-
-	describe("form validation", () => {
+	describe("form validation form validation and other error scenarios", () => {
 		beforeEach(() => {
 			render(
 				<MemoryRouter>
@@ -167,6 +145,50 @@ describe("Forgot Password", () => {
 			});
 
 			expect(screen.queryByText(EMAIL_REQUIRED)).not.toBeInTheDocument();
+		});
+	});
+
+	it("calls requestPasswordReset with expected parameters on successful submit", async () => {
+		mockRequestPasswordResetFunction.mockResolvedValueOnce({ error: null });
+
+		render(
+			<MemoryRouter>
+				<ForgotPassword />
+			</MemoryRouter>,
+		);
+
+		fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+			target: { value: TEST_DATA.valid.email },
+		});
+		fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
+
+		await waitFor(() => expect(mockRequestPasswordResetFunction).toHaveBeenCalledTimes(1));
+
+		expect(mockRequestPasswordResetFunction).toHaveBeenCalledWith({
+			email: TEST_DATA.valid.email,
+			redirectTo: new URL("/reset-password", window.location.origin).toString(),
+		});
+	});
+
+	describe("render after form submission", () => {
+		it("renders an introductory paragraph with the correct text content, and does not render the form", async () => {
+			mockRequestPasswordResetFunction.mockResolvedValueOnce({ error: null });
+
+			render(
+				<MemoryRouter>
+					<ForgotPassword />
+				</MemoryRouter>,
+			);
+
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
+
+			expect(await screen.findByText(FORGOT_PASSWORD_SUCCESS_TEXT)).toBeInTheDocument();
+			expect(
+				screen.queryByRole("form", { name: FORGOT_PASSWORD_FORM_LABEL }),
+			).not.toBeInTheDocument();
 		});
 	});
 });

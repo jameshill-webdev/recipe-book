@@ -178,7 +178,7 @@ describe("Login", () => {
 		expect(screen.getByText(LOGOUT_SUCCESS)).toBeInTheDocument();
 	});
 
-	describe("form validation", () => {
+	describe("form validation and other error scenarios", () => {
 		const TEST_DATA = {
 			valid: {
 				email: "test@email.com",

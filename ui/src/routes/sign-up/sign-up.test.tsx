@@ -110,7 +110,7 @@ describe("SignUp", () => {
 		});
 	});
 
-	describe("form validation", () => {
+	describe("form validation form validation and other error scenarios", () => {
 		const TEST_DATA = {
 			valid: {
 				email: "test@email.com",
