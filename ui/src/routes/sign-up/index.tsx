@@ -78,7 +78,7 @@ export default function SignUp() {
 
 			const { error: verifyError } = await authClient.sendVerificationEmail({
 				email: validatedEmail,
-				callbackURL: `${window.location.origin}/login`,
+				callbackURL: `${window.location.origin}/login?verified=1`,
 			});
 
 			if (verifyError) {

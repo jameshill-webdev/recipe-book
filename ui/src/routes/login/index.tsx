@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { z } from "zod";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { authClient } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ui/error";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
+	EMAIL_VERIFIED_SUCCESS,
 	FIELD_LABEL_EMAIL,
 	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
@@ -17,6 +18,7 @@ import {
 	LOGIN_PAGE_HEADING,
 	LOGOUT_SUCCESS,
 	NETWORK_ERROR,
+	PASSWORD_CHANGED_SUCCESS,
 	SIGNUP_LINK_TEXT,
 } from "@/lib/content-strings";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
@@ -34,9 +36,12 @@ type LoginFieldErrors = Partial<Record<LoginField, string>>;
 export default function Login() {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [searchParams] = useSearchParams();
 	const { data: session, isPending } = authClient.useSession();
 	const from = (location.state as any)?.from ?? "/";
-	const didLogout = Boolean((location.state as any)?.loggedOut);
+	const loggedOut = Boolean((location.state as any)?.loggedOut);
+	const passwordChanged = Boolean((location.state as any)?.passwordChanged);
+	const emailVerified = searchParams.get("verified");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [formError, setFormError] = useState<string | null>(null);
@@ -93,8 +98,10 @@ export default function Login() {
 				className="mx-auto w-full max-w-lg flex flex-col gap-6"
 				aria-label={LOGIN_FORM_LABEL}
 			>
-				{/* TODO: refactor logout message to use shadcn alert/notification component if available (or custom equivalent if not) */}
-				{didLogout && <p>{LOGOUT_SUCCESS}</p>}{" "}
+				{/* TODO: refactor messages to use shadcn alert/notification component if available (or custom equivalent if not) */}
+				{loggedOut && <p>{LOGOUT_SUCCESS}</p>}{" "}
+				{passwordChanged && <p>{PASSWORD_CHANGED_SUCCESS}</p>}
+				{emailVerified === "1" && <p>{EMAIL_VERIFIED_SUCCESS}</p>}
 				<Field>
 					<FieldLabel htmlFor="email">{FIELD_LABEL_EMAIL}</FieldLabel>
 					<Input

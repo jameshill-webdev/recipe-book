@@ -33,7 +33,6 @@ type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 type ResetPasswordField = keyof ResetPasswordFormValues;
 type ResetPasswordFieldErrors = Partial<Record<ResetPasswordField, string>>;
 
-// TODO: test this route's functionality manually
 export default function ResetPassword() {
 	const navigate = useNavigate();
 	const [password, setPassword] = useState("");
@@ -75,7 +74,7 @@ export default function ResetPassword() {
 				return setFormError(resetPasswordError.message ?? NETWORK_ERROR);
 			}
 
-			navigate("/login");
+			navigate("/login", { state: { passwordChanged: true } });
 		} catch {
 			setFormError(NETWORK_ERROR);
 		}
