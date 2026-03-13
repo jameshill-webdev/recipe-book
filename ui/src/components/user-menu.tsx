@@ -1,10 +1,8 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { InlineError } from "@/components/ui/error";
 import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item";
+import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
 import { authClient } from "@/lib/auth";
-import { useGlobalErrorStore } from "@/lib/global-error-store";
 import {
 	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,

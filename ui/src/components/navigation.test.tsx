@@ -7,6 +7,7 @@ import {
 	NAVIGATION_LINK_TEXT_INGREDIENTS,
 	NAVIGATION_LINK_TEXT_RECIPES,
 } from "@/lib/content-strings";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 vi.mock("@/components/user-menu", () => ({
 	UserMenu: () => <div data-testid="user-menu" />,
@@ -15,9 +16,11 @@ vi.mock("@/components/user-menu", () => ({
 describe("Navigation", () => {
 	it("renders navigation links with the correct text content", () => {
 		render(
-			<MemoryRouter>
-				<Navigation />
-			</MemoryRouter>,
+			<ThemeProvider defaultTheme="light" storageKey="test-theme">
+				<MemoryRouter>
+					<Navigation />
+				</MemoryRouter>
+			</ThemeProvider>,
 		);
 
 		expect(screen.getByText(NAVIGATION_LINK_TEXT_HOME)).toBeInTheDocument();
@@ -27,9 +30,11 @@ describe("Navigation", () => {
 
 	it("renders a user menu", () => {
 		render(
-			<MemoryRouter>
-				<Navigation />
-			</MemoryRouter>,
+			<ThemeProvider defaultTheme="light" storageKey="test-theme">
+				<MemoryRouter>
+					<Navigation />
+				</MemoryRouter>
+			</ThemeProvider>,
 		);
 
 		expect(screen.getByTestId("user-menu")).toBeInTheDocument();
@@ -37,9 +42,11 @@ describe("Navigation", () => {
 
 	it("renders a theme toggle", () => {
 		render(
-			<MemoryRouter>
-				<Navigation />
-			</MemoryRouter>,
+			<ThemeProvider defaultTheme="light" storageKey="test-theme">
+				<MemoryRouter>
+					<Navigation />
+				</MemoryRouter>
+			</ThemeProvider>,
 		);
 
 		expect(screen.getByTestId("theme-toggle")).toBeInTheDocument();

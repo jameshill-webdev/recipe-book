@@ -6,7 +6,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/hooks/use-theme";
 import {
 	THEME_TOGGLE_LABEL,
 	THEME_TOGGLE_OPTION_DARK,

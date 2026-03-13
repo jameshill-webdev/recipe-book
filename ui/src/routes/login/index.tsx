@@ -38,9 +38,9 @@ export default function Login() {
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
 	const { data: session, isPending } = authClient.useSession();
-	const from = (location.state as any)?.from ?? "/";
-	const loggedOut = Boolean((location.state as any)?.loggedOut);
-	const passwordChanged = Boolean((location.state as any)?.passwordChanged);
+	const from = location.state?.from ?? "/";
+	const loggedOut = Boolean(location.state?.loggedOut);
+	const passwordChanged = Boolean(location.state?.passwordChanged);
 	const emailVerified = searchParams.get("verified");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -85,7 +85,7 @@ export default function Login() {
 			if (loginError) {
 				return setFormError(loginError.message ?? GENERIC_ERROR);
 			}
-		} catch (error) {
+		} catch {
 			setFormError(NETWORK_ERROR);
 		}
 	}

@@ -17,12 +17,14 @@ export function createError(
 }
 
 export function isApiError(err: unknown): err is ApiError {
-	const errAsAny = err as any;
 	return (
 		typeof err === "object" &&
 		err !== null &&
-		errAsAny.isOperational === true &&
-		typeof errAsAny.statusCode === "number" &&
-		typeof errAsAny.message === "string"
+		"isOperational" in err &&
+		err.isOperational === true &&
+		"statusCode" in err &&
+		typeof err.statusCode === "number" &&
+		"message" in err &&
+		typeof err.message === "string"
 	);
 }

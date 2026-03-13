@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/components/theme-provider";
-import { GlobalErrorProvider } from "@/lib/global-error-store";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { GlobalErrorProvider } from "@/providers/global-error-provider";
 import { RequireAuth } from "@/routes/require-auth";
 import AppLayout from "./layouts/app-layout";
 import Home from "@/routes/home";

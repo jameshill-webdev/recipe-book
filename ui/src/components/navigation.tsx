@@ -4,8 +4,8 @@ import {
 	NavigationMenuList,
 	NavigationMenuItem,
 	NavigationMenuLink,
-	navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu.styles";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
 import {

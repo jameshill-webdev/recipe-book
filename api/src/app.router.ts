@@ -7,12 +7,13 @@ const router = Router();
 
 router.use("/users", usersRouter);
 
+// auth test route
 router.use("/authtest", requireAuth, async (req, res) => {
 	res.json({ ok: true });
 });
 
-// sendEmail test
-router.use("/sendemail", async (request, response, next) => {
+// email test route
+router.use("/sendemail", async (request, response) => {
 	const now = Date.now();
 
 	console.log(process.env.TEST_EMAIL_ADDRESS);

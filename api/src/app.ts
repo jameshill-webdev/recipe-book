@@ -1,4 +1,4 @@
-import express, { type Express, type Request, type Response } from "express";
+import express, { type Express } from "express";
 import cors from "cors";
 import appRouter from "./app.router.js";
 import { notFound } from "./middleware/404.js";

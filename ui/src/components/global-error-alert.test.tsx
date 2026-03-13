@@ -2,7 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { GlobalErrorAlert } from "@/components/global-error-alert";
 import { Button } from "@/components/ui/button";
-import { GlobalErrorProvider, useGlobalErrorStore } from "@/lib/global-error-store";
+import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
+import { GlobalErrorProvider } from "@/providers/global-error-provider";
 import {
 	GLOBAL_ERROR_ALERT_DISMISS_BUTTON_LABEL,
 	GLOBAL_ERROR_ALERT_TITLE,

@@ -1,5 +1,4 @@
-// src/middleware/errorHandler.ts
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import { Prisma } from "../generated/prisma/client.js";
 import { createError, isApiError } from "../errors/error.js";
 import type { ApiError, ApiErrorResponse } from "../errors/types.js";
@@ -13,7 +12,7 @@ function apiErrorToResponseBody(apiError: ApiError): ApiErrorResponse {
 	};
 }
 
-export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction) {
+export function errorHandler(err: unknown, req: Request, res: Response) {
 	const isProd = process.env.NODE_ENV === "production";
 
 	if (err instanceof Prisma.PrismaClientKnownRequestError) {

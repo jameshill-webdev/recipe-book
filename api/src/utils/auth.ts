@@ -30,7 +30,7 @@ export const auth = betterAuth({
 				console.error("Failed to send reset password email:", err);
 			});
 		},
-		onPasswordReset: async ({ user }, request) => {
+		onPasswordReset: async ({ user }) => {
 			console.log(`Password was reset for user ${user.email}`);
 			// TODO: send notification email about password reset
 		},
