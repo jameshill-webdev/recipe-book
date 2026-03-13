@@ -38,15 +38,17 @@ describe("Forgot Password", () => {
 		},
 	};
 
-	it("renders a level 1 heading with the correct text content", () => {
-		render(
-			<MemoryRouter>
-				<ForgotPassword />
-			</MemoryRouter>,
-		);
-		expect(
-			screen.getByRole("heading", { level: 1, name: FORGOT_PASSWORD_PAGE_HEADING }),
-		).toBeInTheDocument();
+	describe("static UI", () => {
+		it("renders a level 1 heading with the correct text content", () => {
+			render(
+				<MemoryRouter>
+					<ForgotPassword />
+				</MemoryRouter>,
+			);
+			expect(
+				screen.getByRole("heading", { level: 1, name: FORGOT_PASSWORD_PAGE_HEADING }),
+			).toBeInTheDocument();
+		});
 	});
 
 	describe("initial render (before form submission)", () => {
@@ -148,25 +150,27 @@ describe("Forgot Password", () => {
 		});
 	});
 
-	it("calls requestPasswordReset with expected parameters on successful submit", async () => {
-		mockRequestPasswordResetFunction.mockResolvedValueOnce({ error: null });
+	describe("success path", () => {
+		it("calls requestPasswordReset with expected parameters on successful submit", async () => {
+			mockRequestPasswordResetFunction.mockResolvedValueOnce({ error: null });
 
-		render(
-			<MemoryRouter>
-				<ForgotPassword />
-			</MemoryRouter>,
-		);
+			render(
+				<MemoryRouter>
+					<ForgotPassword />
+				</MemoryRouter>,
+			);
 
-		fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
-			target: { value: TEST_DATA.valid.email },
-		});
-		fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
 
-		await waitFor(() => expect(mockRequestPasswordResetFunction).toHaveBeenCalledTimes(1));
+			await waitFor(() => expect(mockRequestPasswordResetFunction).toHaveBeenCalledTimes(1));
 
-		expect(mockRequestPasswordResetFunction).toHaveBeenCalledWith({
-			email: TEST_DATA.valid.email,
-			redirectTo: new URL("/reset-password", window.location.origin).toString(),
+			expect(mockRequestPasswordResetFunction).toHaveBeenCalledWith({
+				email: TEST_DATA.valid.email,
+				redirectTo: new URL("/reset-password", window.location.origin).toString(),
+			});
 		});
 	});
 

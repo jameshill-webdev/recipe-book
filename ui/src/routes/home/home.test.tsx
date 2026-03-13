@@ -5,14 +5,16 @@ import Home from "@/routes/home";
 import { HOME_PAGE_HEADING } from "@/lib/content-strings";
 
 describe("Home", () => {
-	it("renders a level 1 heading with the correct text content", () => {
-		render(
-			<MemoryRouter>
-				<Home />
-			</MemoryRouter>,
-		);
-		expect(
-			screen.getByRole("heading", { level: 1, name: HOME_PAGE_HEADING }),
-		).toBeInTheDocument();
+	describe("static UI", () => {
+		it("renders a level 1 heading with the correct text content", () => {
+			render(
+				<MemoryRouter>
+					<Home />
+				</MemoryRouter>,
+			);
+			expect(
+				screen.getByRole("heading", { level: 1, name: HOME_PAGE_HEADING }),
+			).toBeInTheDocument();
+		});
 	});
 });

@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 describe("Login", () => {
-	describe("static content", () => {
+	describe("static UI", () => {
 		it("renders a level 1 heading with the correct text content", () => {
 			render(
 				<MemoryRouter>

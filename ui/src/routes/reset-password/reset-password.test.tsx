@@ -12,8 +12,6 @@ import {
 	NEW_PASSWORD_REQUIRED,
 	NEW_PASSWORD_TOO_LONG,
 	NEW_PASSWORD_TOO_SHORT,
-	PASSWORD_REQUIRED,
-	PASSWORD_TOO_SHORT,
 	PASSWORDS_DO_NOT_MATCH,
 	RESET_PASSWORD_BUTTON_TEXT,
 	RESET_PASSWORD_FORM_LABEL,
@@ -54,59 +52,63 @@ describe("Reset Password", () => {
 		},
 	};
 
-	it("renders a level 1 heading with the correct text content", () => {
-		render(
-			<MemoryRouter>
-				<ResetPassword />
-			</MemoryRouter>,
-		);
-		expect(
-			screen.getByRole("heading", { level: 1, name: RESET_PASSWORD_PAGE_HEADING }),
-		).toBeInTheDocument();
-	});
+	describe("static UI", () => {
+		it("renders a level 1 heading with the correct text content", () => {
+			render(
+				<MemoryRouter>
+					<ResetPassword />
+				</MemoryRouter>,
+			);
+			expect(
+				screen.getByRole("heading", { level: 1, name: RESET_PASSWORD_PAGE_HEADING }),
+			).toBeInTheDocument();
+		});
 
-	it("renders a reset password form", () => {
-		render(
-			<MemoryRouter>
-				<ResetPassword />
-			</MemoryRouter>,
-		);
+		it("renders a reset password form", () => {
+			render(
+				<MemoryRouter>
+					<ResetPassword />
+				</MemoryRouter>,
+			);
 
-		expect(screen.getByRole("form", { name: RESET_PASSWORD_FORM_LABEL })).toBeInTheDocument();
-	});
+			expect(
+				screen.getByRole("form", { name: RESET_PASSWORD_FORM_LABEL }),
+			).toBeInTheDocument();
+		});
 
-	it("renders password field with correct label", () => {
-		render(
-			<MemoryRouter>
-				<ResetPassword />
-			</MemoryRouter>,
-		);
+		it("renders new password field with correct label", () => {
+			render(
+				<MemoryRouter>
+					<ResetPassword />
+				</MemoryRouter>,
+			);
 
-		expect(screen.getByText(FIELD_LABEL_NEW_PASSWORD)).toBeInTheDocument();
-		expect(screen.getByLabelText(FIELD_LABEL_NEW_PASSWORD)).toBeInTheDocument();
-	});
+			expect(screen.getByText(FIELD_LABEL_NEW_PASSWORD)).toBeInTheDocument();
+			expect(screen.getByLabelText(FIELD_LABEL_NEW_PASSWORD)).toBeInTheDocument();
+		});
 
-	it("renders confirm password field with correct label", () => {
-		render(
-			<MemoryRouter>
-				<ResetPassword />
-			</MemoryRouter>,
-		);
+		it("renders confirm password field with correct label", () => {
+			render(
+				<MemoryRouter>
+					<ResetPassword />
+				</MemoryRouter>,
+			);
 
-		expect(screen.getByText(FIELD_LABEL_CONFIRM_PASSWORD)).toBeInTheDocument();
-		expect(screen.getByLabelText(FIELD_LABEL_CONFIRM_PASSWORD)).toBeInTheDocument();
-	});
+			expect(screen.getByText(FIELD_LABEL_CONFIRM_PASSWORD)).toBeInTheDocument();
+			expect(screen.getByLabelText(FIELD_LABEL_CONFIRM_PASSWORD)).toBeInTheDocument();
+		});
 
-	it("renders a submit button with the correct text", () => {
-		render(
-			<MemoryRouter>
-				<ResetPassword />
-			</MemoryRouter>,
-		);
+		it("renders a submit button with the correct text", () => {
+			render(
+				<MemoryRouter>
+					<ResetPassword />
+				</MemoryRouter>,
+			);
 
-		expect(
-			screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }),
-		).toBeInTheDocument();
+			expect(
+				screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }),
+			).toBeInTheDocument();
+		});
 	});
 
 	describe("form validation and other error scenarios", () => {
@@ -266,30 +268,32 @@ describe("Reset Password", () => {
 		});
 	});
 
-	it("calls resetPassword with expected parameters on successful submit", async () => {
-		mockResetPasswordFunction.mockResolvedValueOnce({ error: null });
+	describe("success path", () => {
+		it("calls resetPassword with expected parameters on successful submit", async () => {
+			mockResetPasswordFunction.mockResolvedValueOnce({ error: null });
 
-		window.history.pushState({}, "", "/reset-password?token=" + TEST_DATA.valid.token);
+			window.history.pushState({}, "", "/reset-password?token=" + TEST_DATA.valid.token);
 
-		render(
-			<MemoryRouter>
-				<ResetPassword />
-			</MemoryRouter>,
-		);
+			render(
+				<MemoryRouter>
+					<ResetPassword />
+				</MemoryRouter>,
+			);
 
-		fireEvent.change(screen.getByLabelText(FIELD_LABEL_NEW_PASSWORD), {
-			target: { value: TEST_DATA.valid.password },
-		});
-		fireEvent.change(screen.getByLabelText(FIELD_LABEL_CONFIRM_PASSWORD), {
-			target: { value: TEST_DATA.valid.password },
-		});
-		fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_NEW_PASSWORD), {
+				target: { value: TEST_DATA.valid.password },
+			});
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_CONFIRM_PASSWORD), {
+				target: { value: TEST_DATA.valid.password },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
-		await waitFor(() => expect(mockResetPasswordFunction).toHaveBeenCalledTimes(1));
+			await waitFor(() => expect(mockResetPasswordFunction).toHaveBeenCalledTimes(1));
 
-		expect(mockResetPasswordFunction).toHaveBeenCalledWith({
-			newPassword: TEST_DATA.valid.password,
-			token: TEST_DATA.valid.token,
+			expect(mockResetPasswordFunction).toHaveBeenCalledWith({
+				newPassword: TEST_DATA.valid.password,
+				token: TEST_DATA.valid.token,
+			});
 		});
 	});
 });

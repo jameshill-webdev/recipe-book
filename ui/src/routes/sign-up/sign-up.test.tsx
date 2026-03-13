@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 import SignUp from "@/routes/sign-up";
@@ -42,6 +42,27 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 describe("SignUp", () => {
+	const TEST_DATA = {
+		valid: {
+			email: "test@email.com",
+			password: "a".repeat(MINIMUM_PASSWORD_LENGTH + 1),
+			displayName: "a".repeat(MINIMUM_DISPLAY_NAME_LENGTH + 1),
+		},
+		invalid: {
+			email: "invalidemail",
+			password: "",
+			displayName: "",
+		},
+		tooShort: {
+			password: "a".repeat(MINIMUM_PASSWORD_LENGTH - 1),
+			displayName: "a".repeat(MINIMUM_DISPLAY_NAME_LENGTH - 1),
+		},
+		tooLong: {
+			password: "a".repeat(MAXIMUM_PASSWORD_LENGTH + 1),
+			displayName: "a".repeat(MAXIMUM_DISPLAY_NAME_LENGTH + 1),
+		},
+	};
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
@@ -50,7 +71,7 @@ describe("SignUp", () => {
 		cleanup();
 	});
 
-	describe("UI elements", () => {
+	describe("static UI", () => {
 		it("renders a level 1 heading with the correct text", () => {
 			render(
 				<MemoryRouter>
@@ -111,27 +132,6 @@ describe("SignUp", () => {
 	});
 
 	describe("form validation form validation and other error scenarios", () => {
-		const TEST_DATA = {
-			valid: {
-				email: "test@email.com",
-				password: "a".repeat(MINIMUM_PASSWORD_LENGTH + 1),
-				displayName: "a".repeat(MINIMUM_DISPLAY_NAME_LENGTH + 1),
-			},
-			invalid: {
-				email: "invalidemail",
-				password: "",
-				displayName: "",
-			},
-			tooShort: {
-				password: "a".repeat(MINIMUM_PASSWORD_LENGTH - 1),
-				displayName: "a".repeat(MINIMUM_DISPLAY_NAME_LENGTH - 1),
-			},
-			tooLong: {
-				password: "a".repeat(MAXIMUM_PASSWORD_LENGTH + 1),
-				displayName: "a".repeat(MAXIMUM_DISPLAY_NAME_LENGTH + 1),
-			},
-		};
-
 		beforeEach(() => {
 			render(
 				<MemoryRouter>
@@ -241,6 +241,43 @@ describe("SignUp", () => {
 			expect(screen.getByText(DISPLAY_NAME_TOO_LONG)).toBeInTheDocument();
 			expect(mockSignUpFunction).not.toHaveBeenCalled();
 			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("success path", () => {
+		it("calls signUp.email and sendVerificationEmail with correct arguments when form is submitted with valid data", async () => {
+			mockSignUpFunction.mockResolvedValueOnce({ error: null });
+			mockSendVerificationEmailFunction.mockResolvedValueOnce({ error: null });
+
+			render(
+				<MemoryRouter>
+					<SignUp />
+				</MemoryRouter>,
+			);
+
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
+				target: { value: TEST_DATA.valid.email },
+			});
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
+				target: { value: TEST_DATA.valid.password },
+			});
+			fireEvent.change(screen.getByLabelText(FIELD_LABEL_DISPLAY_NAME), {
+				target: { value: TEST_DATA.valid.displayName },
+			});
+			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
+
+			expect(mockSignUpFunction).toHaveBeenCalledWith({
+				email: TEST_DATA.valid.email,
+				password: TEST_DATA.valid.password,
+				name: TEST_DATA.valid.displayName,
+				callbackURL: `${window.location.origin}/verify-email`,
+			});
+			await waitFor(() => {
+				expect(mockSendVerificationEmailFunction).toHaveBeenCalledWith({
+					email: TEST_DATA.valid.email,
+					callbackURL: `${window.location.origin}/login?verified=1`,
+				});
+			});
 		});
 	});
 });

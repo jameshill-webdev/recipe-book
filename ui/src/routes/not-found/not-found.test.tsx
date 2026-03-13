@@ -5,14 +5,16 @@ import NotFound from "@/routes/not-found";
 import { NOT_FOUND_PAGE_HEADING } from "@/lib/content-strings";
 
 describe("NotFound", () => {
-	it("renders a level 1 heading with the correct text content", () => {
-		render(
-			<MemoryRouter>
-				<NotFound />
-			</MemoryRouter>,
-		);
-		expect(
-			screen.getByRole("heading", { level: 1, name: NOT_FOUND_PAGE_HEADING }),
-		).toBeInTheDocument();
+	describe("static UI", () => {
+		it("renders a level 1 heading with the correct text content", () => {
+			render(
+				<MemoryRouter>
+					<NotFound />
+				</MemoryRouter>,
+			);
+			expect(
+				screen.getByRole("heading", { level: 1, name: NOT_FOUND_PAGE_HEADING }),
+			).toBeInTheDocument();
+		});
 	});
 });
