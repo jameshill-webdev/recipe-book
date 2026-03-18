@@ -13,7 +13,8 @@
 		"typecheck": "tsc --noEmit",
 		"build": "tsc",
 		"start": "node dist/server.js",
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"prisma-format": "npx prisma format",
 		"prisma-validate": "npx prisma validate",
 		"prisma-migrate-dev": "npx prisma migrate dev",
@@ -42,6 +43,7 @@
 		"prisma": "^7.4.1",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.57.0"
+		"typescript-eslint": "^8.57.0",
+		"vitest": "^4.0.18"
 	}
 }
