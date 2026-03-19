@@ -1,7 +1,6 @@
 import { Resend } from "resend";
 import { createError } from "../errors/error.js";
 
-const isProd = process.env.NODE_ENV === "production";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail({
@@ -13,7 +12,16 @@ export async function sendEmail({
 	subject: string;
 	html: string;
 }) {
-	const from = process.env.RESEND_FROM!;
+	const isProd = process.env.NODE_ENV === "production";
+	const from = process.env.RESEND_FROM;
+
+	if (!from) {
+		throw createError("Email sender is not configured", 500, {
+			code: "EMAIL_ERROR",
+			details: isProd ? undefined : { missingEnvVar: "RESEND_FROM" },
+		});
+	}
+
 	const { error } = await resend.emails.send({
 		from,
 		to,
