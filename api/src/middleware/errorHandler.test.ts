@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { Prisma } from "../generated/prisma/client.js";
 import { createError } from "../errors/error.js";
 import { errorHandler } from "./errorHandler.js";
-import { makeRes } from "../test/mocks.js";
+import { makeResponse } from "../test/mocks.js";
 
 function makePrismaError(code: string, meta?: Record<string, unknown>) {
 	return new Prisma.PrismaClientKnownRequestError("prisma error", {
@@ -18,7 +18,7 @@ const req = {} as Request;
 describe("errorHandler", () => {
 	describe("Prisma known request errors", () => {
 		it("maps P2002 to 409 with UNIQUE_CONSTRAINT code", () => {
-			const { res, status, json } = makeRes();
+			const { res, status, json } = makeResponse();
 			errorHandler(makePrismaError("P2002"), req, res);
 
 			expect(status).toHaveBeenCalledWith(409);
@@ -28,7 +28,7 @@ describe("errorHandler", () => {
 		});
 
 		it("maps P2025 to 404 with RESOURCE_NOT_FOUND code", () => {
-			const { res, status, json } = makeRes();
+			const { res, status, json } = makeResponse();
 			errorHandler(makePrismaError("P2025"), req, res);
 
 			expect(status).toHaveBeenCalledWith(404);
@@ -41,7 +41,7 @@ describe("errorHandler", () => {
 			const originalEnv = process.env.NODE_ENV;
 			process.env.NODE_ENV = "development";
 
-			const { res, json } = makeRes();
+			const { res, json } = makeResponse();
 			errorHandler(makePrismaError("P2002", { target: ["email"] }), req, res);
 
 			expect(json).toHaveBeenCalledWith(
@@ -57,7 +57,7 @@ describe("errorHandler", () => {
 			const originalEnv = process.env.NODE_ENV;
 			process.env.NODE_ENV = "production";
 
-			const { res, json } = makeRes();
+			const { res, json } = makeResponse();
 			errorHandler(makePrismaError("P2002", { target: ["email"] }), req, res);
 
 			const body = json.mock.calls[0]![0];
@@ -69,7 +69,7 @@ describe("errorHandler", () => {
 
 	describe("ApiError", () => {
 		it("returns the ApiError's own status code and mapped response body", () => {
-			const { res, status, json } = makeRes();
+			const { res, status, json } = makeResponse();
 			const apiError = createError("Forbidden", 403, { code: "FORBIDDEN" });
 
 			errorHandler(apiError, req, res);
@@ -95,7 +95,7 @@ describe("errorHandler", () => {
 		});
 
 		it("maps unknown errors to 500 INTERNAL_ERROR", () => {
-			const { res, status, json } = makeRes();
+			const { res, status, json } = makeResponse();
 			errorHandler(new Error("boom"), req, res);
 
 			expect(status).toHaveBeenCalledWith(500);
@@ -105,7 +105,7 @@ describe("errorHandler", () => {
 		});
 
 		it("logs unexpected errors to the console", () => {
-			const { res } = makeRes();
+			const { res } = makeResponse();
 			const boom = new Error("boom");
 			errorHandler(boom, req, res);
 
@@ -115,7 +115,7 @@ describe("errorHandler", () => {
 
 	describe("response body shape", () => {
 		it("always includes success: false and message", () => {
-			const { res, json } = makeRes();
+			const { res, json } = makeResponse();
 			errorHandler(makePrismaError("P2025"), req, res);
 
 			const body = json.mock.calls[0]![0];
@@ -126,7 +126,7 @@ describe("errorHandler", () => {
 		it("omits code and details keys when not present", () => {
 			vi.spyOn(console, "error").mockImplementation(() => {});
 			// A plain unknown error produces INTERNAL_ERROR with no details
-			const { res, json } = makeRes();
+			const { res, json } = makeResponse();
 			errorHandler(new Error("oops"), req, res);
 
 			const body = json.mock.calls[0]![0];
@@ -135,7 +135,7 @@ describe("errorHandler", () => {
 		});
 
 		it("includes code when the ApiError has one", () => {
-			const { res, json } = makeRes();
+			const { res, json } = makeResponse();
 			const apiError = createError("Not found", 404, { code: "RESOURCE_NOT_FOUND" });
 			errorHandler(apiError, req, res);
 
@@ -143,7 +143,7 @@ describe("errorHandler", () => {
 		});
 
 		it("includes details when the ApiError has them", () => {
-			const { res, json } = makeRes();
+			const { res, json } = makeResponse();
 			const apiError = createError("Bad input", 422, {
 				code: "VALIDATION_ERROR",
 				details: { fields: ["name"] },
@@ -154,7 +154,7 @@ describe("errorHandler", () => {
 		});
 
 		it("omits details key entirely when not set on an ApiError", () => {
-			const { res, json } = makeRes();
+			const { res, json } = makeResponse();
 			const apiError = createError("Unauthorized", 401, { code: "UNAUTHORIZED" });
 			errorHandler(apiError, req, res);
 

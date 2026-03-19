@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { NextFunction, Request, Response } from "express";
+import type { NextFunction } from "express";
 
 vi.mock("better-auth/node", () => ({
 	fromNodeHeaders: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock("@/utils/auth.js", () => ({
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "@/utils/auth.js";
 import { requireAuth } from "./requireAuth.js";
-import { makeRes, makeReq } from "../test/mocks.js";
+import { makeResponse, makeRequest } from "../test/mocks.js";
 
 describe("requireAuth", () => {
 	const mockedFromNodeHeaders = vi.mocked(fromNodeHeaders);
@@ -28,9 +28,9 @@ describe("requireAuth", () => {
 
 	it("Valid session from auth.api.getSession sets req.session and calls next", async () => {
 		const headers = { authorization: "Bearer valid-token" };
-		const req = { headers } as Request;
+		const req = makeRequest({ headers });
 		const next = vi.fn() as NextFunction;
-		const { res } = makeRes();
+		const { res } = makeResponse();
 		const normalizedHeaders = { authorization: "Bearer valid-token" };
 		const validSession = {
 			user: {
@@ -54,9 +54,9 @@ describe("requireAuth", () => {
 
 	it("Null session returns 401 with Unauthorized payload and does not call next", async () => {
 		const headers = { authorization: "Bearer missing-session" };
-		const req = { headers } as Request;
+		const req = makeRequest({ headers });
 		const next = vi.fn() as NextFunction;
-		const { res, status, json } = makeRes();
+		const { res, status, json } = makeResponse();
 
 		mockedFromNodeHeaders.mockReturnValue(headers as never);
 		mockedGetSession.mockResolvedValue(null);
@@ -70,9 +70,9 @@ describe("requireAuth", () => {
 
 	it("Null session returns 401 with Unauthorized payload and does not call next", async () => {
 		const headers = { authorization: "Bearer missing-session" };
-		const req = makeReq(headers);
+		const req = makeRequest({ headers });
 		const next = vi.fn() as NextFunction;
-		const { res, status, json } = makeRes();
+		const { res, status, json } = makeResponse();
 
 		mockedFromNodeHeaders.mockReturnValue(headers as never);
 		mockedGetSession.mockResolvedValue(null);
@@ -86,9 +86,9 @@ describe("requireAuth", () => {
 
 	it("fromNodeHeaders called with request headers", async () => {
 		const headers = { authorization: "Bearer valid-token", "x-request-id": "req_123" };
-		const req = makeReq(headers);
+		const req = makeRequest({ headers });
 		const next = vi.fn() as NextFunction;
-		const { res } = makeRes();
+		const { res } = makeResponse();
 		const normalizedHeaders = { authorization: "Bearer valid-token" };
 
 		mockedFromNodeHeaders.mockReturnValue(normalizedHeaders as never);
@@ -105,9 +105,9 @@ describe("requireAuth", () => {
 
 	it("Session assignment preserves expected session object shape", async () => {
 		const headers = { authorization: "Bearer valid-token" };
-		const req = makeReq(headers);
+		const req = makeRequest({ headers });
 		const next = vi.fn() as NextFunction;
-		const { res } = makeRes();
+		const { res } = makeResponse();
 		const validSession = {
 			user: {
 				id: "user_abc",
