@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { Prisma } from "../generated/prisma/client.js";
 import { createError } from "../errors/error.js";
 import { errorHandler } from "./errorHandler.js";
+import { makeRes } from "../test/mocks.js";
 
 function makePrismaError(code: string, meta?: Record<string, unknown>) {
 	return new Prisma.PrismaClientKnownRequestError("prisma error", {
@@ -10,13 +11,6 @@ function makePrismaError(code: string, meta?: Record<string, unknown>) {
 		clientVersion: "0.0.0",
 		...(meta !== undefined && { meta }),
 	});
-}
-
-function makeRes() {
-	const json = vi.fn();
-	const statusReturn = { json };
-	const status = vi.fn<() => typeof statusReturn>().mockReturnValue(statusReturn);
-	return { res: { status } as unknown as Response, status, json };
 }
 
 const req = {} as Request;
