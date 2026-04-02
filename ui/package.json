@@ -10,7 +10,8 @@
 		"lint:fix": "eslint . --fix",
 		"typecheck": "tsc --noEmit",
 		"preview": "vite preview",
-		"test": "vitest"
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@recipe-book/shared": "*",

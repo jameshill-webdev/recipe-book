@@ -1,8 +1,11 @@
 {
 	"scripts": {
-		"format": "npx prettier . --write"
+		"format": "npx prettier . --write",
+		"prepare": "husky",
+		"precommit": "node scripts/pre-commit.mjs"
 	},
 	"devDependencies": {
+		"husky": "^9.1.7",
 		"prettier": "^3.8.1"
 	},
 	"workspaces": [

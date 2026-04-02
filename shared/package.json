@@ -1,7 +1,24 @@
 {
-    "name": "@recipe-book/shared",
-    "type": "module",
-    "exports": {
-        "./*": "./*.ts"
-    }
+	"name": "@recipe-book/shared",
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier . --write",
+		"test": "vitest run --passWithNoTests"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.39.4",
+		"eslint": "^9.39.4",
+		"globals": "^16.5.0",
+		"prettier": "^3.8.1",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.57.0",
+		"vitest": "^4.0.18"
+	},
+	"exports": {
+		"./*": "./*.ts"
+	}
 }
