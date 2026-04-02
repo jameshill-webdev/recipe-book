@@ -14,6 +14,15 @@ vi.mock("resend", () => ({
 
 import { sendEmail } from "./email.js";
 
+const testData = {
+	resend: {
+		from: "noreply@example.com",
+	},
+	user: {
+		email: "user@example.com",
+	},
+};
+
 describe("sendEmail", () => {
 	const originalNodeEnv = process.env.NODE_ENV;
 	const originalFrom = process.env.RESEND_FROM;
@@ -22,7 +31,7 @@ describe("sendEmail", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		process.env.NODE_ENV = "test";
-		process.env.RESEND_FROM = "noreply@example.com";
+		process.env.RESEND_FROM = testData.resend.from;
 		process.env.RESEND_API_KEY = "test-api-key";
 		sendMock.mockResolvedValue({ error: null });
 	});
@@ -43,14 +52,14 @@ describe("sendEmail", () => {
 
 	it("passes from, to, subject, and html correctly to Resend client", async () => {
 		await sendEmail({
-			to: "user@example.com",
+			to: testData.user.email,
 			subject: "Welcome",
 			html: "<p>Hello</p>",
 		});
 
 		expect(sendMock).toHaveBeenCalledWith({
-			from: "noreply@example.com",
-			to: "user@example.com",
+			from: testData.resend.from,
+			to: testData.user.email,
 			subject: "Welcome",
 			html: "<p>Hello</p>",
 		});
@@ -61,7 +70,7 @@ describe("sendEmail", () => {
 
 		await expect(
 			sendEmail({
-				to: "user@example.com",
+				to: testData.user.email,
 				subject: "All good",
 				html: "<p>Content</p>",
 			}),
@@ -75,7 +84,7 @@ describe("sendEmail", () => {
 
 		await expect(
 			sendEmail({
-				to: "user@example.com",
+				to: testData.user.email,
 				subject: "Failure",
 				html: "<p>Content</p>",
 			}),
@@ -96,7 +105,7 @@ describe("sendEmail", () => {
 
 		await expect(
 			sendEmail({
-				to: "user@example.com",
+				to: testData.user.email,
 				subject: "Failure",
 				html: "<p>Content</p>",
 			}),
@@ -118,7 +127,7 @@ describe("sendEmail", () => {
 
 		try {
 			await sendEmail({
-				to: "user@example.com",
+				to: testData.user.email,
 				subject: "Failure",
 				html: "<p>Content</p>",
 			});
@@ -137,7 +146,7 @@ describe("sendEmail", () => {
 
 		await expect(
 			sendEmail({
-				to: "user@example.com",
+				to: testData.user.email,
 				subject: "Missing config",
 				html: "<p>Content</p>",
 			}),

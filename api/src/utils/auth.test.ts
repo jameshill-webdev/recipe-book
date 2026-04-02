@@ -35,14 +35,25 @@ const loadAuthConfig = async () => {
 	return betterAuthMock.mock.calls.at(-1)?.[0];
 };
 
+const testData = {
+	betterAuth: {
+		baseURL: "https://api.example.test",
+		secret: "test-secret",
+	},
+	uiOrigin: "https://ui.example.test",
+	user: {
+		email: "user@example.com",
+	},
+};
+
 describe("auth", () => {
 	beforeEach(() => {
 		vi.resetModules();
 		vi.clearAllMocks();
 
-		process.env.BETTER_AUTH_URL = "https://api.example.test";
-		process.env.BETTER_AUTH_SECRET = "test-secret";
-		process.env.UI_ORIGIN = "https://ui.example.test";
+		process.env.BETTER_AUTH_URL = testData.betterAuth.baseURL;
+		process.env.BETTER_AUTH_SECRET = testData.betterAuth.secret;
+		process.env.UI_ORIGIN = testData.uiOrigin;
 
 		prismaAdapterMock.mockReturnValue(adapterToken);
 		betterAuthMock.mockImplementation((config) => ({ __config: config }));
@@ -56,9 +67,9 @@ describe("auth", () => {
 			provider: "postgresql",
 		});
 		expect(authConfig.database).toBe(adapterToken);
-		expect(authConfig.baseURL).toBe("https://api.example.test");
-		expect(authConfig.secret).toBe("test-secret");
-		expect(authConfig.trustedOrigins).toEqual(["https://ui.example.test"]);
+		expect(authConfig.baseURL).toBe(testData.betterAuth.baseURL);
+		expect(authConfig.secret).toBe(testData.betterAuth.secret);
+		expect(authConfig.trustedOrigins).toEqual([testData.uiOrigin]);
 	});
 
 	it("Password length values are wired from shared constants", async () => {
@@ -70,16 +81,16 @@ describe("auth", () => {
 
 	it("sendResetPassword callback invokes sendEmail with reset URL content", async () => {
 		const authConfig = await loadAuthConfig();
-		const resetUrl = "https://ui.example.test/reset?token=abc";
+		const resetUrl = `${testData.uiOrigin}/reset?token=abc`;
 
 		await authConfig.emailAndPassword.sendResetPassword({
-			user: { email: "user@example.com" },
+			user: { email: testData.user.email },
 			url: resetUrl,
 		});
 
 		expect(sendEmailMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				to: "user@example.com",
+				to: testData.user.email,
 				subject: "Recipe book app: reset your password",
 				html: expect.stringContaining(resetUrl),
 			}),
@@ -88,16 +99,16 @@ describe("auth", () => {
 
 	it("sendVerificationEmail callback invokes sendEmail with verification URL content", async () => {
 		const authConfig = await loadAuthConfig();
-		const verificationUrl = "https://ui.example.test/verify?token=xyz";
+		const verificationUrl = `${testData.uiOrigin}/verify?token=xyz`;
 
 		await authConfig.emailVerification.sendVerificationEmail({
-			user: { email: "verify@example.com" },
+			user: { email: testData.user.email },
 			url: verificationUrl,
 		});
 
 		expect(sendEmailMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				to: "verify@example.com",
+				to: testData.user.email,
 				subject: "Recipe book app: verify your email address",
 				html: expect.stringContaining(verificationUrl),
 			}),
@@ -114,15 +125,15 @@ describe("auth", () => {
 
 		await expect(
 			authConfig.emailAndPassword.sendResetPassword({
-				user: { email: "user@example.com" },
-				url: "https://ui.example.test/reset?token=abc",
+				user: { email: testData.user.email },
+				url: `${testData.uiOrigin}/reset?token=abc`,
 			}),
 		).resolves.toBeUndefined();
 
 		await expect(
 			authConfig.emailVerification.sendVerificationEmail({
-				user: { email: "verify@example.com" },
-				url: "https://ui.example.test/verify?token=xyz",
+				user: { email: testData.user.email },
+				url: `${testData.uiOrigin}/verify?token=xyz`,
 			}),
 		).resolves.toBeUndefined();
 
@@ -144,8 +155,8 @@ describe("auth", () => {
 
 		await expect(
 			authConfig.emailAndPassword.sendResetPassword({
-				user: { email: "user@example.com" },
-				url: "https://ui.example.test/reset?token=abc",
+				user: { email: testData.user.email },
+				url: `${testData.uiOrigin}/reset?token=abc`,
 			}),
 		).resolves.toBeUndefined();
 

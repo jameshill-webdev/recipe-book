@@ -18,6 +18,17 @@ import { auth } from "@/utils/auth.js";
 import { requireAuth } from "./requireAuth.js";
 import { makeResponse, makeRequest } from "../test/mocks.js";
 
+const testData = {
+	user: {
+		id: "user_123",
+		email: "user@example.com",
+	},
+	session: {
+		id: "sess_123",
+		userId: "user_123",
+	},
+};
+
 describe("requireAuth", () => {
 	const mockedFromNodeHeaders = vi.mocked(fromNodeHeaders);
 	const mockedGetSession = vi.mocked(auth.api.getSession);
@@ -34,12 +45,12 @@ describe("requireAuth", () => {
 		const normalizedHeaders = { authorization: "Bearer valid-token" };
 		const validSession = {
 			user: {
-				id: "user_123",
-				email: "user@example.com",
+				id: testData.user.id,
+				email: testData.user.email,
 			},
 			session: {
-				id: "sess_123",
-				userId: "user_123",
+				id: testData.session.id,
+				userId: testData.session.userId,
 			},
 		} as NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 
@@ -110,13 +121,13 @@ describe("requireAuth", () => {
 		const { res } = makeResponse();
 		const validSession = {
 			user: {
-				id: "user_abc",
-				email: "user@example.com",
+				id: testData.user.id,
+				email: testData.user.email,
 				name: "Shape Test",
 			},
 			session: {
-				id: "sess_abc",
-				userId: "user_abc",
+				id: testData.session.id,
+				userId: testData.session.userId,
 				token: "token_abc",
 			},
 		} as NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
@@ -128,13 +139,13 @@ describe("requireAuth", () => {
 
 		expect(req.session).toMatchObject({
 			user: {
-				id: "user_abc",
-				email: "user@example.com",
+				id: testData.user.id,
+				email: testData.user.email,
 				name: "Shape Test",
 			},
 			session: {
-				id: "sess_abc",
-				userId: "user_abc",
+				id: testData.session.id,
+				userId: testData.session.userId,
 				token: "token_abc",
 			},
 		});

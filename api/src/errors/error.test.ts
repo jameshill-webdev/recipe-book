@@ -1,11 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { createError, isApiError } from "./error.js";
 
+const testData = {
+	errorMessages: {
+		generic: "Something went wrong",
+		emailFailed: "Email failed",
+		validationFailed: "Validation failed",
+		forbidden: "Forbidden",
+		notAuthorized: "Not authorized",
+	},
+};
+
 describe("createError", () => {
 	it("returns defaults when only message is provided", () => {
-		const error = createError("Something went wrong");
+		const error = createError(testData.errorMessages.generic);
 
-		expect(error.message).toBe("Something went wrong");
+		expect(error.message).toBe(testData.errorMessages.generic);
 		expect(error.statusCode).toBe(500);
 		expect(error.name).toBe("ApiError");
 		expect(error.isOperational).toBe(true);
@@ -14,26 +24,26 @@ describe("createError", () => {
 	});
 
 	it("includes optional code and details when provided", () => {
-		const error = createError("Email failed", 500, {
+		const error = createError(testData.errorMessages.emailFailed, 500, {
 			code: "EMAIL_ERROR",
 			details: { provider: "resend" },
 		});
 
-		expect(error.message).toBe("Email failed");
+		expect(error.message).toBe(testData.errorMessages.emailFailed);
 		expect(error.statusCode).toBe(500);
 		expect(error.code).toBe("EMAIL_ERROR");
 		expect(error.details).toEqual({ provider: "resend" });
 	});
 
 	it("includes code only when provided and details only when provided", () => {
-		const withCodeOnly = createError("Email failed", 500, {
+		const withCodeOnly = createError(testData.errorMessages.emailFailed, 500, {
 			code: "EMAIL_ERROR",
 		});
 
 		expect(withCodeOnly.code).toBe("EMAIL_ERROR");
 		expect(withCodeOnly.details).toBeUndefined();
 
-		const withDetailsOnly = createError("Validation failed", 400, {
+		const withDetailsOnly = createError(testData.errorMessages.validationFailed, 400, {
 			details: { field: "email" },
 		});
 
@@ -42,13 +52,13 @@ describe("createError", () => {
 	});
 
 	it("persists custom name, status code, code, and details", () => {
-		const error = createError("Forbidden", 403, {
+		const error = createError(testData.errorMessages.forbidden, 403, {
 			name: "AuthorizationError",
 			code: "FORBIDDEN",
 			details: { action: "delete_recipe" },
 		});
 
-		expect(error.message).toBe("Forbidden");
+		expect(error.message).toBe(testData.errorMessages.forbidden);
 		expect(error.statusCode).toBe(403);
 		expect(error.name).toBe("AuthorizationError");
 		expect(error.code).toBe("FORBIDDEN");
@@ -61,7 +71,7 @@ describe("isApiError", () => {
 	it("accepts a valid ApiError object", () => {
 		const err = {
 			name: "ApiError",
-			message: "Not authorized",
+			message: testData.errorMessages.notAuthorized,
 			statusCode: 401,
 			isOperational: true,
 		};
