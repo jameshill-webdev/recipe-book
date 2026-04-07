@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { InlineError } from "@/components/ui/error";
+import { InlineError } from "@/components/ui/error/error";
 import { GENERIC_ERROR } from "@/lib/content-strings";
 
 afterEach(() => {

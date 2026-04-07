@@ -4,10 +4,10 @@ import {
 	NavigationMenuList,
 	NavigationMenuItem,
 	NavigationMenuLink,
-} from "@/components/ui/navigation-menu";
-import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu.styles";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { UserMenu } from "@/components/user-menu";
+} from "@/components/ui/navigation-menu/navigation-menu";
+import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu/navigation-menu.styles";
+import { ThemeToggle } from "@/components/theme-toggle/theme-toggle";
+import { UserMenu } from "@/components/user-menu/user-menu";
 import {
 	NAVIGATION_LINK_TEXT_HOME,
 	NAVIGATION_LINK_TEXT_INGREDIENTS,

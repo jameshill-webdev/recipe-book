@@ -1,5 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert/alert";
+import { Button } from "@/components/ui/button/button";
 import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
 import {
 	GLOBAL_ERROR_ALERT_DISMISS_BUTTON_LABEL,

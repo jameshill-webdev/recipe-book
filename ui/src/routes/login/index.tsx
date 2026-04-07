@@ -2,10 +2,10 @@ import { useState } from "react";
 import { z } from "zod";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { authClient } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { InlineError } from "@/components/ui/error";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button/button";
+import { InlineError } from "@/components/ui/error/error";
+import { Field, FieldLabel } from "@/components/ui/field/field";
+import { Input } from "@/components/ui/input/input";
 import {
 	EMAIL_VERIFIED_SUCCESS,
 	FIELD_LABEL_EMAIL,

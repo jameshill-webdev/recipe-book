@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item";
+import { Button } from "@/components/ui/button/button";
+import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item/item";
 import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
 import { authClient } from "@/lib/auth";
 import {

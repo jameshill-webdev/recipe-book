@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { z } from "zod";
 import { authClient } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button/button";
+import { Field, FieldLabel } from "@/components/ui/field/field";
+import { Input } from "@/components/ui/input/input";
 import {
 	FIELD_LABEL_CONFIRM_PASSWORD,
 	FIELD_LABEL_NEW_PASSWORD,
@@ -17,7 +17,7 @@ import {
 import { newPasswordFieldSchema, confirmPasswordFieldSchema } from "@/lib/validation/fields";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
 import { useNavigate } from "react-router-dom";
-import { InlineError } from "@/components/ui/error";
+import { InlineError } from "@/components/ui/error/error";
 
 const resetPasswordSchema = z
 	.object({

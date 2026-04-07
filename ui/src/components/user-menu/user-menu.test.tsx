@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UserMenu } from "@/components/user-menu";
+import { UserMenu } from "@/components/user-menu/user-menu";
 import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
 import { GlobalErrorProvider } from "@/providers/global-error-provider";
 import {

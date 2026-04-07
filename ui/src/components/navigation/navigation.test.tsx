@@ -1,13 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import { Navigation } from "@/components/navigation";
+import { Navigation } from "@/components/navigation/navigation";
 import {
 	NAVIGATION_LINK_TEXT_HOME,
 	NAVIGATION_LINK_TEXT_INGREDIENTS,
 	NAVIGATION_LINK_TEXT_RECIPES,
 } from "@/lib/content-strings";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { GlobalErrorProvider } from "@/providers/global-error-provider";
 
 vi.mock("@/components/user-menu", () => ({
 	UserMenu: () => <div data-testid="user-menu" />,
@@ -17,9 +18,11 @@ describe("Navigation", () => {
 	it("renders navigation links with the correct text content", () => {
 		render(
 			<ThemeProvider defaultTheme="light" storageKey="test-theme">
-				<MemoryRouter>
-					<Navigation />
-				</MemoryRouter>
+				<GlobalErrorProvider>
+					<MemoryRouter>
+						<Navigation />
+					</MemoryRouter>
+				</GlobalErrorProvider>
 			</ThemeProvider>,
 		);
 
@@ -31,9 +34,11 @@ describe("Navigation", () => {
 	it("renders a user menu", () => {
 		render(
 			<ThemeProvider defaultTheme="light" storageKey="test-theme">
-				<MemoryRouter>
-					<Navigation />
-				</MemoryRouter>
+				<GlobalErrorProvider>
+					<MemoryRouter>
+						<Navigation />
+					</MemoryRouter>
+				</GlobalErrorProvider>
 			</ThemeProvider>,
 		);
 
@@ -43,9 +48,11 @@ describe("Navigation", () => {
 	it("renders a theme toggle", () => {
 		render(
 			<ThemeProvider defaultTheme="light" storageKey="test-theme">
-				<MemoryRouter>
-					<Navigation />
-				</MemoryRouter>
+				<GlobalErrorProvider>
+					<MemoryRouter>
+						<Navigation />
+					</MemoryRouter>
+				</GlobalErrorProvider>
 			</ThemeProvider>,
 		);
 

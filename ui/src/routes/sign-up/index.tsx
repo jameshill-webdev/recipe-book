@@ -2,10 +2,10 @@ import { useState } from "react";
 import { z } from "zod";
 import { authClient } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { InlineError } from "@/components/ui/error";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button/button";
+import { InlineError } from "@/components/ui/error/error";
+import { Field, FieldLabel } from "@/components/ui/field/field";
+import { Input } from "@/components/ui/input/input";
 import {
 	GENERIC_ERROR,
 	NETWORK_ERROR,
