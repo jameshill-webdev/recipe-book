@@ -18,6 +18,9 @@ enum PurchaseUnit {
   KILOGRAM
   MILLILITRE
   LITRE
+  OUNCE
+  POUND
+  PINT
   PACK
   UNIT
 }
@@ -27,6 +30,9 @@ enum MeasureUnit {
   KILOGRAM
   MILLILITRE
   LITRE
+  OUNCE
+  POUND
+  PINT
   PACK
   UNIT
 }
@@ -48,7 +54,7 @@ model User {
 
   name          String
   email         String
-  emailVerified Boolean  @default(false)
+  emailVerified Boolean   @default(false)
   image         String?
   sessions      Session[]
   accounts      Account[]
@@ -65,8 +71,8 @@ model Session {
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
-  userId    String  @db.Uuid
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@index([userId])

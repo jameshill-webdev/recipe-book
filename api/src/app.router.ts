@@ -2,10 +2,13 @@ import { Router } from "express";
 import usersRouter from "./features/users/users.router.js";
 import { sendEmail } from "./utils/email.js";
 import { requireAuth } from "./middleware/requireAuth.js";
+import ingredientsRouter from "./features/ingredients/ingredients.router.js";
 
 const router = Router();
 
 router.use("/users", usersRouter);
+
+router.use("/ingredients", requireAuth, ingredientsRouter);
 
 // auth test route
 router.use("/authtest", requireAuth, async (req, res) => {

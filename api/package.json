@@ -15,11 +15,13 @@
 		"start": "node dist/server.js",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"prisma-format": "npx prisma format",
-		"prisma-validate": "npx prisma validate",
-		"prisma-migrate-dev": "npx prisma migrate dev",
-		"prisma-migrate-prod": "npx prisma migrate deploy",
-		"prisma-migrate-reset": "npx prisma migrate reset"
+		"prisma:generate": "npx prisma generate",
+		"prisma:update": "npm run prisma:format && npm run prisma:validate && npm run prisma:migrate:dev",
+		"prisma:format": "npx prisma format",
+		"prisma:validate": "npx prisma validate",
+		"prisma:migrate:dev": "npx prisma migrate dev",
+		"prisma:migrate:prod": "npx prisma migrate deploy",
+		"prisma:migrate:reset": "npx prisma migrate reset"
 	},
 	"dependencies": {
 		"@prisma/adapter-pg": "^7.4.1",
