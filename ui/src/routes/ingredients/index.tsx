@@ -7,12 +7,20 @@ import { InlineError } from "@/components/ui/error/error";
 import { Field, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import {
+	Select,
+	SelectTrigger,
+	SelectValue,
+	SelectContent,
+	SelectItem,
+} from "@/components/ui/select/select";
+import {
 	CREATE_INGREDIENT_FORM_LABEL,
 	GENERIC_ERROR,
 	GENERIC_LOADING,
 	INGREDIENTS_PAGE_HEADING,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
+import { PURCHASE_UNITS } from "@recipe-book/shared/lib/purchase-units";
 
 type Ingredient = {
 	id: string;
@@ -175,18 +183,25 @@ export default function Ingredients() {
 						</Field>
 						<Field>
 							<FieldLabel htmlFor="purchaseUnit">Purchase unit</FieldLabel>
-							<Input
-								id="purchaseUnit"
-								type="text"
-								autoComplete="off"
+							<Select
 								value={newIngredientPurchaseUnit}
-								onChange={(e) => {
-									setNewIngredientPurchaseUnit(e.target.value);
+								onValueChange={(value) => {
+									setNewIngredientPurchaseUnit(value);
 									setFormError(null);
 								}}
-								placeholder="Purchase unit"
 								required
-							/>
+							>
+								<SelectTrigger id="purchaseUnit" className="w-full max-w-48">
+									<SelectValue placeholder="Select a unit" />
+								</SelectTrigger>
+								<SelectContent>
+									{PURCHASE_UNITS.map((unit) => (
+										<SelectItem key={unit} value={unit}>
+											{unit.toLocaleLowerCase()}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</Field>
 						<Field>
 							<FieldLabel htmlFor="costPerUnit">Cost per unit</FieldLabel>
@@ -232,7 +247,11 @@ export default function Ingredients() {
 					<ul>
 						{ingredients.map((ingredient) => (
 							<li key={ingredient.id}>
-								<IngredientItem name={ingredient.name} />
+								<IngredientItem
+									name={ingredient.name}
+									purchaseUnit={ingredient.purchaseUnit.toLocaleLowerCase()}
+									costPerUnit={ingredient.costPerUnit}
+								/>
 							</li>
 						))}
 					</ul>

@@ -15,7 +15,7 @@
 		"start": "node dist/server.js",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"prisma:generate": "npx prisma generate",
+		"prisma:generate": "npx prisma generate && node ./scripts/sync-purchase-units.mjs",
 		"prisma:update": "npm run prisma:format && npm run prisma:validate && npm run prisma:migrate:dev",
 		"prisma:format": "npx prisma format",
 		"prisma:validate": "npx prisma validate",

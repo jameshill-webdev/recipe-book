@@ -5,9 +5,11 @@ import { INGREDIENT_ITEM_EDIT_BUTTON_LABEL } from "@/lib/content-strings";
 
 interface IngredientItemProps {
 	name: string;
+	purchaseUnit: string;
+	costPerUnit: number | string;
 }
 
-export function IngredientItem({ name }: IngredientItemProps) {
+export function IngredientItem({ name, purchaseUnit, costPerUnit }: IngredientItemProps) {
 	function onEdit() {
 		console.log("Edit ingredient");
 	}
@@ -15,8 +17,13 @@ export function IngredientItem({ name }: IngredientItemProps) {
 	return (
 		<div className="flex flex-col gap-2 mb-2">
 			<Item data-testid="ingredient-item" size="sm" variant="outline" className="p-1.5 pl-4">
-				<ItemContent>
+				<ItemContent className="flex flex-row justify-between">
 					<ItemTitle>{name}</ItemTitle>
+					<div className="flex flex-row gap-1">
+						<span>{costPerUnit}</span>
+						<span>/</span>
+						<span>{purchaseUnit}</span>
+					</div>
 				</ItemContent>
 				<ItemActions>
 					<Button type="button" variant="outline" onClick={onEdit}>
