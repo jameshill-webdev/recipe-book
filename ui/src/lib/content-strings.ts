@@ -34,6 +34,7 @@ export const HOME_PAGE_HEADING = "Home";
 export const INGREDIENTS_PAGE_HEADING = "Ingredients";
 export const INGREDIENT_ITEM_EDIT_BUTTON_LABEL = "Edit ingredient";
 export const CREATE_INGREDIENT_FORM_LABEL = "Create ingredient form";
+export const EDIT_INGREDIENT_FORM_LABEL = "Edit ingredient form";
 export const RECIPES_PAGE_HEADING = "Recipes";
 export const LOGIN_PAGE_HEADING = "Log in";
 export const LOGIN_FORM_LABEL = "Login form";

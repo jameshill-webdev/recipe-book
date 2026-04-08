@@ -20,32 +20,12 @@ import {
 	INGREDIENTS_PAGE_HEADING,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
+import type {
+	CreateIngredientPayload,
+	IngredientMutationResponse,
+	GetIngredientsResponse,
+} from "@/lib/types/ingredient";
 import { PURCHASE_UNITS } from "@recipe-book/shared/lib/purchase-units";
-
-type Ingredient = {
-	id: string;
-	name: string;
-	purchaseUnit: string;
-	costPerUnit: number | string;
-};
-
-type CreateIngredientPayload = {
-	name: string;
-	purchaseUnit: string;
-	costPerUnit: number;
-};
-
-type CreateIngredientResponse = {
-	ok: boolean;
-	message?: string;
-	ingredient?: Ingredient;
-};
-
-type GetIngredientsResponse = {
-	ok: boolean;
-	message?: string;
-	ingredients?: Ingredient[];
-};
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");
 
@@ -81,7 +61,7 @@ async function createIngredient(payload: CreateIngredientPayload) {
 		body: JSON.stringify(payload),
 	});
 
-	const data = (await response.json().catch(() => null)) as CreateIngredientResponse | null;
+	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
@@ -247,11 +227,7 @@ export default function Ingredients() {
 					<ul>
 						{ingredients.map((ingredient) => (
 							<li key={ingredient.id}>
-								<IngredientItem
-									name={ingredient.name}
-									purchaseUnit={ingredient.purchaseUnit.toLocaleLowerCase()}
-									costPerUnit={ingredient.costPerUnit}
-								/>
+								<IngredientItem {...ingredient} />
 							</li>
 						))}
 					</ul>
