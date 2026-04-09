@@ -1,9 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Pencil, X } from "lucide-react";
-import { PURCHASE_UNITS } from "@recipe-book/shared/lib/purchase-units";
-import { InlineError } from "@/components/ui/error/error";
-import { Input } from "@/components/ui/input/input";
 import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item/item";
 import {
 	EDIT_INGREDIENT_FORM_LABEL,
@@ -17,14 +14,7 @@ import type {
 	IngredientMutationResponse,
 } from "@/lib/types/ingredient";
 import { Button } from "../ui/button/button";
-import { Field, FieldLabel } from "../ui/field/field";
-import {
-	Select,
-	SelectTrigger,
-	SelectValue,
-	SelectContent,
-	SelectItem,
-} from "@/components/ui/select/select";
+import { IngredientForm } from "../ingredient-form/ingredient-form";
 
 type IngredientItemProps = Pick<Ingredient, "id" | "name" | "purchaseUnit" | "costPerUnit">;
 
@@ -94,7 +84,7 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 		setIsEditing(false);
 	}
 
-	function onEditSubmit(event: React.FormEvent<HTMLFormElement>) {
+	function onEditSubmit(event: React.SubmitEvent) {
 		event.preventDefault();
 		setFormError(null);
 
@@ -142,93 +132,30 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 
 	return (
 		<div className="flex flex-col gap-2 mb-2">
-			<Item data-testid="ingredient-item" size="sm" variant="outline" className="p-1.5 pl-4">
+			<Item data-testid="ingredient-item" size="sm" variant="outline" className="p-1.5">
 				<ItemContent className="flex flex-row justify-between">
 					{isEditing ? (
-						// TODO: de-duplicate into component (share between create and edit forms)
-						<form
+						<IngredientForm
+							label={EDIT_INGREDIENT_FORM_LABEL}
+							isEdit
 							onSubmit={onEditSubmit}
-							className="grid grid-cols-[4fr_2fr_2fr_1fr] gap-4 items-end"
-							aria-label={EDIT_INGREDIENT_FORM_LABEL}
-						>
-							<Field>
-								<FieldLabel className="sr-only" htmlFor={`name-${id}`}>
-									Name
-								</FieldLabel>
-								<Input
-									id={`name-${id}`}
-									type="text"
-									autoComplete="off"
-									value={newName}
-									onChange={(e) => {
-										setNewName(e.target.value);
-										setFormError(null);
-									}}
-									placeholder="Name"
-									required
-								/>
-							</Field>
-							<Field>
-								<FieldLabel className="sr-only" htmlFor={`purchaseUnit-${id}`}>
-									Purchase unit
-								</FieldLabel>
-								<Select
-									value={newPurchaseUnit}
-									onValueChange={(value) => {
-										setNewPurchaseUnit(value);
-										setFormError(null);
-									}}
-									required
-								>
-									<SelectTrigger
-										id={`purchaseUnit-${id}`}
-										className="w-full max-w-48"
-									>
-										<SelectValue placeholder="Select a unit" />
-									</SelectTrigger>
-									<SelectContent>
-										{PURCHASE_UNITS.map((unit) => (
-											<SelectItem key={unit} value={unit}>
-												{unit.toLocaleLowerCase()}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</Field>
-							<Field>
-								<FieldLabel className="sr-only" htmlFor={`costPerUnit-${id}`}>
-									Cost per unit
-								</FieldLabel>
-								<Input
-									id={`costPerUnit-${id}`}
-									type="number"
-									autoComplete="off"
-									inputMode="decimal"
-									min="0"
-									step="0.01"
-									value={newCostPerUnit}
-									onChange={(e) => {
-										setNewCostPerUnit(e.target.value);
-										setFormError(null);
-									}}
-									placeholder="Cost per unit"
-									required
-								/>
-							</Field>
-							<Field>
-								<Button type="submit" disabled={updateIngredientMutation.isPending}>
-									{updateIngredientMutation.isPending ? "Saving..." : "Save"}
-								</Button>
-							</Field>
-							{formError && <InlineError alert>{formError}</InlineError>}
-						</form>
+							name={newName}
+							setName={setNewName}
+							purchaseUnit={newPurchaseUnit}
+							setPurchaseUnit={setNewPurchaseUnit}
+							costPerUnit={newCostPerUnit}
+							setCostPerUnit={setNewCostPerUnit}
+							mutation={updateIngredientMutation}
+							formError={formError}
+							setFormError={setFormError}
+						/>
 					) : (
 						<>
-							<ItemTitle>{name}</ItemTitle>
+							<ItemTitle className="pl-2">{name}</ItemTitle>
 							<div className="flex flex-row gap-1">
-								<span>{costPerUnit}</span>
+								<span className="">{costPerUnit}</span>
 								<span>/</span>
-								<span>{purchaseUnit}</span>
+								<span>{purchaseUnit.toLocaleLowerCase()}</span>
 							</div>
 						</>
 					)}

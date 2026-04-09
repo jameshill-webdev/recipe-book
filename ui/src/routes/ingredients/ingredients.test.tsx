@@ -130,7 +130,7 @@ describe("Ingredients", () => {
 			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
 				target: { value: "2.5" },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: /create ingredient/i }));
+			fireEvent.submit(screen.getByRole("button", { name: /create/i }));
 
 			await waitFor(() => {
 				expect(
