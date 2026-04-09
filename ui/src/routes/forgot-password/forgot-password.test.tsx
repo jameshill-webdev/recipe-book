@@ -99,7 +99,7 @@ describe("Forgot Password", () => {
 		});
 	});
 
-	describe("form validation form validation and other error scenarios", () => {
+	describe("form validation and other error scenarios", () => {
 		beforeEach(() => {
 			render(
 				<MemoryRouter>

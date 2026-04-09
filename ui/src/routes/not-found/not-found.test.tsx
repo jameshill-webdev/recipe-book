@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect } from "vitest";
 import NotFound from "@/routes/not-found";
-import { NOT_FOUND_PAGE_HEADING } from "@/lib/content-strings";
+import { NOT_FOUND_PAGE_HEADING, NOT_FOUND_PAGE_MESSAGE } from "@/lib/content-strings";
 
 describe("NotFound", () => {
 	describe("static UI", () => {
@@ -15,6 +15,15 @@ describe("NotFound", () => {
 			expect(
 				screen.getByRole("heading", { level: 1, name: NOT_FOUND_PAGE_HEADING }),
 			).toBeInTheDocument();
+		});
+
+		it("renders an introductory paragraph with the correct text content", () => {
+			render(
+				<MemoryRouter>
+					<NotFound />
+				</MemoryRouter>,
+			);
+			expect(screen.getByText(NOT_FOUND_PAGE_MESSAGE)).toBeInTheDocument();
 		});
 	});
 });
