@@ -7,7 +7,7 @@ function renderIngredientForm(
 ) {
 	const props = {
 		label: "Create ingredient",
-		onSubmit: vi.fn(),
+		submitHandler: vi.fn(),
 		name: "Sugar",
 		setName: vi.fn(),
 		purchaseUnit: "GRAM",
@@ -29,7 +29,7 @@ function renderIngredientForm(
 }
 
 describe("IngredientForm", () => {
-	it("renders the create form and submits with the provided handler", () => {
+	it("renders the create form and submits with the provided handler when zod validation passes", () => {
 		const { props } = renderIngredientForm();
 
 		expect(screen.getByRole("form", { name: "Create ingredient" })).toBeInTheDocument();
@@ -42,7 +42,33 @@ describe("IngredientForm", () => {
 
 		fireEvent.submit(screen.getByRole("form", { name: "Create ingredient" }));
 
-		expect(props.onSubmit).toHaveBeenCalledTimes(1);
+		expect(props.submitHandler).toHaveBeenCalledTimes(1);
+	});
+
+	it("shows zod validation errors and skips submit when required fields are missing", () => {
+		const { props } = renderIngredientForm({
+			name: "",
+			costPerUnit: "",
+			purchaseUnit: "",
+		});
+
+		fireEvent.submit(screen.getByRole("form", { name: "Create ingredient" }));
+
+		expect(screen.getByText("Name is required")).toBeInTheDocument();
+		expect(screen.getByText("Cost per unit is required")).toBeInTheDocument();
+		expect(screen.getByText("Purchase unit is required")).toBeInTheDocument();
+		expect(props.submitHandler).not.toHaveBeenCalled();
+	});
+
+	it("shows a zod validation error and skips submit when cost per unit is negative", () => {
+		const { props } = renderIngredientForm({
+			costPerUnit: "-1",
+		});
+
+		fireEvent.submit(screen.getByRole("form", { name: "Create ingredient" }));
+
+		expect(screen.getByText("Cost per unit must be a positive number")).toBeInTheDocument();
+		expect(props.submitHandler).not.toHaveBeenCalled();
 	});
 
 	it("calls the field setters and clears form errors when text inputs change", () => {

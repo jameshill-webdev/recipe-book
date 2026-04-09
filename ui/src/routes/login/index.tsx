@@ -58,7 +58,7 @@ export default function Login() {
 		return <Navigate to="/" replace />;
 	}
 
-	async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+	async function onSubmit(event: React.SubmitEvent) {
 		event.preventDefault();
 		setFormError(null);
 		setFieldErrors({});

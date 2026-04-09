@@ -129,7 +129,7 @@ export default function Ingredients() {
 				{addIngredientUIOpen && (
 					<IngredientForm
 						label={CREATE_INGREDIENT_FORM_LABEL}
-						onSubmit={onCreateIngredient}
+						submitHandler={onCreateIngredient}
 						name={newIngredientName}
 						setName={setNewIngredientName}
 						purchaseUnit={newIngredientPurchaseUnit}

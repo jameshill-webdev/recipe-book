@@ -10,11 +10,14 @@ import {
 	SelectContent,
 	SelectItem,
 } from "@/components/ui/select/select";
+import { useState } from "react";
+import z from "zod";
+import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
 
 interface IngredientFormProps {
 	label: string;
 	isEdit?: boolean;
-	onSubmit: (e: React.SubmitEvent) => void;
+	submitHandler: (e: React.SubmitEvent) => void;
 	name: string;
 	setName: (value: string) => void;
 	purchaseUnit: string;
@@ -28,10 +31,30 @@ interface IngredientFormProps {
 	setFormError: (value: string | null) => void;
 }
 
+const ingredientSchema = z.object({
+	name: z.string().min(1, "Name is required"),
+	costPerUnit: z.preprocess(
+		(value) => {
+			if (value === "") return undefined;
+			return Number(value);
+		},
+		z
+			.number({
+				error: "Cost per unit is required",
+			})
+			.min(0, "Cost per unit must be a positive number"),
+	),
+	purchaseUnit: z.string().min(1, "Purchase unit is required"),
+});
+
+type IngredientFormValues = z.infer<typeof ingredientSchema>;
+type IngredientField = keyof IngredientFormValues;
+type IngredientFieldErrors = Partial<Record<IngredientField, string>>;
+
 export function IngredientForm({
 	label,
 	isEdit = false,
-	onSubmit,
+	submitHandler,
 	name,
 	setName,
 	purchaseUnit,
@@ -42,10 +65,31 @@ export function IngredientForm({
 	formError,
 	setFormError,
 }: IngredientFormProps) {
+	const [fieldErrors, setFieldErrors] = useState<IngredientFieldErrors>({});
+
+	function onSubmit(event: React.SubmitEvent) {
+		event.preventDefault();
+
+		const parsedIngredientData = ingredientSchema.safeParse({
+			name,
+			costPerUnit,
+			purchaseUnit,
+		});
+
+		if (!parsedIngredientData.success) {
+			setFieldErrors(
+				mapIssuesToFieldErrors<IngredientField>(parsedIngredientData.error.issues),
+			);
+			return;
+		}
+
+		submitHandler(event);
+	}
+
 	return (
 		<form
 			onSubmit={onSubmit}
-			className="mx-auto w-full flex flex-col gap-6 justify-start items-start md:grid md:grid-cols-[4fr_1fr_1fr_1fr] md:items-end"
+			className="mx-auto w-full flex flex-col gap-6 justify-start items-start md:grid md:grid-cols-[4fr_1fr_1fr_1fr] md:items-start"
 			aria-label={label}
 		>
 			<Field>
@@ -62,8 +106,8 @@ export function IngredientForm({
 						setFormError(null);
 					}}
 					placeholder="Name"
-					required
 				/>
+				{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 			</Field>
 			<Field>
 				<FieldLabel htmlFor="costPerUnit" className={isEdit ? "sr-only" : ""}>
@@ -82,8 +126,10 @@ export function IngredientForm({
 						setFormError(null);
 					}}
 					placeholder="Cost per unit"
-					required
 				/>
+				{fieldErrors.costPerUnit && (
+					<InlineError alert>{fieldErrors.costPerUnit}</InlineError>
+				)}
 			</Field>
 			<Field>
 				<FieldLabel htmlFor="purchaseUnit" className={isEdit ? "sr-only" : ""}>
@@ -96,7 +142,6 @@ export function IngredientForm({
 						setPurchaseUnit(value);
 						setFormError(null);
 					}}
-					required
 				>
 					<SelectTrigger id="purchaseUnit" className="w-full">
 						<SelectValue placeholder="Select a unit" />
@@ -109,9 +154,16 @@ export function IngredientForm({
 						))}
 					</SelectContent>
 				</Select>
+				{fieldErrors.purchaseUnit && (
+					<InlineError alert>{fieldErrors.purchaseUnit}</InlineError>
+				)}
 			</Field>
 			<Field>
-				<Button type="submit" disabled={mutation.isPending}>
+				<Button
+					type="submit"
+					disabled={mutation.isPending}
+					className={isEdit ? "" : "md:mt-6"}
+				>
 					{mutation.isPending
 						? isEdit
 							? "Updating..."

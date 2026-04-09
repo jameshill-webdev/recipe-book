@@ -180,7 +180,7 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 						<IngredientForm
 							label={EDIT_INGREDIENT_FORM_LABEL}
 							isEdit
-							onSubmit={onEditSubmit}
+							submitHandler={onEditSubmit}
 							name={newName}
 							setName={setNewName}
 							purchaseUnit={newPurchaseUnit}

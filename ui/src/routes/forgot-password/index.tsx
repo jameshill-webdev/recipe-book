@@ -32,7 +32,7 @@ export default function ForgotPassword() {
 	const [formError, setFormError] = useState<string | null>(null);
 	const [fieldErrors, setFieldErrors] = useState<ForgotPasswordFieldErrors>({});
 
-	async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+	async function onSubmit(event: React.SubmitEvent) {
 		event.preventDefault();
 		setFormError(null);
 		setFieldErrors({});
