@@ -42,6 +42,19 @@ describe("Ingredients", () => {
 				screen.getByRole("heading", { level: 1, name: INGREDIENTS_PAGE_HEADING }),
 			).toBeInTheDocument();
 		});
+
+		it("renders a button to open the create ingredient form", () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: async () => ({ ok: true, ingredients: [] }),
+				}),
+			);
+
+			renderIngredients();
+			expect(screen.getByRole("button", { name: /add ingredient/i })).toBeInTheDocument();
+		});
 	});
 
 	describe("ingredients list", () => {
@@ -78,7 +91,7 @@ describe("Ingredients", () => {
 	});
 
 	describe("create ingredient form", () => {
-		it("submits new ingredient data and closes the form after a successful request", async () => {
+		it("creates an ingredient, closes the form, and refreshes the list after a successful request", async () => {
 			const fetchMock = vi
 				.fn()
 				.mockResolvedValueOnce({
@@ -92,7 +105,7 @@ describe("Ingredients", () => {
 						ingredient: {
 							id: "ingredient-1",
 							name: "Tomato",
-							purchaseUnit: "KG",
+							purchaseUnit: "KILOGRAM",
 							costPerUnit: 2.5,
 						},
 					}),
@@ -105,7 +118,7 @@ describe("Ingredients", () => {
 							{
 								id: "ingredient-1",
 								name: "Tomato",
-								purchaseUnit: "KG",
+								purchaseUnit: "KILOGRAM",
 								costPerUnit: 2.5,
 							},
 						],
@@ -124,13 +137,34 @@ describe("Ingredients", () => {
 			fireEvent.change(screen.getByLabelText(/name/i), {
 				target: { value: "Tomato" },
 			});
-			fireEvent.change(screen.getByLabelText(/purchase unit/i), {
-				target: { value: "kg" },
+
+			const purchaseUnitSelect = document.querySelector(
+				'select[name="purchaseUnit"]',
+			) as HTMLSelectElement | null;
+			expect(purchaseUnitSelect).not.toBeNull();
+			fireEvent.change(purchaseUnitSelect!, {
+				target: { value: "KILOGRAM" },
 			});
+
 			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
 				target: { value: "2.5" },
 			});
-			fireEvent.submit(screen.getByRole("button", { name: /create/i }));
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(fetchMock).toHaveBeenNthCalledWith(
+					2,
+					expect.stringMatching(/\/ingredients$/),
+					expect.objectContaining({
+						method: "POST",
+						body: JSON.stringify({
+							name: "Tomato",
+							purchaseUnit: "KILOGRAM",
+							costPerUnit: 2.5,
+						}),
+					}),
+				);
+			});
 
 			await waitFor(() => {
 				expect(

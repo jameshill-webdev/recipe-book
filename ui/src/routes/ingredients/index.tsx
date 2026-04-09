@@ -68,7 +68,6 @@ export default function Ingredients() {
 	const [newIngredientPurchaseUnit, setNewIngredientPurchaseUnit] = useState("");
 	const [newIngredientCostPerUnit, setNewIngredientCostPerUnit] = useState<string | number>("");
 	const [formError, setFormError] = useState<string | null>(null);
-	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const {
 		data: ingredients = [],
 		isPending: isIngredientsPending,
@@ -85,12 +84,10 @@ export default function Ingredients() {
 			setNewIngredientPurchaseUnit("");
 			setNewIngredientCostPerUnit("");
 			setFormError(null);
-			setSuccessMessage("Ingredient created successfully.");
 			setAddIngredientUIOpen(false);
 			await queryClient.invalidateQueries({ queryKey: ["ingredients"] });
 		},
 		onError: (error) => {
-			setSuccessMessage(null);
 			setFormError(getErrorMessage(error));
 		},
 	});
@@ -102,7 +99,6 @@ export default function Ingredients() {
 	function onCreateIngredient(event: React.SubmitEvent) {
 		event.preventDefault();
 		setFormError(null);
-		setSuccessMessage(null);
 
 		const costPerUnit = Number(newIngredientCostPerUnit);
 
@@ -130,7 +126,6 @@ export default function Ingredients() {
 						</Button>
 					</li>
 				</ul>
-				{successMessage && <p role="status">{successMessage}</p>}
 				{addIngredientUIOpen && (
 					<IngredientForm
 						label={CREATE_INGREDIENT_FORM_LABEL}
