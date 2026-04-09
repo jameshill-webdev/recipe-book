@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Pencil, X } from "lucide-react";
+import { Pencil, X, Trash2 } from "lucide-react";
 import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item/item";
 import {
 	EDIT_INGREDIENT_FORM_LABEL,
 	GENERIC_ERROR,
+	INGREDIENT_ITEM_DELETE_BUTTON_LABEL,
 	INGREDIENT_ITEM_EDIT_BUTTON_LABEL,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
@@ -51,6 +52,21 @@ async function updateIngredient({ id, ...payload }: UpdateIngredientPayload) {
 	return data;
 }
 
+async function deleteIngredient({ id }: { id: string }) {
+	const response = await fetch(`${apiBaseUrl}/ingredients/${id}`, {
+		method: "DELETE",
+		credentials: "include",
+	});
+
+	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
+
+	if (!response.ok) {
+		throw new Error(data?.message ?? GENERIC_ERROR);
+	}
+
+	return data;
+}
+
 export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: IngredientItemProps) {
 	const queryClient = useQueryClient();
 	const [isEditing, setIsEditing] = useState(false);
@@ -71,6 +87,17 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 		},
 	});
 
+	const deleteIngredientMutation = useMutation({
+		mutationFn: deleteIngredient,
+		onSuccess: async () => {
+			setFormError(null);
+			await queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+		},
+		onError: (error) => {
+			setFormError(getErrorMessage(error));
+		},
+	});
+
 	function onEdit() {
 		setNewName(name);
 		setNewPurchaseUnit(purchaseUnit);
@@ -82,6 +109,21 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 	function onCancel() {
 		setFormError(null);
 		setIsEditing(false);
+	}
+
+	function onDelete(event: React.MouseEvent) {
+		event.preventDefault();
+		setFormError(null);
+
+		if (
+			!window.confirm(
+				"Are you sure you want to delete this ingredient? This action cannot be undone.",
+			)
+		) {
+			return;
+		}
+
+		deleteIngredientMutation.mutate({ id });
 	}
 
 	function onEditSubmit(event: React.SubmitEvent) {
@@ -161,10 +203,13 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 					)}
 				</ItemContent>
 				<ItemActions>
-					{/* TODO: implement delete button and supporting functionality */}
 					<Button type="button" variant="outline" onClick={isEditing ? onCancel : onEdit}>
 						{isEditing ? <X /> : <Pencil />}
 						<span className="sr-only">{INGREDIENT_ITEM_EDIT_BUTTON_LABEL}</span>
+					</Button>
+					<Button type="button" variant="outline" onClick={onDelete}>
+						<Trash2 />
+						<span className="sr-only">{INGREDIENT_ITEM_DELETE_BUTTON_LABEL}</span>
 					</Button>
 				</ItemActions>
 			</Item>

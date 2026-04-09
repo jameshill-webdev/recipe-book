@@ -6,12 +6,18 @@ vi.mock("@/database/prisma.js", () => ({
 			findMany: vi.fn(),
 			create: vi.fn(),
 			update: vi.fn(),
+			delete: vi.fn(),
 		},
 	},
 }));
 
 import prisma from "@/database/prisma.js";
-import { createIngredient, getIngredients, updateIngredient } from "./ingredients.controller.js";
+import {
+	createIngredient,
+	deleteIngredient,
+	getIngredients,
+	updateIngredient,
+} from "./ingredients.controller.js";
 import { makeRequest, makeResponse } from "@/test/mocks.js";
 
 const testData = {
@@ -240,6 +246,82 @@ describe("updateIngredient", () => {
 		await updateIngredient(req, res);
 
 		expect(prisma.ingredient.update).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(401);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "Unauthorized" });
+	});
+});
+
+describe("deleteIngredient", () => {
+	it("deletes the ingredient for the logged in user and returns 200", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: `  ${testData.ingredient.id}  `,
+			},
+		});
+		const deletedIngredient = {
+			id: testData.ingredient.id,
+			userId: testData.user.id,
+			name: testData.ingredient.name,
+			purchaseUnit: testData.ingredient.purchaseUnit,
+			costPerUnit: testData.ingredient.costPerUnit.toString(),
+		};
+
+		vi.mocked(prisma.ingredient.delete).mockResolvedValue(deletedIngredient as never);
+
+		await deleteIngredient(req, res);
+
+		expect(prisma.ingredient.delete).toHaveBeenCalledWith({
+			where: {
+				userId_id: {
+					userId: testData.user.id,
+					id: testData.ingredient.id,
+				},
+			},
+		});
+		expect(status).toHaveBeenCalledWith(200);
+		expect(json).toHaveBeenCalledWith({ ok: true, ingredient: deletedIngredient });
+	});
+
+	it("returns 400 when no ingredient id is provided", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: "   ",
+			},
+		});
+
+		await deleteIngredient(req, res);
+
+		expect(prisma.ingredient.delete).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "Invalid ingredient data",
+		});
+	});
+
+	it("returns 401 when there is no logged in user on the request", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			params: {
+				id: testData.ingredient.id,
+			},
+		});
+
+		await deleteIngredient(req, res);
+
+		expect(prisma.ingredient.delete).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(401);
 		expect(json).toHaveBeenCalledWith({ ok: false, message: "Unauthorized" });
 	});

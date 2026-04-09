@@ -150,3 +150,34 @@ export const updateIngredient = async (
 
 	return response.status(200).json({ ok: true, ingredient });
 };
+
+export const deleteIngredient = async (
+	request: Request<IngredientParams, object, IngredientRequestBody>,
+	response: Response,
+) => {
+	const userId = request.session?.user.id;
+
+	if (!userId) {
+		return response.status(401).json({ ok: false, message: "Unauthorized" });
+	}
+
+	const ingredientId = request.params.id?.trim();
+
+	if (!ingredientId) {
+		return response.status(400).json({
+			ok: false,
+			message: "Invalid ingredient data",
+		});
+	}
+
+	const ingredient = await prisma.ingredient.delete({
+		where: {
+			userId_id: {
+				userId,
+				id: ingredientId,
+			},
+		},
+	});
+
+	return response.status(200).json({ ok: true, ingredient });
+};
