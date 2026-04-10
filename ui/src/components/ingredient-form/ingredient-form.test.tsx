@@ -56,7 +56,7 @@ describe("IngredientForm", () => {
 				formError: "Validation failed",
 			});
 
-			expect(screen.getByRole("button", { name: "Updating..." })).toBeDisabled();
+			expect(screen.getByRole("button", { name: "Updating ingredient" })).toBeDisabled();
 			expect(screen.getByRole("alert")).toHaveTextContent("Validation failed");
 			expect(screen.getByText("Name", { selector: "label" })).toHaveClass("sr-only");
 			expect(screen.getByText("Cost per unit", { selector: "label" })).toHaveClass("sr-only");

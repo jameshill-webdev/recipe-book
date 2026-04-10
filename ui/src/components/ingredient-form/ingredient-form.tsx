@@ -18,6 +18,7 @@ import {
 	ingredientNameSchema,
 	ingredientPurchaseUnitSchema,
 } from "@/lib/validation/fields";
+import { Check } from "lucide-react";
 
 interface IngredientFormProps {
 	label: string;
@@ -84,7 +85,7 @@ export function IngredientForm({
 	return (
 		<form
 			onSubmit={onSubmit}
-			className="mx-auto w-full flex flex-col gap-6 justify-start items-start md:grid md:grid-cols-[4fr_1fr_1fr_1fr] md:items-start"
+			className={`w-full mx-auto grid ${isEdit ? "gap-2 grid-cols-[4fr_2fr_2fr_0.5fr] md:grid-cols-[6fr_2fr_2fr_0.5fr] items-start" : "grid-rows-1 gap-6 max-w-lg"}`}
 			aria-label={label}
 		>
 			<Field>
@@ -158,14 +159,25 @@ export function IngredientForm({
 					type="submit"
 					disabled={mutation.isPending}
 					className={isEdit ? "" : "md:mt-6"}
+					aria-label={
+						isEdit
+							? mutation.isPending
+								? "Updating ingredient"
+								: "Update ingredient"
+							: undefined
+					}
 				>
-					{mutation.isPending
-						? isEdit
-							? "Updating..."
-							: "Creating..."
-						: isEdit
-							? "Update"
-							: "Create"}
+					{mutation.isPending ? (
+						isEdit ? (
+							<Check />
+						) : (
+							"Creating..."
+						)
+					) : isEdit ? (
+						<Check />
+					) : (
+						"Create"
+					)}
 				</Button>
 			</Field>
 			{formError && <InlineError alert>{formError}</InlineError>}

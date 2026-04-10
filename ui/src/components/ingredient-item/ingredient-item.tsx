@@ -174,8 +174,13 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 
 	return (
 		<div className="flex flex-col gap-2 mb-2">
-			<Item data-testid="ingredient-item" size="sm" variant="outline" className="p-1.5">
-				<ItemContent className="flex flex-row justify-between">
+			<Item
+				data-testid="ingredient-item"
+				size="sm"
+				variant="outline"
+				className="p-1.5 items-stretch"
+			>
+				<ItemContent className="flex flex-row justify-between items-center">
 					{isEditing ? (
 						<IngredientForm
 							label={EDIT_INGREDIENT_FORM_LABEL}
@@ -192,25 +197,26 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 							setFormError={setFormError}
 						/>
 					) : (
-						<>
+						<div className="w-full grid grid-cols-[4.5fr_2fr_2fr] md:grid-cols-[6.5fr_2fr_2fr]">
 							<ItemTitle className="pl-2">{name}</ItemTitle>
-							<div className="flex flex-row gap-1">
-								<span className="">{costPerUnit}</span>
-								<span>/</span>
-								<span>{purchaseUnit.toLocaleLowerCase()}</span>
-							</div>
-						</>
+							<span className="">{costPerUnit}</span>
+							<span>{purchaseUnit.toLocaleLowerCase()}</span>
+						</div>
 					)}
 				</ItemContent>
-				<ItemActions>
+				<ItemActions
+					className={`flex ${isEditing ? "flex-col justify-start" : "flex-row justify-end"}`}
+				>
 					<Button type="button" variant="outline" onClick={isEditing ? onCancel : onEdit}>
 						{isEditing ? <X /> : <Pencil />}
 						<span className="sr-only">{INGREDIENT_ITEM_EDIT_BUTTON_LABEL}</span>
 					</Button>
-					<Button type="button" variant="outline" onClick={onDelete}>
-						<Trash2 />
-						<span className="sr-only">{INGREDIENT_ITEM_DELETE_BUTTON_LABEL}</span>
-					</Button>
+					{!isEditing && (
+						<Button type="button" variant="outline" onClick={onDelete}>
+							<Trash2 />
+							<span className="sr-only">{INGREDIENT_ITEM_DELETE_BUTTON_LABEL}</span>
+						</Button>
+					)}
 				</ItemActions>
 			</Item>
 		</div>

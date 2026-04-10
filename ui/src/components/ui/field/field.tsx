@@ -4,11 +4,7 @@ import { cn } from "@/lib/utils";
 
 function Field({ className, ...props }: React.ComponentProps<"div">) {
 	return (
-		<div
-			data-slot="field"
-			className={cn("grid gap-2 mx-auto w-full max-w-lg", className)}
-			{...props}
-		/>
+		<div data-slot="field" className={cn("grid gap-2 mx-auto w-full", className)} {...props} />
 	);
 }
 
