@@ -14,6 +14,10 @@ import {
 	NEW_PASSWORD_TOO_LONG,
 	CONFIRM_PASSWORD_TOO_LONG,
 	CONFIRM_PASSWORD_TOO_SHORT,
+	INGREDIENT_NAME_REQUIRED,
+	INGREDIENT_COST_PER_UNIT_REQUIRED,
+	INGREDIENT_COST_PER_UNIT_POSITIVE,
+	INGREDIENT_PURCHASE_UNIT_REQUIRED,
 } from "../content-strings";
 import {
 	MINIMUM_PASSWORD_LENGTH,
@@ -55,3 +59,19 @@ export const displayNameFieldSchema = z
 	.min(1, DISPLAY_NAME_REQUIRED)
 	.min(MINIMUM_DISPLAY_NAME_LENGTH, DISPLAY_NAME_TOO_SHORT)
 	.max(MAXIMUM_DISPLAY_NAME_LENGTH, DISPLAY_NAME_TOO_LONG);
+
+export const ingredientNameSchema = z.string().min(1, INGREDIENT_NAME_REQUIRED);
+
+export const ingredientCostPerUnitSchema = z.preprocess(
+	(value) => {
+		if (value === "") return undefined;
+		return Number(value);
+	},
+	z
+		.number({
+			error: INGREDIENT_COST_PER_UNIT_REQUIRED,
+		})
+		.min(0, INGREDIENT_COST_PER_UNIT_POSITIVE),
+);
+
+export const ingredientPurchaseUnitSchema = z.string().min(1, INGREDIENT_PURCHASE_UNIT_REQUIRED);

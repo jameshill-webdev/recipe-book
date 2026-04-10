@@ -13,6 +13,11 @@ import {
 import { useState } from "react";
 import z from "zod";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
+import {
+	ingredientCostPerUnitSchema,
+	ingredientNameSchema,
+	ingredientPurchaseUnitSchema,
+} from "@/lib/validation/fields";
 
 interface IngredientFormProps {
 	label: string;
@@ -32,19 +37,9 @@ interface IngredientFormProps {
 }
 
 const ingredientSchema = z.object({
-	name: z.string().min(1, "Name is required"),
-	costPerUnit: z.preprocess(
-		(value) => {
-			if (value === "") return undefined;
-			return Number(value);
-		},
-		z
-			.number({
-				error: "Cost per unit is required",
-			})
-			.min(0, "Cost per unit must be a positive number"),
-	),
-	purchaseUnit: z.string().min(1, "Purchase unit is required"),
+	name: ingredientNameSchema,
+	costPerUnit: ingredientCostPerUnitSchema,
+	purchaseUnit: ingredientPurchaseUnitSchema,
 });
 
 type IngredientFormValues = z.infer<typeof ingredientSchema>;
