@@ -158,13 +158,15 @@ export function IngredientForm({
 				<Button
 					type="submit"
 					disabled={mutation.isPending}
-					className={isEdit ? "" : "md:mt-6"}
+					className={`block ${isEdit ? "" : "md:mt-6"}`}
 					aria-label={
 						isEdit
 							? mutation.isPending
 								? "Updating ingredient"
 								: "Update ingredient"
-							: undefined
+							: mutation.isPending
+								? "Creating ingredient"
+								: "Create ingredient"
 					}
 				>
 					{mutation.isPending ? (

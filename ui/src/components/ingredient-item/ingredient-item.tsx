@@ -198,9 +198,15 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 						/>
 					) : (
 						<div className="w-full grid grid-cols-[4.5fr_2fr_2fr] md:grid-cols-[6.5fr_2fr_2fr]">
-							<ItemTitle className="pl-2">{name}</ItemTitle>
-							<span className="">{costPerUnit}</span>
-							<span>{purchaseUnit.toLocaleLowerCase()}</span>
+							<ItemTitle className="pl-2" aria-label={`Ingredient name: ${name}`}>
+								{name}
+							</ItemTitle>
+							<span className="" aria-label={`Ingredient cost: ${costPerUnit}`}>
+								{costPerUnit}
+							</span>
+							<span aria-label={`Purchase unit: ${purchaseUnit.toLocaleLowerCase()}`}>
+								{purchaseUnit.toLocaleLowerCase()}
+							</span>
 						</div>
 					)}
 				</ItemContent>
@@ -209,12 +215,16 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 				>
 					<Button type="button" variant="outline" onClick={isEditing ? onCancel : onEdit}>
 						{isEditing ? <X /> : <Pencil />}
-						<span className="sr-only">{INGREDIENT_ITEM_EDIT_BUTTON_LABEL}</span>
+						<span className="sr-only">
+							{INGREDIENT_ITEM_EDIT_BUTTON_LABEL}: {name}
+						</span>
 					</Button>
 					{!isEditing && (
 						<Button type="button" variant="outline" onClick={onDelete}>
 							<Trash2 />
-							<span className="sr-only">{INGREDIENT_ITEM_DELETE_BUTTON_LABEL}</span>
+							<span className="sr-only">
+								{INGREDIENT_ITEM_DELETE_BUTTON_LABEL}: {name}
+							</span>
 						</Button>
 					)}
 				</ItemActions>

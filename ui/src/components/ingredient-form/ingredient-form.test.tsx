@@ -45,7 +45,7 @@ describe("IngredientForm", () => {
 				"2.50",
 			);
 			expect(screen.getByRole("combobox", { name: "Purchase unit" })).toBeInTheDocument();
-			expect(screen.getByRole("button", { name: "Create" })).toBeEnabled();
+			expect(screen.getByRole("button", { name: "Create ingredient" })).toBeEnabled();
 		});
 
 		it("renders edit mode with visually hidden labels, a disabled pending button, and an error", () => {

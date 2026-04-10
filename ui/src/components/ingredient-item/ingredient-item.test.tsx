@@ -37,20 +37,24 @@ describe("IngredientItem", () => {
 		expect(screen.getByText("1.99")).toBeInTheDocument();
 		expect(screen.getByText("kilogram")).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: INGREDIENT_ITEM_EDIT_BUTTON_LABEL }),
+			screen.getByRole("button", { name: `${INGREDIENT_ITEM_EDIT_BUTTON_LABEL}: Flour` }),
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: INGREDIENT_ITEM_DELETE_BUTTON_LABEL }),
+			screen.getByRole("button", { name: `${INGREDIENT_ITEM_DELETE_BUTTON_LABEL}: Flour` }),
 		).toBeInTheDocument();
 	});
 
 	it("opens and closes the edit form from the edit button", () => {
 		renderIngredientItem();
 
-		fireEvent.click(screen.getByRole("button", { name: INGREDIENT_ITEM_EDIT_BUTTON_LABEL }));
+		fireEvent.click(
+			screen.getByRole("button", { name: `${INGREDIENT_ITEM_EDIT_BUTTON_LABEL}: Flour` }),
+		);
 		expect(screen.getByRole("form", { name: EDIT_INGREDIENT_FORM_LABEL })).toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole("button", { name: INGREDIENT_ITEM_EDIT_BUTTON_LABEL }));
+		fireEvent.click(
+			screen.getByRole("button", { name: `${INGREDIENT_ITEM_EDIT_BUTTON_LABEL}: Flour` }),
+		);
 		expect(
 			screen.queryByRole("form", { name: EDIT_INGREDIENT_FORM_LABEL }),
 		).not.toBeInTheDocument();

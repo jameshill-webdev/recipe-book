@@ -118,31 +118,46 @@ export default function Ingredients() {
 		<>
 			<h1>{INGREDIENTS_PAGE_HEADING}</h1>
 			<div className="flex flex-col gap-4 mb-8">
-				<ul className="flex flex-row justify-center">
-					<li>
-						<Button type="button" variant="outline" onClick={onAddIngredient}>
-							{addIngredientUIOpen ? <Minus /> : <Plus />}
-							<span>{addIngredientUIOpen ? "Close" : "Add ingredient"}</span>
-						</Button>
-					</li>
-				</ul>
-				{addIngredientUIOpen && (
-					<IngredientForm
-						label={CREATE_INGREDIENT_FORM_LABEL}
-						submitHandler={onCreateIngredient}
-						name={newIngredientName}
-						setName={setNewIngredientName}
-						purchaseUnit={newIngredientPurchaseUnit}
-						setPurchaseUnit={setNewIngredientPurchaseUnit}
-						costPerUnit={newIngredientCostPerUnit}
-						setCostPerUnit={setNewIngredientCostPerUnit}
-						mutation={createIngredientMutation}
-						formError={formError}
-						setFormError={setFormError}
-					/>
-				)}
+				<Button
+					className="w-[10rem] mx-auto"
+					type="button"
+					variant="outline"
+					onClick={onAddIngredient}
+					aria-label="Add ingredient"
+					aria-expanded={addIngredientUIOpen}
+					aria-controls="add-ingredient-form-container"
+				>
+					{addIngredientUIOpen ? <Minus /> : <Plus />}
+					<span>{addIngredientUIOpen ? "Close" : "Add ingredient"}</span>
+				</Button>
+				<div
+					id="add-ingredient-form-container"
+					role="region"
+					aria-label="Add ingredient form"
+				>
+					{addIngredientUIOpen && (
+						<IngredientForm
+							label={CREATE_INGREDIENT_FORM_LABEL}
+							submitHandler={onCreateIngredient}
+							name={newIngredientName}
+							setName={setNewIngredientName}
+							purchaseUnit={newIngredientPurchaseUnit}
+							setPurchaseUnit={setNewIngredientPurchaseUnit}
+							costPerUnit={newIngredientCostPerUnit}
+							setCostPerUnit={setNewIngredientCostPerUnit}
+							mutation={createIngredientMutation}
+							formError={formError}
+							setFormError={setFormError}
+						/>
+					)}
+				</div>
 			</div>
 			<div>
+				<div className="text-[var(--muted-foreground)] border-b-2 mb-2 px-3 pb-1 w-full grid grid-cols-[4.5fr_2fr_2fr_100px] md:grid-cols-[6.5fr_2fr_2fr_100px]">
+					<span>Name</span>
+					<span>Cost</span>
+					<span>Unit</span>
+				</div>
 				{isIngredientsPending ? (
 					<p>{GENERIC_LOADING}</p>
 				) : ingredientsError ? (
@@ -150,7 +165,7 @@ export default function Ingredients() {
 				) : ingredients.length === 0 ? (
 					<p>No ingredients yet.</p>
 				) : (
-					<ul>
+					<ul aria-label="ingredients">
 						{ingredients.map((ingredient) => (
 							<li key={ingredient.id}>
 								<IngredientItem {...ingredient} />
