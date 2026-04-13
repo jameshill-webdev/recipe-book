@@ -18,6 +18,7 @@ import {
 	INGREDIENT_COST_PER_UNIT_REQUIRED,
 	INGREDIENT_COST_PER_UNIT_POSITIVE,
 	INGREDIENT_PURCHASE_UNIT_REQUIRED,
+	RECIPE_NAME_REQUIRED,
 } from "../content-strings";
 import {
 	MINIMUM_PASSWORD_LENGTH,
@@ -75,3 +76,5 @@ export const ingredientCostPerUnitSchema = z.preprocess(
 );
 
 export const ingredientPurchaseUnitSchema = z.string().min(1, INGREDIENT_PURCHASE_UNIT_REQUIRED);
+
+export const recipeNameSchema = z.string().min(1, RECIPE_NAME_REQUIRED);

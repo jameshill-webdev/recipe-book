@@ -6,60 +6,12 @@ import { Button } from "@/components/ui/button/button";
 import { InlineError } from "@/components/ui/error/error";
 import {
 	CREATE_INGREDIENT_FORM_LABEL,
-	GENERIC_ERROR,
 	GENERIC_LOADING,
 	INGREDIENTS_PAGE_HEADING,
-	NETWORK_ERROR,
 } from "@/lib/content-strings";
-import type {
-	CreateIngredientPayload,
-	IngredientMutationResponse,
-	GetIngredientsResponse,
-} from "@/lib/types/ingredient";
 import { IngredientForm } from "@/components/ingredient-form/ingredient-form";
-
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");
-
-function getErrorMessage(error: unknown) {
-	if (error instanceof TypeError) {
-		return NETWORK_ERROR;
-	}
-
-	return error instanceof Error ? error.message : GENERIC_ERROR;
-}
-
-async function getIngredients() {
-	const response = await fetch(`${apiBaseUrl}/ingredients`, {
-		credentials: "include",
-	});
-
-	const data = (await response.json().catch(() => null)) as GetIngredientsResponse | null;
-
-	if (!response.ok) {
-		throw new Error(data?.message ?? GENERIC_ERROR);
-	}
-
-	return data?.ingredients ?? [];
-}
-
-async function createIngredient(payload: CreateIngredientPayload) {
-	const response = await fetch(`${apiBaseUrl}/ingredients`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-		body: JSON.stringify(payload),
-	});
-
-	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
-
-	if (!response.ok) {
-		throw new Error(data?.message ?? GENERIC_ERROR);
-	}
-
-	return data;
-}
+import { createIngredient, getIngredients } from "@/lib/api/ingredients";
+import { getErrorMessage } from "@/lib/utils";
 
 export default function Ingredients() {
 	const queryClient = useQueryClient();
@@ -159,6 +111,7 @@ export default function Ingredients() {
 					<span>Unit</span>
 				</div>
 				{isIngredientsPending ? (
+					// TODO: replace with skeleton loader
 					<p>{GENERIC_LOADING}</p>
 				) : ingredientsError ? (
 					<InlineError alert>{getErrorMessage(ingredientsError)}</InlineError>
