@@ -32,7 +32,13 @@ export const auth = betterAuth({
 		},
 		onPasswordReset: async ({ user }) => {
 			console.log(`Password was reset for user ${user.email}`);
-			// TODO: send notification email about password reset
+			void sendEmail({
+				to: user.email,
+				subject: "Recipe book app: your password was changed",
+				html: `<p>Your password has been successfully changed.</p>`,
+			}).catch((err) => {
+				console.error("Failed to send password change notification email:", err);
+			});
 		},
 	},
 	emailVerification: {

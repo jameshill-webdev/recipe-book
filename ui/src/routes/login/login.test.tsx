@@ -15,7 +15,7 @@ import {
 	LOGIN_PAGE_HEADING,
 	LOGOUT_SUCCESS,
 	NETWORK_ERROR,
-	PASSWORD_CHANGED_SUCCESS,
+	PASSWORD_CHANGED_SUCCESS_TITLE,
 	PASSWORD_REQUIRED,
 	PASSWORD_TOO_LONG,
 	PASSWORD_TOO_SHORT,
@@ -116,6 +116,22 @@ describe("Login", () => {
 	});
 
 	describe("conditional content", () => {
+		it("renders a spinner when auth session is pending", () => {
+			mockUseSession.mockReturnValueOnce({
+				data: null,
+				isPending: true,
+			});
+
+			render(
+				<MemoryRouter initialEntries={["/login"]}>
+					<Login />
+				</MemoryRouter>,
+			);
+
+			expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
+			expect(screen.queryByRole("form", { name: LOGIN_FORM_LABEL })).not.toBeInTheDocument();
+		});
+
 		it("shows email verified message with the correct content when the 'verified' search param is present", () => {
 			render(
 				<MemoryRouter initialEntries={["/login"]}>
@@ -166,7 +182,7 @@ describe("Login", () => {
 				</MemoryRouter>,
 			);
 
-			expect(screen.queryByText(PASSWORD_CHANGED_SUCCESS)).not.toBeInTheDocument();
+			expect(screen.queryByText(PASSWORD_CHANGED_SUCCESS_TITLE)).not.toBeInTheDocument();
 
 			render(
 				<MemoryRouter
@@ -181,7 +197,7 @@ describe("Login", () => {
 				</MemoryRouter>,
 			);
 
-			expect(screen.getByText(PASSWORD_CHANGED_SUCCESS)).toBeInTheDocument();
+			expect(screen.getByText(PASSWORD_CHANGED_SUCCESS_TITLE)).toBeInTheDocument();
 		});
 	});
 

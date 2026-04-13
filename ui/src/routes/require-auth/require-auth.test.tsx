@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { RequireAuth } from "@/routes/require-auth";
-import { GENERIC_LOADING } from "@/lib/content-strings";
 
 const mockUseSession = vi.fn();
 
@@ -30,7 +29,7 @@ describe("RequireAuth", () => {
 				</MemoryRouter>,
 			);
 			expect(screen.queryByText("Protected content")).not.toBeInTheDocument();
-			expect(screen.getByText(GENERIC_LOADING)).toBeInTheDocument();
+			expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
 		});
 	});
 

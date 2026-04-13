@@ -5,7 +5,6 @@ import { UserMenu } from "@/components/user-menu/user-menu";
 import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
 import { GlobalErrorProvider } from "@/providers/global-error-provider";
 import {
-	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,
 	LOGOUT_BUTTON_TEXT,
 	LOGOUT_FAILED,
@@ -66,7 +65,8 @@ describe("UserMenu", () => {
 
 		renderUserMenu();
 
-		expect(screen.getByText(GENERIC_LOADING)).toBeInTheDocument();
+		const skeleton = screen.getByTestId("user-menu").querySelector('[data-slot="skeleton"]');
+		expect(skeleton).toBeInTheDocument();
 		expect(screen.queryByText(TEST_DATA.user.name)).not.toBeInTheDocument();
 		expect(screen.queryByRole("button")).not.toBeInTheDocument();
 	});

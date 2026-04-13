@@ -45,8 +45,8 @@ export const LOGIN_PAGE_HEADING = "Log in";
 export const LOGIN_FORM_LABEL = "Login form";
 export const LOGIN_BUTTON_TEXT = "Log in";
 export const EMAIL_VERIFIED_SUCCESS = "Your email has been verified. You can now log in.";
-export const PASSWORD_CHANGED_SUCCESS =
-	"Your password has been changed. You can now log in with your new password.";
+export const PASSWORD_CHANGED_SUCCESS_TITLE = "Your password has been changed.";
+export const PASSWORD_CHANGED_SUCCESS_BODY = "You can now log in with your new password.";
 export const LOGOUT_BUTTON_TEXT = "Log out";
 export const SIGNUP_PAGE_HEADING = "Create an account";
 export const SIGNUP_FORM_LABEL = "Signup form";

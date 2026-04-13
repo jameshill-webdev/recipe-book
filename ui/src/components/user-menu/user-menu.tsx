@@ -4,12 +4,12 @@ import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item/
 import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
 import { authClient } from "@/lib/auth";
 import {
-	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,
 	LOGOUT_BUTTON_TEXT,
 	LOGOUT_FAILED,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
+import { Skeleton } from "@/components/ui/skeleton/skeleton";
 
 export function UserMenu() {
 	const navigate = useNavigate();
@@ -41,8 +41,9 @@ export function UserMenu() {
 			<div className="flex flex-col gap-2">
 				<Item data-testid="user-menu" size="sm" variant="outline" className="py-1.5">
 					<ItemContent>
-						{/* TODO: replace with Skeleton or Spinner component */}
-						<ItemTitle>{GENERIC_LOADING}</ItemTitle>
+						<ItemTitle>
+							<Skeleton className="h-[22px] w-[100px]" />
+						</ItemTitle>
 					</ItemContent>
 				</Item>
 			</div>

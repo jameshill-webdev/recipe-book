@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { authClient } from "@/lib/auth";
@@ -12,17 +12,19 @@ import {
 	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
 	GENERIC_ERROR,
-	GENERIC_LOADING,
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
 	LOGIN_PAGE_HEADING,
 	LOGOUT_SUCCESS,
 	NETWORK_ERROR,
-	PASSWORD_CHANGED_SUCCESS,
+	PASSWORD_CHANGED_SUCCESS_BODY,
+	PASSWORD_CHANGED_SUCCESS_TITLE,
 	SIGNUP_LINK_TEXT,
 } from "@/lib/content-strings";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
 import { emailFieldSchema, passwordFieldSchema } from "@/lib/validation/fields";
+import { LoadingSpinner } from "@/components/loading-spinner/loading-spinner";
+import { NotificationAlert } from "@/components/notification-alert/notification-alert";
 
 const loginSchema = z.object({
 	email: emailFieldSchema,
@@ -47,14 +49,21 @@ export default function Login() {
 	const [formError, setFormError] = useState<string | null>(null);
 	const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
 
-	if (isPending) {
-		{
-			/* TODO: replace with Skeleton or Spinner component */
+	useEffect(() => {
+		if (loggedOut || passwordChanged) {
+			window.history.replaceState(location.state ? { from: location.state.from } : {}, "");
 		}
-		return <div>{GENERIC_LOADING}</div>;
+	}, [loggedOut, passwordChanged, location.state]);
+
+	if (isPending) {
+		return (
+			<div>
+				<LoadingSpinner />
+			</div>
+		);
 	}
 
-	if (session) {
+	if (session && !loggedOut) {
 		return <Navigate to="/" replace />;
 	}
 
@@ -98,10 +107,27 @@ export default function Login() {
 				className="mx-auto w-full max-w-lg flex flex-col gap-6"
 				aria-label={LOGIN_FORM_LABEL}
 			>
-				{/* TODO: refactor messages to use shadcn alert/notification component if available (or custom equivalent if not) */}
-				{loggedOut && <p>{LOGOUT_SUCCESS}</p>}{" "}
-				{passwordChanged && <p>{PASSWORD_CHANGED_SUCCESS}</p>}
-				{emailVerified === "1" && <p>{EMAIL_VERIFIED_SUCCESS}</p>}
+				{loggedOut && (
+					<NotificationAlert
+						titleText={LOGOUT_SUCCESS}
+						bodyText=""
+						ariaLabel="Logout Success"
+					/>
+				)}
+				{passwordChanged && (
+					<NotificationAlert
+						titleText={PASSWORD_CHANGED_SUCCESS_TITLE}
+						bodyText={PASSWORD_CHANGED_SUCCESS_BODY}
+						ariaLabel="Password Changed Success"
+					/>
+				)}
+				{emailVerified === "1" && (
+					<NotificationAlert
+						titleText={EMAIL_VERIFIED_SUCCESS}
+						bodyText=""
+						ariaLabel="Email Verified Success"
+					/>
+				)}
 				<Field>
 					<FieldLabel htmlFor="email">{FIELD_LABEL_EMAIL}</FieldLabel>
 					<Input
