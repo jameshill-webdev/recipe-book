@@ -38,9 +38,10 @@ enum MeasureUnit {
 }
 
 enum TimeUnit {
-  SECOND
-  MINUTE
-  HOUR
+  SECONDS
+  MINUTES
+  HOURS
+  DAYS
 }
 
 model User {

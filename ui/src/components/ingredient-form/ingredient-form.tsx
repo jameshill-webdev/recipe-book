@@ -1,4 +1,4 @@
-import { PURCHASE_UNITS } from "@recipe-book/shared/lib/purchase-units";
+import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
 import { Button } from "@/components/ui/button/button";
 import { InlineError } from "@/components/ui/error/error";
 import { Field, FieldLabel } from "@/components/ui/field/field";

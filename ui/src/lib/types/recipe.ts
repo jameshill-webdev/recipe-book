@@ -1,8 +1,8 @@
-import type { PurchaseUnit } from "@recipe-book/shared/lib/purchase-units";
+import type { PurchaseUnit, TimeUnit } from "@recipe-book/shared/lib/units";
 
 export interface Duration {
 	time: number;
-	unit: "seconds" | "minutes" | "hours" | "days";
+	unit: TimeUnit;
 }
 
 export interface RecipeIngredient {

@@ -9,6 +9,10 @@ import type { RecipeIngredient, Duration } from "@/lib/types/recipe";
 import { createRecipe } from "@/lib/api/recipes";
 import { getErrorMessage } from "@/lib/utils";
 
+const DEFAULT_PREP_TIME_UNIT = "MINUTES";
+const DEFAULT_COOK_TIME_UNIT = "MINUTES";
+const DEFAULT_SHELF_LIFE_UNIT = "DAYS";
+
 export default function Recipes() {
 	const queryClient = useQueryClient();
 	const [addRecipeUIOpen, setAddRecipeUIOpen] = useState(false);
@@ -25,9 +29,12 @@ export default function Recipes() {
 	const [name, setName] = useState("");
 	const [ingredients, setIngredients] = useState<RecipeIngredient[]>([]);
 	const [method, setMethod] = useState("");
-	const [prepTime, setPrepTime] = useState<Duration>({ time: 0, unit: "minutes" });
-	const [cookTime, setCookTime] = useState<Duration>({ time: 0, unit: "minutes" });
-	const [shelfLife, setShelfLife] = useState<Duration>({ time: 0, unit: "days" });
+	const [prepTime, setPrepTime] = useState<Duration>({ time: 0, unit: DEFAULT_PREP_TIME_UNIT });
+	const [cookTime, setCookTime] = useState<Duration>({ time: 0, unit: DEFAULT_COOK_TIME_UNIT });
+	const [shelfLife, setShelfLife] = useState<Duration>({
+		time: 0,
+		unit: DEFAULT_SHELF_LIFE_UNIT,
+	});
 	const [numberOfPortions, setNumberOfPortions] = useState(1);
 	const [costPerPortion, setCostPerPortion] = useState(0);
 	const [formError, setFormError] = useState<string | null>(null);
@@ -37,9 +44,9 @@ export default function Recipes() {
 		onSuccess: async () => {
 			setIngredients([]);
 			setMethod("");
-			setPrepTime({ time: 0, unit: "minutes" });
-			setCookTime({ time: 0, unit: "minutes" });
-			setShelfLife({ time: 0, unit: "days" });
+			setPrepTime({ time: 0, unit: DEFAULT_PREP_TIME_UNIT });
+			setCookTime({ time: 0, unit: DEFAULT_COOK_TIME_UNIT });
+			setShelfLife({ time: 0, unit: DEFAULT_SHELF_LIFE_UNIT });
 			setNumberOfPortions(1);
 			setCostPerPortion(0);
 			setFormError(null);

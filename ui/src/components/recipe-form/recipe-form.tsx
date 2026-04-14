@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button/button";
 import { InlineError } from "@/components/ui/error/error";
 import { Field, FieldLabel, FieldSet, FieldLegend, FieldGroup } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
+import { Textarea } from "@/components/ui/textarea/textarea";
 import { useState } from "react";
 import z from "zod";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
@@ -16,7 +17,7 @@ import {
 	SelectItem,
 } from "@/components/ui/select/select";
 import type { Ingredient } from "@/lib/types/ingredient";
-import { PURCHASE_UNITS } from "@recipe-book/shared/lib/purchase-units";
+import { PURCHASE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
 import { getErrorMessage } from "@/lib/utils";
 
 interface RecipeFormProps {
@@ -119,10 +120,9 @@ export function RecipeForm({
 			className={`w-full mx-auto grid ${isEdit ? "gap-2 grid-cols-[4fr_2fr_2fr_0.5fr] md:grid-cols-[6fr_2fr_2fr_0.5fr] items-start" : "grid-rows-1 gap-6 max-w-lg"}`}
 			aria-label={label}
 		>
+			<h2 className="text-lg text-center mt-4">{isEdit ? "Edit" : "Create a"} recipe</h2>
 			<Field>
-				<FieldLabel htmlFor="name" className={isEdit ? "sr-only" : ""}>
-					Name
-				</FieldLabel>
+				<FieldLabel htmlFor="name">Name</FieldLabel>
 				<Input
 					id="name"
 					type="text"
@@ -132,7 +132,7 @@ export function RecipeForm({
 						setName(e.target.value);
 						setFormError(null);
 					}}
-					placeholder="Name"
+					placeholder="Enter recipe name"
 				/>
 				{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 			</Field>
@@ -143,11 +143,13 @@ export function RecipeForm({
 				) : ingredientsError ? (
 					<InlineError alert>{getErrorMessage(ingredientsError)}</InlineError>
 				) : ingredients.length === 0 ? (
-					<p>No ingredients added</p>
+					<p className="text-center text-[var(--color-muted-foreground)]">
+						No ingredients yet
+					</p>
 				) : (
 					<>
 						{ingredients.map((ingredient, index) => (
-							// TODO: extract to separate component if feasible
+							// TODO: consider extracting to separate component (mainly to reduce length of this file and improve readability)
 							<FieldGroup key={`${ingredient.ingredientId}-${index}`}>
 								<Field>
 									<FieldLabel
@@ -255,7 +257,6 @@ export function RecipeForm({
 						))}
 					</>
 				)}
-
 				<Button
 					type="button"
 					onClick={() =>
@@ -273,7 +274,202 @@ export function RecipeForm({
 					Add ingredient
 				</Button>
 			</FieldSet>
-			{/* TODO: fields for remaining recipe details */}
+			<Field>
+				<FieldLabel htmlFor="method">Method</FieldLabel>
+				<Textarea
+					id="method"
+					autoComplete="off"
+					value={method}
+					onChange={(e) => {
+						setMethod(e.target.value);
+						setFormError(null);
+					}}
+					placeholder="Enter recipe instructions"
+				/>
+			</Field>
+			<div className="grid gap-6 grid-cols-[1fr_1fr]">
+				<FieldSet>
+					<FieldLegend>Prep time</FieldLegend>
+					<FieldGroup className="grid gap-2 grid-cols-[1fr_1fr]">
+						<Field>
+							<FieldLabel className="sr-only" htmlFor="prepTime">
+								Time
+							</FieldLabel>
+							<Input
+								id="prepTime"
+								type="number"
+								autoComplete="off"
+								inputMode="decimal"
+								min="0"
+								value={prepTime.time}
+								onChange={(e) => {
+									setPrepTime({
+										...prepTime,
+										time: parseInt(e.target.value, 10),
+									});
+									setFormError(null);
+								}}
+								placeholder="Time"
+							/>
+						</Field>
+						<Field>
+							<FieldLabel className="sr-only" htmlFor={`prepTimeUnit`}>
+								Unit
+							</FieldLabel>
+							<Select
+								name={`prepTimeUnit`}
+								defaultValue={prepTime.unit}
+								value={prepTime.unit}
+								onValueChange={(value) => {
+									setPrepTime({
+										...prepTime,
+										unit: value as (typeof TIME_UNITS)[number],
+									});
+									setFormError(null);
+								}}
+							>
+								<SelectTrigger id={`prepTimeUnit`} className="w-full">
+									<SelectValue placeholder="Select a unit" />
+								</SelectTrigger>
+								<SelectContent>
+									{TIME_UNITS.map((unit) => (
+										<SelectItem key={unit} value={unit}>
+											{unit.toLocaleLowerCase()}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</Field>
+					</FieldGroup>
+				</FieldSet>
+				<FieldSet>
+					<FieldLegend>Cook time</FieldLegend>
+					<FieldGroup className="grid gap-2 grid-cols-[1fr_1fr]">
+						<Field>
+							<FieldLabel className="sr-only" htmlFor="cookTime">
+								Time
+							</FieldLabel>
+							<Input
+								id="cookTime"
+								type="number"
+								autoComplete="off"
+								inputMode="decimal"
+								min="0"
+								value={cookTime.time}
+								onChange={(e) => {
+									setCookTime({
+										...cookTime,
+										time: parseInt(e.target.value, 10),
+									});
+									setFormError(null);
+								}}
+								placeholder="Time"
+							/>
+						</Field>
+						<Field>
+							<FieldLabel className="sr-only" htmlFor={`cookTimeUnit`}>
+								Unit
+							</FieldLabel>
+							<Select
+								name={`cookTimeUnit`}
+								defaultValue={cookTime.unit}
+								value={cookTime.unit}
+								onValueChange={(value) => {
+									setCookTime({
+										...cookTime,
+										unit: value as (typeof TIME_UNITS)[number],
+									});
+									setFormError(null);
+								}}
+							>
+								<SelectTrigger id={`cookTimeUnit`} className="w-full">
+									<SelectValue placeholder="Select a unit" />
+								</SelectTrigger>
+								<SelectContent>
+									{TIME_UNITS.map((unit) => (
+										<SelectItem key={unit} value={unit}>
+											{unit.toLocaleLowerCase()}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</Field>
+					</FieldGroup>
+				</FieldSet>
+			</div>
+			<div className="grid gap-6 grid-cols-[1fr_1fr]">
+				<FieldSet>
+					<FieldLegend>Shelf life</FieldLegend>
+					<FieldGroup className="grid gap-2 grid-cols-[1fr_1fr]">
+						<Field>
+							<FieldLabel className="sr-only" htmlFor="shelfLife">
+								Time
+							</FieldLabel>
+							<Input
+								id="shelfLife"
+								type="number"
+								autoComplete="off"
+								inputMode="decimal"
+								min="0"
+								value={shelfLife.time}
+								onChange={(e) => {
+									setShelfLife({
+										...shelfLife,
+										time: parseInt(e.target.value, 10),
+									});
+									setFormError(null);
+								}}
+								placeholder="Time"
+							/>
+						</Field>
+						<Field>
+							<FieldLabel className="sr-only" htmlFor={`shelfLifeUnit`}>
+								Unit
+							</FieldLabel>
+							<Select
+								name={`shelfLifeUnit`}
+								defaultValue={shelfLife.unit}
+								value={shelfLife.unit}
+								onValueChange={(value) => {
+									setShelfLife({
+										...shelfLife,
+										unit: value as (typeof TIME_UNITS)[number],
+									});
+									setFormError(null);
+								}}
+							>
+								<SelectTrigger id={`shelfLifeUnit`} className="w-full">
+									<SelectValue placeholder="Select a unit" />
+								</SelectTrigger>
+								<SelectContent>
+									{TIME_UNITS.map((unit) => (
+										<SelectItem key={unit} value={unit}>
+											{unit.toLocaleLowerCase()}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</Field>
+					</FieldGroup>
+				</FieldSet>
+				<Field>
+					<FieldLabel htmlFor="numberOfPortions">Number of portions</FieldLabel>
+					<Input
+						className="max-w-[6rem]"
+						id="numberOfPortions"
+						type="number"
+						autoComplete="off"
+						inputMode="decimal"
+						min="1"
+						value={numberOfPortions}
+						onChange={(e) => {
+							setNumberOfPortions(parseInt(e.target.value, 10));
+							setFormError(null);
+						}}
+						placeholder="Number of portions"
+					/>
+				</Field>
+			</div>
 			<Field>
 				<Button
 					type="submit"
