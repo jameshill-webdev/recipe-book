@@ -70,13 +70,13 @@ describe("Ingredients", () => {
 								id: "ingredient-1",
 								name: "Flour",
 								purchaseUnit: "KILOGRAM",
-								costPerUnit: 1.99,
+								costPerUnit: "1.99",
 							},
 							{
 								id: "ingredient-2",
 								name: "Sugar",
 								purchaseUnit: "KILOGRAM",
-								costPerUnit: 2.49,
+								costPerUnit: "2.49",
 							},
 						],
 					}),
@@ -106,7 +106,7 @@ describe("Ingredients", () => {
 							id: "ingredient-1",
 							name: "Tomato",
 							purchaseUnit: "KILOGRAM",
-							costPerUnit: 2.5,
+							costPerUnit: "2.5",
 						},
 					}),
 				})
@@ -119,7 +119,7 @@ describe("Ingredients", () => {
 								id: "ingredient-1",
 								name: "Tomato",
 								purchaseUnit: "KILOGRAM",
-								costPerUnit: 2.5,
+								costPerUnit: "2.5",
 							},
 						],
 					}),
@@ -160,7 +160,7 @@ describe("Ingredients", () => {
 						body: JSON.stringify({
 							name: "Tomato",
 							purchaseUnit: "KILOGRAM",
-							costPerUnit: 2.5,
+							costPerUnit: "2.5",
 						}),
 					}),
 				);

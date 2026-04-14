@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type {
+	CreateIngredientRequest,
+	DeleteIngredientRequest,
+	UpdateIngredientRequest,
+} from "./ingredients.controller.js";
 
 vi.mock("@/database/prisma.js", () => ({
 	default: {
 		ingredient: {
 			findMany: vi.fn(),
+			findUnique: vi.fn(),
 			create: vi.fn(),
 			update: vi.fn(),
 			delete: vi.fn(),
@@ -63,6 +69,12 @@ describe("getIngredients", () => {
 		expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
 			where: { userId: testData.user.id },
 			orderBy: { name: "asc" },
+			select: {
+				id: true,
+				name: true,
+				purchaseUnit: true,
+				costPerUnit: true,
+			},
 		});
 		expect(status).toHaveBeenCalledWith(200);
 		expect(json).toHaveBeenCalledWith({ ok: true, ingredients });
@@ -101,14 +113,14 @@ describe("createIngredient", () => {
 
 		vi.mocked(prisma.ingredient.create).mockResolvedValue(createdIngredient as never);
 
-		await createIngredient(req, res);
+		await createIngredient(req as CreateIngredientRequest, res);
 
 		expect(prisma.ingredient.create).toHaveBeenCalledWith({
 			data: {
 				userId: testData.user.id,
 				name: testData.ingredient.name,
 				purchaseUnit: testData.ingredient.purchaseUnit,
-				costPerUnit: testData.ingredient.costPerUnit,
+				costPerUnit: testData.ingredient.costPerUnit.toString(),
 			},
 		});
 		expect(status).toHaveBeenCalledWith(201);
@@ -121,7 +133,7 @@ describe("createIngredient", () => {
 			body: testData.ingredient,
 		});
 
-		await createIngredient(req, res);
+		await createIngredient(req as CreateIngredientRequest, res);
 
 		expect(prisma.ingredient.create).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(401);
@@ -156,7 +168,7 @@ describe("updateIngredient", () => {
 
 		vi.mocked(prisma.ingredient.update).mockResolvedValue(updatedIngredient as never);
 
-		await updateIngredient(req, res);
+		await updateIngredient(req as UpdateIngredientRequest, res);
 
 		expect(prisma.ingredient.update).toHaveBeenCalledWith({
 			where: {
@@ -167,7 +179,7 @@ describe("updateIngredient", () => {
 			},
 			data: {
 				name: "Self-raising flour",
-				costPerUnit: 2.49,
+				costPerUnit: "2.49",
 			},
 		});
 		expect(status).toHaveBeenCalledWith(200);
@@ -192,7 +204,7 @@ describe("updateIngredient", () => {
 
 		vi.mocked(prisma.ingredient.update).mockResolvedValue({} as never);
 
-		await updateIngredient(req, res);
+		await updateIngredient(req as UpdateIngredientRequest, res);
 
 		expect(prisma.ingredient.update).toHaveBeenCalledWith({
 			where: {
@@ -207,7 +219,7 @@ describe("updateIngredient", () => {
 		});
 	});
 
-	it("returns 400 when no valid fields are provided", async () => {
+	it("returns the existing ingredient when no fields are provided", async () => {
 		const { res, status, json } = makeResponse();
 		const req = makeRequest({
 			session: {
@@ -220,15 +232,32 @@ describe("updateIngredient", () => {
 			},
 			body: {},
 		});
+		const existingIngredient = {
+			id: testData.ingredient.id,
+			userId: testData.user.id,
+			name: testData.ingredient.name,
+			purchaseUnit: testData.ingredient.purchaseUnit,
+			costPerUnit: testData.ingredient.costPerUnit.toString(),
+		};
 
-		await updateIngredient(req, res);
+		vi.mocked(prisma.ingredient.findUnique).mockResolvedValue(existingIngredient as never);
 
+		await updateIngredient(req as UpdateIngredientRequest, res);
+
+		expect(prisma.ingredient.findUnique).toHaveBeenCalledWith({
+			where: {
+				userId_id: {
+					userId: testData.user.id,
+					id: testData.ingredient.id,
+				},
+			},
+		});
 		expect(prisma.ingredient.update).not.toHaveBeenCalled();
-		expect(status).toHaveBeenCalledWith(400);
+		expect(status).toHaveBeenCalledWith(200);
 		expect(json).toHaveBeenCalledWith({
-			ok: false,
-			message: "Invalid ingredient data",
-			allowedPurchaseUnits: expect.any(Array),
+			ok: true,
+			message: "No fields provided for update.",
+			ingredient: existingIngredient,
 		});
 	});
 
@@ -243,7 +272,7 @@ describe("updateIngredient", () => {
 			},
 		});
 
-		await updateIngredient(req, res);
+		await updateIngredient(req as UpdateIngredientRequest, res);
 
 		expect(prisma.ingredient.update).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(401);
@@ -274,7 +303,7 @@ describe("deleteIngredient", () => {
 
 		vi.mocked(prisma.ingredient.delete).mockResolvedValue(deletedIngredient as never);
 
-		await deleteIngredient(req, res);
+		await deleteIngredient(req as DeleteIngredientRequest, res);
 
 		expect(prisma.ingredient.delete).toHaveBeenCalledWith({
 			where: {
@@ -301,7 +330,7 @@ describe("deleteIngredient", () => {
 			},
 		});
 
-		await deleteIngredient(req, res);
+		await deleteIngredient(req as DeleteIngredientRequest, res);
 
 		expect(prisma.ingredient.delete).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
@@ -319,7 +348,7 @@ describe("deleteIngredient", () => {
 			},
 		});
 
-		await deleteIngredient(req, res);
+		await deleteIngredient(req as DeleteIngredientRequest, res);
 
 		expect(prisma.ingredient.delete).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(401);

@@ -12,13 +12,16 @@ import {
 import { IngredientForm } from "@/components/ingredient-form/ingredient-form";
 import { createIngredient, getIngredients } from "@/lib/api/ingredients";
 import { getErrorMessage } from "@/lib/utils";
+import { PURCHASE_UNITS, type PurchaseUnit } from "@recipe-book/shared/lib/units";
 
 export default function Ingredients() {
 	const queryClient = useQueryClient();
 	const [addIngredientUIOpen, setAddIngredientUIOpen] = useState(false);
 	const [newIngredientName, setNewIngredientName] = useState("");
-	const [newIngredientPurchaseUnit, setNewIngredientPurchaseUnit] = useState("");
-	const [newIngredientCostPerUnit, setNewIngredientCostPerUnit] = useState<string | number>("");
+	const [newIngredientPurchaseUnit, setNewIngredientPurchaseUnit] = useState<PurchaseUnit>(
+		PURCHASE_UNITS[0],
+	);
+	const [newIngredientCostPerUnit, setNewIngredientCostPerUnit] = useState<string>("0");
 	const [formError, setFormError] = useState<string | null>(null);
 	const {
 		data: ingredients = [],
@@ -33,8 +36,8 @@ export default function Ingredients() {
 		mutationFn: createIngredient,
 		onSuccess: async () => {
 			setNewIngredientName("");
-			setNewIngredientPurchaseUnit("");
-			setNewIngredientCostPerUnit("");
+			setNewIngredientPurchaseUnit(PURCHASE_UNITS[0]);
+			setNewIngredientCostPerUnit("0");
 			setFormError(null);
 			setAddIngredientUIOpen(false);
 			await queryClient.invalidateQueries({ queryKey: ["ingredients"] });
@@ -52,17 +55,17 @@ export default function Ingredients() {
 		event.preventDefault();
 		setFormError(null);
 
-		const costPerUnit = Number(newIngredientCostPerUnit);
+		const costPerUnitAsNumber = Number(newIngredientCostPerUnit);
 
-		if (!Number.isFinite(costPerUnit) || costPerUnit < 0) {
+		if (!Number.isFinite(costPerUnitAsNumber) || costPerUnitAsNumber < 0) {
 			setFormError("Please enter a valid non-negative cost per unit.");
 			return;
 		}
 
 		createIngredientMutation.mutate({
 			name: newIngredientName.trim(),
-			purchaseUnit: newIngredientPurchaseUnit.trim(),
-			costPerUnit,
+			purchaseUnit: newIngredientPurchaseUnit.trim() as PurchaseUnit,
+			costPerUnit: newIngredientCostPerUnit.trim(),
 		});
 	}
 

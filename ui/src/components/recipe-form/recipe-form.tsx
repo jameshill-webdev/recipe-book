@@ -8,7 +8,7 @@ import z from "zod";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
 import { recipeNameSchema } from "@/lib/validation/fields";
 import { Check } from "lucide-react";
-import type { Duration, RecipeIngredient } from "@/lib/types/recipe";
+import type { Duration, RecipeIngredient } from "@recipe-book/shared/types/recipe";
 import {
 	Select,
 	SelectTrigger,
@@ -16,7 +16,7 @@ import {
 	SelectContent,
 	SelectItem,
 } from "@/components/ui/select/select";
-import type { Ingredient } from "@/lib/types/ingredient";
+import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 import { PURCHASE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -69,30 +69,16 @@ export function RecipeForm({
 	ingredientsError,
 	ingredients,
 	setIngredients,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	method,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	setMethod,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	prepTime,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	setPrepTime,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	cookTime,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	setCookTime,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	shelfLife,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	setShelfLife,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	numberOfPortions,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	setNumberOfPortions,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	costPerPortion,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	setCostPerPortion,
 	mutation,
 	formError,
 	setFormError,

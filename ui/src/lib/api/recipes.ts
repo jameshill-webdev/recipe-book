@@ -2,7 +2,7 @@ import type {
 	CreateRecipePayload,
 	RecipeMutationResponse,
 	GetRecipesResponse,
-} from "@/lib/types/recipe";
+} from "@recipe-book/shared/types/recipe";
 import { GENERIC_ERROR } from "../content-strings";
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");

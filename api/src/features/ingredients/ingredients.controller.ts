@@ -1,70 +1,13 @@
 import { type Request, type Response } from "express";
 import prisma from "../../database/prisma.js";
+import type {
+	CreateIngredientPayload,
+	UpdateIngredientPayload,
+} from "@recipe-book/shared/types/ingredient";
 import {
-	PurchaseUnit,
-	type PurchaseUnit as PurchaseUnitValue,
-} from "../../generated/prisma/enums.js";
-
-type IngredientRequestBody = {
-	name?: string;
-	purchaseUnit?: string;
-	costPerUnit?: number | string;
-};
-
-type IngredientParams = {
-	id?: string;
-};
-
-type IngredientData = {
-	name: string;
-	purchaseUnit: PurchaseUnitValue;
-	costPerUnit: number;
-};
-
-const allowedPurchaseUnits = Object.values(PurchaseUnit);
-
-function getValidatedIngredientData(body: IngredientRequestBody) {
-	const data: Partial<IngredientData> = {};
-	const hasName = Object.prototype.hasOwnProperty.call(body, "name");
-	const hasPurchaseUnit = Object.prototype.hasOwnProperty.call(body, "purchaseUnit");
-	const hasCostPerUnit = Object.prototype.hasOwnProperty.call(body, "costPerUnit");
-
-	if (hasName) {
-		const name = body.name?.trim();
-
-		if (!name) {
-			return null;
-		}
-
-		data.name = name;
-	}
-
-	if (hasPurchaseUnit) {
-		const purchaseUnit = body.purchaseUnit?.trim().toUpperCase();
-
-		if (!purchaseUnit || !allowedPurchaseUnits.includes(purchaseUnit as PurchaseUnitValue)) {
-			return null;
-		}
-
-		data.purchaseUnit = purchaseUnit as PurchaseUnitValue;
-	}
-
-	if (hasCostPerUnit) {
-		const costPerUnit = Number(body.costPerUnit);
-
-		if (!Number.isFinite(costPerUnit) || costPerUnit < 0) {
-			return null;
-		}
-
-		data.costPerUnit = costPerUnit;
-	}
-
-	if (Object.keys(data).length === 0) {
-		return null;
-	}
-
-	return data;
-}
+	getValidatedCreateIngredientData,
+	getValidatedUpdateIngredientData,
+} from "./ingredients.validator.js";
 
 export const getIngredients = async (request: Request, response: Response) => {
 	const userId = request.session?.user.id;
@@ -76,22 +19,30 @@ export const getIngredients = async (request: Request, response: Response) => {
 	const ingredients = await prisma.ingredient.findMany({
 		where: { userId },
 		orderBy: { name: "asc" },
+		select: {
+			id: true,
+			name: true,
+			purchaseUnit: true,
+			costPerUnit: true,
+		},
 	});
 
-	return response.status(200).json({ ok: true, ingredients });
+	return response.status(200).json({
+		ok: true,
+		ingredients,
+	});
 };
 
-export const createIngredient = async (
-	request: Request<object, object, IngredientRequestBody>,
-	response: Response,
-) => {
+export type CreateIngredientRequest = Request<object, object, CreateIngredientPayload>;
+
+export const createIngredient = async (request: CreateIngredientRequest, response: Response) => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {
 		return response.status(401).json({ ok: false, message: "Unauthorized" });
 	}
 
-	const ingredientData = getValidatedIngredientData(request.body ?? {});
+	const ingredientData = getValidatedCreateIngredientData(request.body ?? {});
 
 	if (
 		!ingredientData?.name ||
@@ -101,7 +52,6 @@ export const createIngredient = async (
 		return response.status(400).json({
 			ok: false,
 			message: "Invalid ingredient data",
-			allowedPurchaseUnits,
 		});
 	}
 
@@ -117,24 +67,43 @@ export const createIngredient = async (
 	return response.status(201).json({ ok: true, ingredient });
 };
 
-export const updateIngredient = async (
-	request: Request<IngredientParams, object, IngredientRequestBody>,
-	response: Response,
-) => {
+export type UpdateIngredientRequest = Request<{ id: string }, object, UpdateIngredientPayload>;
+
+export const updateIngredient = async (request: UpdateIngredientRequest, response: Response) => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {
 		return response.status(401).json({ ok: false, message: "Unauthorized" });
 	}
 
-	const ingredientId = request.params.id?.trim();
-	const ingredientData = getValidatedIngredientData(request.body ?? {});
+	console.log("Update ingredient request body:", request.body);
 
-	if (!ingredientId || !ingredientData) {
+	const ingredientId = request.params.id?.trim();
+	const ingredientData = getValidatedUpdateIngredientData(request.body ?? {});
+
+	if (!ingredientId || ingredientData === null) {
 		return response.status(400).json({
 			ok: false,
 			message: "Invalid ingredient data",
-			allowedPurchaseUnits,
+		});
+	}
+
+	if (Object.keys(ingredientData).length === 0) {
+		console.log("No fields provided for update.");
+
+		const ingredient = await prisma.ingredient.findUnique({
+			where: {
+				userId_id: {
+					userId,
+					id: ingredientId,
+				},
+			},
+		});
+
+		return response.status(200).json({
+			ok: true,
+			message: "No fields provided for update.",
+			ingredient,
 		});
 	}
 
@@ -151,10 +120,9 @@ export const updateIngredient = async (
 	return response.status(200).json({ ok: true, ingredient });
 };
 
-export const deleteIngredient = async (
-	request: Request<IngredientParams, object, IngredientRequestBody>,
-	response: Response,
-) => {
+export type DeleteIngredientRequest = Request<{ id: string }, object, { id: string }>;
+
+export const deleteIngredient = async (request: DeleteIngredientRequest, response: Response) => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {

@@ -1,4 +1,4 @@
-import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
+import { PURCHASE_UNITS, type PurchaseUnit } from "@recipe-book/shared/lib/units";
 import { Button } from "@/components/ui/button/button";
 import { InlineError } from "@/components/ui/error/error";
 import { Field, FieldLabel } from "@/components/ui/field/field";
@@ -26,10 +26,10 @@ interface IngredientFormProps {
 	submitHandler: (e: React.SubmitEvent) => void;
 	name: string;
 	setName: (value: string) => void;
-	purchaseUnit: string;
-	setPurchaseUnit: (value: string) => void;
-	costPerUnit: string | number;
-	setCostPerUnit: (value: string | number) => void;
+	purchaseUnit: PurchaseUnit;
+	setPurchaseUnit: (value: PurchaseUnit) => void;
+	costPerUnit: string;
+	setCostPerUnit: (value: string) => void;
 	mutation: {
 		isPending: boolean;
 	};
@@ -111,7 +111,7 @@ export function IngredientForm({
 				</FieldLabel>
 				<Input
 					id="costPerUnit"
-					type="number"
+					type="text"
 					autoComplete="off"
 					inputMode="decimal"
 					min="0"
@@ -135,7 +135,7 @@ export function IngredientForm({
 					name="purchaseUnit"
 					value={purchaseUnit}
 					onValueChange={(value) => {
-						setPurchaseUnit(value);
+						setPurchaseUnit(value as PurchaseUnit);
 						setFormError(null);
 					}}
 				>

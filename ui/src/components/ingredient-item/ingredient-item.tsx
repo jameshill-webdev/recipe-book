@@ -9,22 +9,17 @@ import {
 	INGREDIENT_ITEM_EDIT_BUTTON_LABEL,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
-import type {
-	CreateIngredientPayload,
-	Ingredient,
-	IngredientMutationResponse,
-} from "@/lib/types/ingredient";
+import type { UpdateIngredientPayload, IngredientData } from "@recipe-book/shared/types/ingredient";
 import { Button } from "../ui/button/button";
 import { IngredientForm } from "../ingredient-form/ingredient-form";
+import { updateIngredient, deleteIngredient } from "@/lib/api/ingredients";
+import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 
-type IngredientItemProps = Pick<Ingredient, "id" | "name" | "purchaseUnit" | "costPerUnit">;
+type IngredientItemProps = Pick<IngredientData, "id" | "name" | "purchaseUnit" | "costPerUnit">;
 
-type UpdateIngredientPayload = {
-	id: string;
-} & Partial<CreateIngredientPayload>;
+const DEFAULT_PURCHASE_UNIT: PurchaseUnit = "UNIT";
 
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");
-
+// TODO: replace with shared lib version
 function getErrorMessage(error: unknown) {
 	if (error instanceof TypeError) {
 		return NETWORK_ERROR;
@@ -33,45 +28,13 @@ function getErrorMessage(error: unknown) {
 	return error instanceof Error ? error.message : GENERIC_ERROR;
 }
 
-async function updateIngredient({ id, ...payload }: UpdateIngredientPayload) {
-	const response = await fetch(`${apiBaseUrl}/ingredients/${id}`, {
-		method: "PATCH",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-		body: JSON.stringify(payload),
-	});
-
-	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
-
-	if (!response.ok) {
-		throw new Error(data?.message ?? GENERIC_ERROR);
-	}
-
-	return data;
-}
-
-async function deleteIngredient({ id }: { id: string }) {
-	const response = await fetch(`${apiBaseUrl}/ingredients/${id}`, {
-		method: "DELETE",
-		credentials: "include",
-	});
-
-	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
-
-	if (!response.ok) {
-		throw new Error(data?.message ?? GENERIC_ERROR);
-	}
-
-	return data;
-}
-
 export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: IngredientItemProps) {
 	const queryClient = useQueryClient();
 	const [isEditing, setIsEditing] = useState(false);
 	const [newName, setNewName] = useState(name);
-	const [newPurchaseUnit, setNewPurchaseUnit] = useState(purchaseUnit);
+	const [newPurchaseUnit, setNewPurchaseUnit] = useState<PurchaseUnit>(
+		purchaseUnit || DEFAULT_PURCHASE_UNIT,
+	);
 	const [newCostPerUnit, setNewCostPerUnit] = useState(costPerUnit);
 	const [formError, setFormError] = useState<string | null>(null);
 
@@ -101,7 +64,7 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 	function onEdit() {
 		setNewName(name);
 		setNewPurchaseUnit(purchaseUnit);
-		setNewCostPerUnit(costPerUnit);
+		setNewCostPerUnit(costPerUnit.toString());
 		setFormError(null);
 		setIsEditing(true);
 	}
@@ -157,14 +120,14 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 		}
 
 		if (trimmedPurchaseUnit !== purchaseUnit) {
-			payload.purchaseUnit = trimmedPurchaseUnit;
+			payload.purchaseUnit = trimmedPurchaseUnit as PurchaseUnit;
 		}
 
 		if (parsedCostPerUnit !== originalCostPerUnit) {
-			payload.costPerUnit = parsedCostPerUnit;
+			payload.costPerUnit = newCostPerUnit;
 		}
 
-		if (Object.keys(payload).length === 1) {
+		if (Object.keys(payload).length === 0) {
 			setIsEditing(false);
 			return;
 		}
@@ -201,8 +164,11 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 							<ItemTitle className="pl-2" aria-label={`Ingredient name: ${name}`}>
 								{name}
 							</ItemTitle>
-							<span className="" aria-label={`Ingredient cost: ${costPerUnit}`}>
-								{costPerUnit}
+							<span
+								className=""
+								aria-label={`Ingredient cost: ${Number(costPerUnit).toFixed(2)}`}
+							>
+								{Number(costPerUnit).toFixed(2)}
 							</span>
 							<span aria-label={`Purchase unit: ${purchaseUnit.toLocaleLowerCase()}`}>
 								{purchaseUnit.toLocaleLowerCase()}

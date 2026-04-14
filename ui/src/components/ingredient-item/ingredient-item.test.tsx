@@ -22,7 +22,7 @@ function renderIngredientItem() {
 				id="ingredient-1"
 				name="Flour"
 				purchaseUnit="KILOGRAM"
-				costPerUnit={1.99}
+				costPerUnit="1.99"
 			/>
 		</QueryClientProvider>,
 	);

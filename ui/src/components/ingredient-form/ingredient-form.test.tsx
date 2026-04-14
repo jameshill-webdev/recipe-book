@@ -5,20 +5,22 @@ import {
 	INGREDIENT_NAME_REQUIRED,
 	INGREDIENT_COST_PER_UNIT_REQUIRED,
 	INGREDIENT_COST_PER_UNIT_POSITIVE,
-	INGREDIENT_PURCHASE_UNIT_REQUIRED,
+	CREATE_INGREDIENT_FORM_LABEL,
+	EDIT_INGREDIENT_FORM_LABEL,
 } from "../../lib/content-strings";
+import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 
 function renderIngredientForm(
 	overrides: Partial<React.ComponentProps<typeof IngredientForm>> = {},
 ) {
 	const props = {
-		label: "Create ingredient",
+		label: CREATE_INGREDIENT_FORM_LABEL,
 		submitHandler: vi.fn(),
 		name: "Sugar",
 		setName: vi.fn(),
-		purchaseUnit: "GRAM",
+		purchaseUnit: "GRAM" as PurchaseUnit,
 		setPurchaseUnit: vi.fn(),
-		costPerUnit: "2.50",
+		costPerUnit: "2.5",
 		setCostPerUnit: vi.fn(),
 		mutation: {
 			isPending: false,
@@ -39,10 +41,12 @@ describe("IngredientForm", () => {
 		it("renders the create form with the expected fields and values", () => {
 			renderIngredientForm();
 
-			expect(screen.getByRole("form", { name: "Create ingredient" })).toBeInTheDocument();
+			expect(
+				screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }),
+			).toBeInTheDocument();
 			expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue("Sugar");
-			expect(screen.getByRole("spinbutton", { name: "Cost per unit" })).toHaveDisplayValue(
-				"2.50",
+			expect(screen.getByRole("textbox", { name: "Cost per unit" })).toHaveDisplayValue(
+				"2.5",
 			);
 			expect(screen.getByRole("combobox", { name: "Purchase unit" })).toBeInTheDocument();
 			expect(screen.getByRole("button", { name: "Create ingredient" })).toBeEnabled();
@@ -50,7 +54,7 @@ describe("IngredientForm", () => {
 
 		it("renders edit mode with visually hidden labels, a disabled pending button, and an error", () => {
 			renderIngredientForm({
-				label: "Edit ingredient",
+				label: EDIT_INGREDIENT_FORM_LABEL,
 				isEdit: true,
 				mutation: { isPending: true },
 				formError: "Validation failed",
@@ -72,7 +76,7 @@ describe("IngredientForm", () => {
 
 			renderIngredientForm({
 				name: "",
-				costPerUnit: "",
+				costPerUnit: undefined,
 				formError: "Something went wrong",
 				setName,
 				setCostPerUnit,
@@ -82,7 +86,7 @@ describe("IngredientForm", () => {
 			fireEvent.change(screen.getByRole("textbox", { name: "Name" }), {
 				target: { value: "Flour" },
 			});
-			fireEvent.change(screen.getByRole("spinbutton", { name: "Cost per unit" }), {
+			fireEvent.change(screen.getByRole("textbox", { name: "Cost per unit" }), {
 				target: { value: "1.25" },
 			});
 
@@ -98,7 +102,7 @@ describe("IngredientForm", () => {
 			const setFormError = vi.fn();
 
 			renderIngredientForm({
-				purchaseUnit: "",
+				purchaseUnit: undefined,
 				setPurchaseUnit,
 				setFormError,
 			});
@@ -121,15 +125,24 @@ describe("IngredientForm", () => {
 		it("shows zod validation errors and skips submit when required fields are missing", () => {
 			const { props } = renderIngredientForm({
 				name: "",
-				costPerUnit: "",
-				purchaseUnit: "",
+				costPerUnit: undefined,
+				purchaseUnit: undefined,
 			});
 
-			fireEvent.submit(screen.getByRole("form", { name: "Create ingredient" }));
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
 
 			expect(screen.getByText(INGREDIENT_NAME_REQUIRED)).toBeInTheDocument();
+			expect(props.submitHandler).not.toHaveBeenCalled();
+		});
+
+		it("shows a zod validation error and skips submit when cost per unit is non-numeric", () => {
+			const { props } = renderIngredientForm({
+				costPerUnit: "abc",
+			});
+
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
 			expect(screen.getByText(INGREDIENT_COST_PER_UNIT_REQUIRED)).toBeInTheDocument();
-			expect(screen.getByText(INGREDIENT_PURCHASE_UNIT_REQUIRED)).toBeInTheDocument();
 			expect(props.submitHandler).not.toHaveBeenCalled();
 		});
 
@@ -138,9 +151,26 @@ describe("IngredientForm", () => {
 				costPerUnit: "-1",
 			});
 
-			fireEvent.submit(screen.getByRole("form", { name: "Create ingredient" }));
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
 
 			expect(screen.getByText(INGREDIENT_COST_PER_UNIT_POSITIVE)).toBeInTheDocument();
+			expect(props.submitHandler).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("edit mode specific form validation and error scenarios", () => {
+		it("shows zod validation errors and skips submit when required fields are missing (edit mode)", () => {
+			const { props } = renderIngredientForm({
+				label: EDIT_INGREDIENT_FORM_LABEL,
+				name: "",
+				costPerUnit: undefined,
+				purchaseUnit: undefined,
+			});
+
+			fireEvent.submit(screen.getByRole("form", { name: EDIT_INGREDIENT_FORM_LABEL }));
+
+			expect(screen.getByText(INGREDIENT_NAME_REQUIRED)).toBeInTheDocument();
+			expect(screen.getByText(INGREDIENT_COST_PER_UNIT_REQUIRED)).toBeInTheDocument();
 			expect(props.submitHandler).not.toHaveBeenCalled();
 		});
 	});
@@ -149,18 +179,18 @@ describe("IngredientForm", () => {
 		it("submits with the provided handler when zod validation passes (create mode)", () => {
 			const { props } = renderIngredientForm();
 
-			fireEvent.submit(screen.getByRole("form", { name: "Create ingredient" }));
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
 
 			expect(props.submitHandler).toHaveBeenCalledTimes(1);
 		});
 
 		it("submits with the provided handler when zod validation passes (edit mode)", () => {
 			const { props } = renderIngredientForm({
-				label: "Edit ingredient",
+				label: EDIT_INGREDIENT_FORM_LABEL,
 				isEdit: true,
 			});
 
-			fireEvent.submit(screen.getByRole("form", { name: "Edit ingredient" }));
+			fireEvent.submit(screen.getByRole("form", { name: EDIT_INGREDIENT_FORM_LABEL }));
 
 			expect(props.submitHandler).toHaveBeenCalledTimes(1);
 		});
