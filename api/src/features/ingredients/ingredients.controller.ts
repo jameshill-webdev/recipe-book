@@ -123,6 +123,8 @@ export const updateIngredient = async (request: UpdateIngredientRequest, respons
 export type DeleteIngredientRequest = Request<{ id: string }, object, { id: string }>;
 
 export const deleteIngredient = async (request: DeleteIngredientRequest, response: Response) => {
+	// TODO: implement try/catch for all controller functions and return 500 status code with error message if an unexpected error occurs
+
 	const userId = request.session?.user.id;
 
 	if (!userId) {

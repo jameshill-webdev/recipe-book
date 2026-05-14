@@ -2,9 +2,13 @@
 	"scripts": {
 		"format": "npx prettier . --write",
 		"prepare": "husky",
-		"precommit": "node scripts/pre-commit.mjs"
+		"precommit": "node scripts/pre-commit.mjs",
+		"dev": "concurrently \"npm run dev:ui\" \"npm run dev:api\"",
+		"dev:ui": "cd ui && npm run dev",
+		"dev:api": "cd api && npm run dev"
 	},
 	"devDependencies": {
+		"concurrently": "^9.2.1",
 		"husky": "^9.1.7",
 		"prettier": "^3.8.1"
 	},
