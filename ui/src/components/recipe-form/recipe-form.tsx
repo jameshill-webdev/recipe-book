@@ -16,9 +16,10 @@ import {
 	SelectContent,
 	SelectItem,
 } from "@/components/ui/select/select";
-import type { Ingredient } from "@recipe-book/shared/types/ingredient";
+import type { IngredientData } from "@recipe-book/shared/types/ingredient";
 import { PURCHASE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
 import { getErrorMessage } from "@/lib/utils";
+import { RecipeIngredient as IngredientComponent } from "../recipe-ingredient/recipe-ingredient";
 
 interface RecipeFormProps {
 	label: string;
@@ -26,7 +27,7 @@ interface RecipeFormProps {
 	submitHandler: (e: React.SubmitEvent) => void;
 	name: string;
 	setName: (value: string) => void;
-	ingredientOptions: Ingredient[];
+	ingredientOptions: IngredientData[];
 	isIngredientsPending: boolean;
 	ingredientsError: Error | null;
 	ingredients: RecipeIngredient[];
@@ -135,111 +136,13 @@ export function RecipeForm({
 				) : (
 					<>
 						{ingredients.map((ingredient, index) => (
-							// TODO: consider extracting to separate component (mainly to reduce length of this file and improve readability)
-							<FieldGroup key={`${ingredient.ingredientId}-${index}`}>
-								<Field>
-									<FieldLabel
-										htmlFor={`ingredients[${index}][ingredientId]`}
-										className="sr-only"
-									>
-										Ingredient
-									</FieldLabel>
-									<Select
-										name={`ingredients[${index}][ingredientId]`}
-										value={ingredient.ingredientId}
-										onValueChange={(value) => {
-											const updatedIngredients = [...ingredients];
-
-											updatedIngredients[index].ingredientId = value;
-											updatedIngredients[index].name =
-												ingredientOptions.find(
-													(option) => option.id === value,
-												)?.name || "";
-											updatedIngredients[index].quantity = 1;
-											updatedIngredients[index].unit = PURCHASE_UNITS[0];
-
-											setIngredients(updatedIngredients);
-											setFormError(null);
-										}}
-									>
-										<SelectTrigger
-											id={`ingredients[${index}][ingredientId]`}
-											className="w-full"
-										>
-											<SelectValue placeholder="Select an ingredient" />
-										</SelectTrigger>
-										<SelectContent>
-											{ingredientOptions.map((ingredientOption) => (
-												<SelectItem
-													key={ingredientOption.id}
-													value={ingredientOption.id}
-												>
-													{ingredientOption.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</Field>
-								<Field>
-									<FieldLabel
-										htmlFor={`ingredients[${index}][quantity]`}
-										className="sr-only"
-									>
-										Quantity
-									</FieldLabel>
-									<Input
-										id={`ingredients[${index}][quantity]`}
-										type="number"
-										autoComplete="off"
-										inputMode="decimal"
-										min="0"
-										step="0.01"
-										value={ingredient.quantity}
-										onChange={(e) => {
-											const updatedIngredients = [...ingredients];
-											updatedIngredients[index].quantity = parseFloat(
-												e.target.value,
-											);
-											setIngredients(updatedIngredients);
-											setFormError(null);
-										}}
-										placeholder="Quantity"
-									/>
-								</Field>
-								<Field>
-									<FieldLabel
-										htmlFor={`ingredients[${index}][unit]`}
-										className="sr-only"
-									>
-										Unit
-									</FieldLabel>
-									<Select
-										name={`ingredients[${index}][unit]`}
-										value={ingredient.unit}
-										onValueChange={(value) => {
-											const updatedIngredients = [...ingredients];
-											updatedIngredients[index].unit =
-												value as (typeof PURCHASE_UNITS)[number];
-											setIngredients(updatedIngredients);
-											setFormError(null);
-										}}
-									>
-										<SelectTrigger
-											id={`ingredients[${index}][unit]`}
-											className="w-full"
-										>
-											<SelectValue placeholder="Select a unit" />
-										</SelectTrigger>
-										<SelectContent>
-											{PURCHASE_UNITS.map((unit) => (
-												<SelectItem key={unit} value={unit}>
-													{unit.toLocaleLowerCase()}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</Field>
-							</FieldGroup>
+							<IngredientComponent
+								ingredient={ingredient}
+								index={index}
+								ingredients={ingredients}
+								setIngredients={setIngredients}
+								setFormError={setFormError}
+							/>
 						))}
 					</>
 				)}

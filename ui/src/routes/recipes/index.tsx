@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { getIngredients } from "@/lib/api/ingredients";
-import type { RecipeIngredient, Duration } from "@/lib/types/recipe";
+import type { RecipeIngredient, Duration } from "@recipe-book/shared/types/recipe";
 import { createRecipe } from "@/lib/api/recipes";
 import { getErrorMessage } from "@/lib/utils";
 
