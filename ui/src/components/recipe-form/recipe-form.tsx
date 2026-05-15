@@ -137,10 +137,12 @@ export function RecipeForm({
 					<>
 						{ingredients.map((ingredient, index) => (
 							<IngredientComponent
+								key={`${ingredient.ingredientId}-${index}`}
 								ingredient={ingredient}
 								index={index}
 								ingredients={ingredients}
 								setIngredients={setIngredients}
+								ingredientOptions={ingredientOptions}
 								setFormError={setFormError}
 							/>
 						))}
@@ -152,8 +154,8 @@ export function RecipeForm({
 						setIngredients([
 							...ingredients,
 							{
-								ingredientId: ingredientOptions[0]?.id || "",
-								name: ingredientOptions[0]?.name || "",
+								ingredientId: "",
+								name: "",
 								quantity: 1,
 								unit: PURCHASE_UNITS[0],
 							},

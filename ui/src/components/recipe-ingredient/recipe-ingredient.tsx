@@ -8,13 +8,23 @@ import {
 	SelectContent,
 	SelectItem,
 } from "@/components/ui/select/select";
+import {
+	Autocomplete,
+	AutocompleteInput,
+	AutocompletePositioner,
+	AutocompletePopup,
+	AutocompleteList,
+	AutocompleteItem,
+} from "@/components/ui/autocomplete/autocomplete";
 import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
+import type { IngredientData } from "@recipe-book/shared/types/ingredient";
 
 interface RecipeIngredientProps {
 	ingredient: RecipeIngredient;
 	index: number;
 	ingredients: RecipeIngredient[];
 	setIngredients: (value: RecipeIngredient[]) => void;
+	ingredientOptions: IngredientData[];
 	setFormError: (value: string | null) => void;
 }
 
@@ -23,6 +33,7 @@ export function RecipeIngredient({
 	index,
 	ingredients,
 	setIngredients,
+	ingredientOptions,
 	setFormError,
 }: RecipeIngredientProps) {
 	return (
@@ -31,7 +42,28 @@ export function RecipeIngredient({
 				<FieldLabel htmlFor={`ingredients[${index}][ingredientId]`} className="sr-only">
 					Ingredient
 				</FieldLabel>
-				{/* TODO: implement textbox with realtime search for ingredient name */}
+				<Autocomplete
+					items={ingredientOptions.map((option) => option.name)}
+					onValueChange={(value) => {
+						const updatedIngredients = [...ingredients];
+						updatedIngredients[index].name = value;
+						setIngredients(updatedIngredients);
+						setFormError(null);
+					}}
+				>
+					<AutocompleteInput />
+					<AutocompletePositioner sideOffset={4}>
+						<AutocompletePopup>
+							<AutocompleteList>
+								{(item: string) => (
+									<AutocompleteItem key={item} value={item}>
+										{item}
+									</AutocompleteItem>
+								)}
+							</AutocompleteList>
+						</AutocompletePopup>
+					</AutocompletePositioner>
+				</Autocomplete>
 			</Field>
 			<Field>
 				<FieldLabel htmlFor={`ingredients[${index}][quantity]`} className="sr-only">
