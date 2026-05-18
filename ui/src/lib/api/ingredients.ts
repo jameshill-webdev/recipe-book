@@ -1,7 +1,7 @@
 import type {
-	CreateIngredientPayload,
+	CreateIngredientsPayload,
 	UpdateIngredientPayload,
-	IngredientMutationResponse,
+	IngredientsMutationResponse,
 	GetIngredientsResponse,
 } from "@recipe-book/shared/types/ingredient";
 import { GENERIC_ERROR } from "../content-strings";
@@ -22,7 +22,7 @@ export async function getIngredients() {
 	return data?.ingredients ?? [];
 }
 
-export async function createIngredient(payload: CreateIngredientPayload) {
+export async function createIngredient(payload: CreateIngredientsPayload) {
 	const response = await fetch(`${apiBaseUrl}/ingredients`, {
 		method: "POST",
 		headers: {
@@ -32,7 +32,7 @@ export async function createIngredient(payload: CreateIngredientPayload) {
 		body: JSON.stringify(payload),
 	});
 
-	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as IngredientsMutationResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
@@ -53,7 +53,7 @@ export async function updateIngredient(payload: UpdateIngredientPayload) {
 		body: JSON.stringify(payload),
 	});
 
-	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as IngredientsMutationResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
@@ -68,7 +68,7 @@ export async function deleteIngredient(payload: { id: string }) {
 		credentials: "include",
 	});
 
-	const data = (await response.json().catch(() => null)) as IngredientMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as IngredientsMutationResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);

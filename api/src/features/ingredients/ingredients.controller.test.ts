@@ -7,6 +7,7 @@ import type {
 
 vi.mock("@/database/prisma.js", () => ({
 	default: {
+		$transaction: vi.fn(),
 		ingredient: {
 			findMany: vi.fn(),
 			findUnique: vi.fn(),
@@ -15,6 +16,48 @@ vi.mock("@/database/prisma.js", () => ({
 			delete: vi.fn(),
 		},
 	},
+}));
+
+vi.mock("./ingredients.validator.js", () => ({
+	getValidatedCreateIngredientData: vi.fn((data) => {
+		if (!data.name || !data.purchaseUnit || data.costPerUnit === undefined) {
+			return null;
+		}
+		return {
+			name: typeof data.name === "string" ? data.name.trim() : data.name,
+			purchaseUnit:
+				typeof data.purchaseUnit === "string"
+					? data.purchaseUnit.toUpperCase()
+					: data.purchaseUnit,
+			costPerUnit: Number(data.costPerUnit).toString(),
+		};
+	}),
+	getValidatedUpdateIngredientData: vi.fn((data) => {
+		const validated: Record<string, unknown> = {};
+
+		if (data.name !== undefined) {
+			validated.name = typeof data.name === "string" ? data.name.trim() : data.name;
+		}
+
+		if (data.purchaseUnit !== undefined) {
+			validated.purchaseUnit =
+				typeof data.purchaseUnit === "string"
+					? data.purchaseUnit.trim().toUpperCase()
+					: data.purchaseUnit;
+		}
+
+		if (data.costPerUnit !== undefined) {
+			validated.costPerUnit = Number(data.costPerUnit).toString();
+		}
+
+		// Return empty object for no fields provided, so controller can handle it
+		// Return null only if invalid data is provided
+		return Object.keys(data).length === 0
+			? {}
+			: Object.keys(validated).length === 0
+				? null
+				: validated;
+	}),
 }));
 
 import prisma from "@/database/prisma.js";
@@ -101,7 +144,15 @@ describe("createIngredient", () => {
 					id: testData.user.id,
 				},
 			} as never,
-			body: testData.ingredient,
+			body: {
+				ingredients: [
+					{
+						name: testData.ingredient.name,
+						purchaseUnit: testData.ingredient.purchaseUnit,
+						costPerUnit: testData.ingredient.costPerUnit,
+					},
+				],
+			},
 		});
 		const createdIngredient = {
 			id: testData.ingredient.id,
@@ -111,20 +162,128 @@ describe("createIngredient", () => {
 			costPerUnit: testData.ingredient.costPerUnit.toString(),
 		};
 
-		vi.mocked(prisma.ingredient.create).mockResolvedValue(createdIngredient as never);
+		vi.mocked(prisma.$transaction).mockResolvedValue([createdIngredient] as never);
 
 		await createIngredient(req as CreateIngredientRequest, res);
 
-		expect(prisma.ingredient.create).toHaveBeenCalledWith({
-			data: {
-				userId: testData.user.id,
-				name: testData.ingredient.name,
-				purchaseUnit: testData.ingredient.purchaseUnit,
-				costPerUnit: testData.ingredient.costPerUnit.toString(),
+		expect(prisma.$transaction).toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(201);
+		expect(json).toHaveBeenCalledWith({ ok: true, ingredients: [createdIngredient] });
+	});
+
+	it("creates multiple ingredients in a single transaction", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			body: {
+				ingredients: [
+					{
+						name: "Flour",
+						purchaseUnit: "KILOGRAM",
+						costPerUnit: 1.99,
+					},
+					{
+						name: "Sugar",
+						purchaseUnit: "KILOGRAM",
+						costPerUnit: 0.89,
+					},
+				],
 			},
 		});
+		const createdIngredients = [
+			{
+				id: "ingredient-1",
+				userId: testData.user.id,
+				name: "Flour",
+				purchaseUnit: "KILOGRAM",
+				costPerUnit: "1.99",
+			},
+			{
+				id: "ingredient-2",
+				userId: testData.user.id,
+				name: "Sugar",
+				purchaseUnit: "KILOGRAM",
+				costPerUnit: "0.89",
+			},
+		];
+
+		vi.mocked(prisma.$transaction).mockResolvedValue(createdIngredients as never);
+
+		await createIngredient(req as CreateIngredientRequest, res);
+
+		expect(prisma.$transaction).toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(201);
-		expect(json).toHaveBeenCalledWith({ ok: true, ingredient: createdIngredient });
+		expect(json).toHaveBeenCalledWith({ ok: true, ingredients: createdIngredients });
+	});
+
+	it("returns 400 when ingredients array is empty", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			body: {
+				ingredients: [],
+			},
+		});
+
+		await createIngredient(req as CreateIngredientRequest, res);
+
+		expect(prisma.$transaction).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "Invalid ingredient data" });
+	});
+
+	it("returns 400 when ingredients is not an array", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			body: {
+				ingredients: "not-an-array",
+			},
+		});
+
+		await createIngredient(req as CreateIngredientRequest, res);
+
+		expect(prisma.$transaction).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "Invalid ingredient data" });
+	});
+
+	it("returns 400 when ingredient validation fails", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			body: {
+				ingredients: [
+					{
+						name: "", // Invalid: empty name
+						purchaseUnit: "KILOGRAM",
+						costPerUnit: 1.99,
+					},
+				],
+			},
+		});
+
+		await createIngredient(req as CreateIngredientRequest, res);
+
+		expect(prisma.$transaction).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "Invalid ingredient data" });
 	});
 
 	it("returns 401 when there is no logged in user on the request", async () => {

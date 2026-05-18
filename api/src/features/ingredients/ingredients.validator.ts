@@ -4,80 +4,80 @@ import {
 } from "../../generated/prisma/enums.js";
 import type {
 	IngredientData,
-	CreateIngredientPayload,
 	UpdateIngredientPayload,
+	CreateIngredientsPayloadItem,
 } from "@recipe-book/shared/types/ingredient";
 
 const allowedPurchaseUnits = Object.values(PurchaseUnitValues);
 
-export function getValidatedCreateIngredientData(body: CreateIngredientPayload) {
-	const data: Partial<IngredientData> = {};
+export function getValidatedCreateIngredientData(data: CreateIngredientsPayloadItem) {
+	const validated: Partial<IngredientData> = {};
 
-	if (body.name !== undefined) {
-		const name = body.name?.trim();
+	if (data.name !== undefined) {
+		const name = data.name?.trim();
 
 		if (!name) {
 			return null;
 		}
 
-		data.name = name;
+		validated.name = name;
 	}
 
-	if (body.purchaseUnit !== undefined) {
-		const purchaseUnit = body.purchaseUnit?.trim().toUpperCase();
+	if (data.purchaseUnit !== undefined) {
+		const purchaseUnit = data.purchaseUnit?.trim().toUpperCase();
 
 		if (!purchaseUnit || !allowedPurchaseUnits.includes(purchaseUnit as PurchaseUnit)) {
 			return null;
 		}
 
-		data.purchaseUnit = purchaseUnit as PurchaseUnit;
+		validated.purchaseUnit = purchaseUnit as PurchaseUnit;
 	}
 
-	if (body.costPerUnit !== undefined) {
-		const costPerUnit = Number(body.costPerUnit);
+	if (data.costPerUnit !== undefined) {
+		const costPerUnit = Number(data.costPerUnit);
 
 		if (!Number.isFinite(costPerUnit) || costPerUnit < 0) {
 			return null;
 		}
 
-		data.costPerUnit = costPerUnit.toString();
+		validated.costPerUnit = costPerUnit.toString();
 	}
 
-	if (Object.keys(data).length === 0) {
+	if (Object.keys(validated).length === 0) {
 		return null;
 	}
 
-	return data;
+	return validated;
 }
 
-export function getValidatedUpdateIngredientData(body: UpdateIngredientPayload) {
-	const data: Partial<IngredientData> = {};
+export function getValidatedUpdateIngredientData(data: UpdateIngredientPayload) {
+	const validated: Partial<IngredientData> = {};
 
-	if (body.name !== undefined) {
-		const name = body.name?.trim();
+	if (data.name !== undefined) {
+		const name = data.name?.trim();
 
-		data.name = name;
+		validated.name = name;
 	}
 
-	if (body.purchaseUnit !== undefined) {
-		const purchaseUnit = body.purchaseUnit?.trim().toUpperCase();
+	if (data.purchaseUnit !== undefined) {
+		const purchaseUnit = data.purchaseUnit?.trim().toUpperCase();
 
 		if (purchaseUnit && !allowedPurchaseUnits.includes(purchaseUnit as PurchaseUnit)) {
 			return null;
 		}
 
-		data.purchaseUnit = purchaseUnit as PurchaseUnit;
+		validated.purchaseUnit = purchaseUnit as PurchaseUnit;
 	}
 
-	if (body.costPerUnit !== undefined) {
-		const costPerUnit = Number(body.costPerUnit);
+	if (data.costPerUnit !== undefined) {
+		const costPerUnit = Number(data.costPerUnit);
 
 		if (costPerUnit !== undefined && (!Number.isFinite(costPerUnit) || costPerUnit < 0)) {
 			return null;
 		}
 
-		data.costPerUnit = costPerUnit.toString();
+		validated.costPerUnit = costPerUnit.toString();
 	}
 
-	return data;
+	return validated;
 }

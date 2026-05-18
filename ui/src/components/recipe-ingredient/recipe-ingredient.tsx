@@ -37,7 +37,10 @@ export function RecipeIngredient({
 	setFormError,
 }: RecipeIngredientProps) {
 	return (
-		<FieldGroup key={`${ingredient.ingredientId}-${index}`}>
+		<FieldGroup
+			key={`${ingredient.ingredientId}-${index}`}
+			className="grid gap-2 grid-cols-[5fr_1fr_2fr]"
+		>
 			<Field>
 				<FieldLabel htmlFor={`ingredients[${index}][ingredientId]`} className="sr-only">
 					Ingredient

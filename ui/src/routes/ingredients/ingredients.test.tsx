@@ -100,15 +100,7 @@ describe("Ingredients", () => {
 				})
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({
-						ok: true,
-						ingredient: {
-							id: "ingredient-1",
-							name: "Tomato",
-							purchaseUnit: "KILOGRAM",
-							costPerUnit: "2.5",
-						},
-					}),
+					json: async () => ({ ok: true }),
 				})
 				.mockResolvedValueOnce({
 					ok: true,
@@ -158,9 +150,13 @@ describe("Ingredients", () => {
 					expect.objectContaining({
 						method: "POST",
 						body: JSON.stringify({
-							name: "Tomato",
-							purchaseUnit: "KILOGRAM",
-							costPerUnit: "2.5",
+							ingredients: [
+								{
+									name: "Tomato",
+									purchaseUnit: "KILOGRAM",
+									costPerUnit: "2.5",
+								},
+							],
 						}),
 					}),
 				);

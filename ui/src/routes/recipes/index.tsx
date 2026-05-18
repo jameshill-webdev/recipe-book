@@ -67,9 +67,15 @@ export default function Recipes() {
 		event.preventDefault();
 		setFormError(null);
 
+		console.log("name", name);
 		console.log("ingredients", ingredients);
 
 		// TODO: check each ingredient against existing ingredient options and create new ingredients for any that don't already exist
+		ingredients.filter((ingredient) => {
+			return !ingredientOptions.some(
+				(option) => option.name.toLowerCase() === ingredient.name.toLowerCase(),
+			);
+		}); // continue implementing
 		// then fetch the ID of every ingredient (new or existing) to send with the create recipe payload
 
 		return; // until API is implemented

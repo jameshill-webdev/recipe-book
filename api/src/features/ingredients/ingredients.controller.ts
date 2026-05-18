@@ -1,7 +1,8 @@
 import { type Request, type Response } from "express";
 import prisma from "../../database/prisma.js";
 import type {
-	CreateIngredientPayload,
+	CreateIngredientsPayload,
+	CreateIngredientsPayloadItem,
 	UpdateIngredientPayload,
 } from "@recipe-book/shared/types/ingredient";
 import {
@@ -33,7 +34,7 @@ export const getIngredients = async (request: Request, response: Response) => {
 	});
 };
 
-export type CreateIngredientRequest = Request<object, object, CreateIngredientPayload>;
+export type CreateIngredientRequest = Request<object, object, CreateIngredientsPayload>;
 
 export const createIngredient = async (request: CreateIngredientRequest, response: Response) => {
 	const userId = request.session?.user.id;
@@ -42,29 +43,46 @@ export const createIngredient = async (request: CreateIngredientRequest, respons
 		return response.status(401).json({ ok: false, message: "Unauthorized" });
 	}
 
-	const ingredientData = getValidatedCreateIngredientData(request.body ?? {});
+	const body = request.body;
 
-	if (
-		!ingredientData?.name ||
-		!ingredientData.purchaseUnit ||
-		ingredientData.costPerUnit === undefined
-	) {
-		return response.status(400).json({
-			ok: false,
-			message: "Invalid ingredient data",
+	if (!Array.isArray(body.ingredients) || body.ingredients.length === 0) {
+		return response.status(400).json({ ok: false, message: "Invalid ingredient data" });
+	}
+
+	const validatedItems = [] as CreateIngredientsPayloadItem[];
+
+	for (const item of body.ingredients) {
+		const validated = getValidatedCreateIngredientData(item as CreateIngredientsPayloadItem);
+
+		if (!validated?.name || !validated.purchaseUnit || validated.costPerUnit === undefined) {
+			return response.status(400).json({ ok: false, message: "Invalid ingredient data" });
+		}
+
+		validatedItems.push({
+			name: validated.name,
+			purchaseUnit: validated.purchaseUnit,
+			costPerUnit: validated.costPerUnit,
 		});
 	}
 
-	const ingredient = await prisma.ingredient.create({
-		data: {
-			userId,
-			name: ingredientData.name,
-			purchaseUnit: ingredientData.purchaseUnit,
-			costPerUnit: ingredientData.costPerUnit,
-		},
-	});
+	if (validatedItems.length === 0) {
+		return response.status(400).json({ ok: false, message: "Invalid ingredient data" });
+	}
 
-	return response.status(201).json({ ok: true, ingredient });
+	const createdIngredients = await prisma.$transaction(
+		validatedItems.map((item) =>
+			prisma.ingredient.create({
+				data: {
+					userId,
+					name: item.name,
+					purchaseUnit: item.purchaseUnit,
+					costPerUnit: item.costPerUnit,
+				},
+			}),
+		),
+	);
+
+	return response.status(201).json({ ok: true, ingredients: createdIngredients });
 };
 
 export type UpdateIngredientRequest = Request<{ id: string }, object, UpdateIngredientPayload>;

@@ -63,9 +63,13 @@ export default function Ingredients() {
 		}
 
 		createIngredientMutation.mutate({
-			name: newIngredientName.trim(),
-			purchaseUnit: newIngredientPurchaseUnit.trim() as PurchaseUnit,
-			costPerUnit: newIngredientCostPerUnit.trim(),
+			ingredients: [
+				{
+					name: newIngredientName.trim(),
+					purchaseUnit: newIngredientPurchaseUnit.trim() as PurchaseUnit,
+					costPerUnit: newIngredientCostPerUnit.trim(),
+				},
+			],
 		});
 	}
 

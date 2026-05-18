@@ -11,14 +11,18 @@ export type IngredientData = {
 	costPerUnit: string;
 };
 
-export type CreateIngredientPayload = Omit<IngredientData, "id">;
+export type CreateIngredientsPayloadItem = Omit<IngredientData, "id">;
 
-export type UpdateIngredientPayload = { id: string } & Partial<CreateIngredientPayload>;
+export type CreateIngredientsPayload = {
+	ingredients: CreateIngredientsPayloadItem[];
+};
 
-export type IngredientMutationResponse = {
+export type UpdateIngredientPayload = { id: string } & Partial<CreateIngredientsPayloadItem>;
+
+export type IngredientsMutationResponse = {
 	ok: boolean;
 	message?: string;
-	ingredient?: IngredientData;
+	ingredients?: IngredientData[];
 };
 
 export type GetIngredientsResponse = {
