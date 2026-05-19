@@ -67,7 +67,7 @@ export default function Ingredients() {
 				{
 					name: newIngredientName.trim(),
 					purchaseUnit: newIngredientPurchaseUnit.trim() as PurchaseUnit,
-					costPerUnit: newIngredientCostPerUnit.trim(),
+					costPerUnit: costPerUnitAsNumber,
 				},
 			],
 		});

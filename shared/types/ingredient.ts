@@ -11,7 +11,11 @@ export type IngredientData = {
 	costPerUnit: string;
 };
 
-export type CreateIngredientsPayloadItem = Omit<IngredientData, "id">;
+export type CreateIngredientsPayloadItem = {
+	name: string;
+	purchaseUnit: PurchaseUnit;
+	costPerUnit: number;
+};
 
 export type CreateIngredientsPayload = {
 	ingredients: CreateIngredientsPayloadItem[];

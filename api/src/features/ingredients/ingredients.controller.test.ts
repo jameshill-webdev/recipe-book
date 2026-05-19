@@ -159,7 +159,7 @@ describe("createIngredient", () => {
 			userId: testData.user.id,
 			name: testData.ingredient.name,
 			purchaseUnit: testData.ingredient.purchaseUnit,
-			costPerUnit: testData.ingredient.costPerUnit.toString(),
+			costPerUnit: testData.ingredient.costPerUnit,
 		};
 
 		vi.mocked(prisma.$transaction).mockResolvedValue([createdIngredient] as never);
@@ -200,14 +200,14 @@ describe("createIngredient", () => {
 				userId: testData.user.id,
 				name: "Flour",
 				purchaseUnit: "KILOGRAM",
-				costPerUnit: "1.99",
+				costPerUnit: 1.99,
 			},
 			{
 				id: "ingredient-2",
 				userId: testData.user.id,
 				name: "Sugar",
 				purchaseUnit: "KILOGRAM",
-				costPerUnit: "0.89",
+				costPerUnit: 0.89,
 			},
 		];
 
@@ -237,7 +237,10 @@ describe("createIngredient", () => {
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
-		expect(json).toHaveBeenCalledWith({ ok: false, message: "Invalid ingredient data" });
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "ingredients: At least one ingredient is required",
+		});
 	});
 
 	it("returns 400 when ingredients is not an array", async () => {
@@ -257,7 +260,10 @@ describe("createIngredient", () => {
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
-		expect(json).toHaveBeenCalledWith({ ok: false, message: "Invalid ingredient data" });
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "ingredients: Invalid input: expected array, received string",
+		});
 	});
 
 	it("returns 400 when ingredient validation fails", async () => {
@@ -283,7 +289,10 @@ describe("createIngredient", () => {
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
-		expect(json).toHaveBeenCalledWith({ ok: false, message: "Invalid ingredient data" });
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "ingredients.0.name: Name is required",
+		});
 	});
 
 	it("returns 401 when there is no logged in user on the request", async () => {
@@ -314,7 +323,7 @@ describe("updateIngredient", () => {
 			},
 			body: {
 				name: "  Self-raising flour  ",
-				costPerUnit: "2.49",
+				costPerUnit: 2.49,
 			},
 		});
 		const updatedIngredient = {
@@ -322,7 +331,7 @@ describe("updateIngredient", () => {
 			userId: testData.user.id,
 			name: "Self-raising flour",
 			purchaseUnit: testData.ingredient.purchaseUnit,
-			costPerUnit: "2.49",
+			costPerUnit: 2.49,
 		};
 
 		vi.mocked(prisma.ingredient.update).mockResolvedValue(updatedIngredient as never);
@@ -338,7 +347,7 @@ describe("updateIngredient", () => {
 			},
 			data: {
 				name: "Self-raising flour",
-				costPerUnit: "2.49",
+				costPerUnit: 2.49,
 			},
 		});
 		expect(status).toHaveBeenCalledWith(200);
@@ -357,7 +366,7 @@ describe("updateIngredient", () => {
 				id: testData.ingredient.id,
 			},
 			body: {
-				purchaseUnit: "litre",
+				purchaseUnit: "LITRE",
 			},
 		});
 
@@ -396,7 +405,7 @@ describe("updateIngredient", () => {
 			userId: testData.user.id,
 			name: testData.ingredient.name,
 			purchaseUnit: testData.ingredient.purchaseUnit,
-			costPerUnit: testData.ingredient.costPerUnit.toString(),
+			costPerUnit: testData.ingredient.costPerUnit,
 		};
 
 		vi.mocked(prisma.ingredient.findUnique).mockResolvedValue(existingIngredient as never);

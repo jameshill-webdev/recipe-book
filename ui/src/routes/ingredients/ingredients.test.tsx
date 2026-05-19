@@ -111,7 +111,7 @@ describe("Ingredients", () => {
 								id: "ingredient-1",
 								name: "Tomato",
 								purchaseUnit: "KILOGRAM",
-								costPerUnit: "2.5",
+								costPerUnit: 2.5,
 							},
 						],
 					}),
@@ -139,7 +139,7 @@ describe("Ingredients", () => {
 			});
 
 			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
-				target: { value: "2.5" },
+				target: { value: 2.5 },
 			});
 			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
 
@@ -154,7 +154,7 @@ describe("Ingredients", () => {
 								{
 									name: "Tomato",
 									purchaseUnit: "KILOGRAM",
-									costPerUnit: "2.5",
+									costPerUnit: 2.5,
 								},
 							],
 						}),

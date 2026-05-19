@@ -1,14 +1,28 @@
 import { type Request, type Response } from "express";
+import { z } from "zod";
 import prisma from "../../database/prisma.js";
 import type {
 	CreateIngredientsPayload,
-	CreateIngredientsPayloadItem,
 	UpdateIngredientPayload,
 } from "@recipe-book/shared/types/ingredient";
-import {
-	getValidatedCreateIngredientData,
-	getValidatedUpdateIngredientData,
-} from "./ingredients.validator.js";
+import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
+import type { PurchaseUnit } from "@/generated/prisma/browser.js";
+
+const createIngredientItemSchema = z.object({
+	name: z.string().trim().min(1, "Name is required"),
+	purchaseUnit: z.enum(PURCHASE_UNITS),
+	costPerUnit: z.number().positive("Cost per unit must be positive"),
+});
+
+const createIngredientsPayloadSchema = z.object({
+	ingredients: z.array(createIngredientItemSchema).min(1, "At least one ingredient is required"),
+});
+
+const updateIngredientSchema = z.object({
+	name: z.string().trim().min(1, "Name is required").optional(),
+	purchaseUnit: z.enum(PURCHASE_UNITS).optional(),
+	costPerUnit: z.number().positive("Cost per unit must be positive").optional(),
+});
 
 export const getIngredients = async (request: Request, response: Response) => {
 	const userId = request.session?.user.id;
@@ -43,31 +57,16 @@ export const createIngredient = async (request: CreateIngredientRequest, respons
 		return response.status(401).json({ ok: false, message: "Unauthorized" });
 	}
 
-	const body = request.body;
+	const parsedResult = createIngredientsPayloadSchema.safeParse(request.body);
 
-	if (!Array.isArray(body.ingredients) || body.ingredients.length === 0) {
-		return response.status(400).json({ ok: false, message: "Invalid ingredient data" });
+	if (!parsedResult.success || parsedResult.data.ingredients.length === 0) {
+		const errors = parsedResult.error?.issues
+			.map((err) => `${err.path.join(".")}: ${err.message}`)
+			.join("; ");
+		return response.status(400).json({ ok: false, message: errors });
 	}
 
-	const validatedItems = [] as CreateIngredientsPayloadItem[];
-
-	for (const item of body.ingredients) {
-		const validated = getValidatedCreateIngredientData(item as CreateIngredientsPayloadItem);
-
-		if (!validated?.name || !validated.purchaseUnit || validated.costPerUnit === undefined) {
-			return response.status(400).json({ ok: false, message: "Invalid ingredient data" });
-		}
-
-		validatedItems.push({
-			name: validated.name,
-			purchaseUnit: validated.purchaseUnit,
-			costPerUnit: validated.costPerUnit,
-		});
-	}
-
-	if (validatedItems.length === 0) {
-		return response.status(400).json({ ok: false, message: "Invalid ingredient data" });
-	}
+	const { ingredients: validatedItems } = parsedResult.data;
 
 	const createdIngredients = await prisma.$transaction(
 		validatedItems.map((item) =>
@@ -76,7 +75,7 @@ export const createIngredient = async (request: CreateIngredientRequest, respons
 					userId,
 					name: item.name,
 					purchaseUnit: item.purchaseUnit,
-					costPerUnit: item.costPerUnit,
+					costPerUnit: item.costPerUnit.toString(),
 				},
 			}),
 		),
@@ -94,17 +93,27 @@ export const updateIngredient = async (request: UpdateIngredientRequest, respons
 		return response.status(401).json({ ok: false, message: "Unauthorized" });
 	}
 
-	console.log("Update ingredient request body:", request.body);
-
 	const ingredientId = request.params.id?.trim();
-	const ingredientData = getValidatedUpdateIngredientData(request.body ?? {});
 
-	if (!ingredientId || ingredientData === null) {
+	if (!ingredientId) {
 		return response.status(400).json({
 			ok: false,
 			message: "Invalid ingredient data",
 		});
 	}
+
+	const parsedResult = updateIngredientSchema.safeParse(request.body ?? {});
+
+	if (!parsedResult.success) {
+		const errors = parsedResult.error.issues
+			.map((err) => `${err.path.join(".")}: ${err.message}`)
+			.join("; ");
+		return response
+			.status(400)
+			.json({ ok: false, message: errors || "Invalid ingredient data" });
+	}
+
+	const ingredientData = parsedResult.data;
 
 	if (Object.keys(ingredientData).length === 0) {
 		console.log("No fields provided for update.");
@@ -125,6 +134,22 @@ export const updateIngredient = async (request: UpdateIngredientRequest, respons
 		});
 	}
 
+	const updateData: {
+		name?: string;
+		purchaseUnit?: PurchaseUnit;
+		costPerUnit?: number;
+	} = {};
+
+	if (ingredientData.name !== undefined) {
+		updateData.name = ingredientData.name;
+	}
+	if (ingredientData.purchaseUnit !== undefined) {
+		updateData.purchaseUnit = ingredientData.purchaseUnit;
+	}
+	if (ingredientData.costPerUnit !== undefined) {
+		updateData.costPerUnit = ingredientData.costPerUnit;
+	}
+
 	const ingredient = await prisma.ingredient.update({
 		where: {
 			userId_id: {
@@ -132,7 +157,7 @@ export const updateIngredient = async (request: UpdateIngredientRequest, respons
 				id: ingredientId,
 			},
 		},
-		data: ingredientData,
+		data: updateData,
 	});
 
 	return response.status(200).json({ ok: true, ingredient });
