@@ -1,28 +1,14 @@
 import { type Request, type Response } from "express";
-import { z } from "zod";
 import prisma from "../../database/prisma.js";
 import type {
 	CreateIngredientsPayload,
 	UpdateIngredientPayload,
 } from "@recipe-book/shared/types/ingredient";
-import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
 import type { PurchaseUnit } from "@/generated/prisma/browser.js";
-
-const createIngredientItemSchema = z.object({
-	name: z.string().trim().min(1, "Name is required"),
-	purchaseUnit: z.enum(PURCHASE_UNITS),
-	costPerUnit: z.number().positive("Cost per unit must be positive"),
-});
-
-const createIngredientsPayloadSchema = z.object({
-	ingredients: z.array(createIngredientItemSchema).min(1, "At least one ingredient is required"),
-});
-
-const updateIngredientSchema = z.object({
-	name: z.string().trim().min(1, "Name is required").optional(),
-	purchaseUnit: z.enum(PURCHASE_UNITS).optional(),
-	costPerUnit: z.number().positive("Cost per unit must be positive").optional(),
-});
+import {
+	createIngredientsPayloadSchema,
+	updateIngredientSchema,
+} from "./ingredients.validators.js";
 
 export const getIngredients = async (request: Request, response: Response) => {
 	const userId = request.session?.user.id;
