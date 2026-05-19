@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { IngredientItem } from "@/components/ingredient-item/ingredient-item";
@@ -10,12 +10,12 @@ import {
 	INGREDIENTS_PAGE_HEADING,
 } from "@/lib/content-strings";
 import { IngredientForm } from "@/components/ingredient-form/ingredient-form";
-import { createIngredient, getIngredients } from "@/lib/api/ingredients";
+import { getIngredients } from "@/lib/api/ingredients";
 import { getErrorMessage } from "@/lib/utils";
 import { PURCHASE_UNITS, type PurchaseUnit } from "@recipe-book/shared/lib/units";
+import { useCreateIngredient } from "@/hooks/use-create-ingredient";
 
 export default function Ingredients() {
-	const queryClient = useQueryClient();
 	const [addIngredientUIOpen, setAddIngredientUIOpen] = useState(false);
 	const [newIngredientName, setNewIngredientName] = useState("");
 	const [newIngredientPurchaseUnit, setNewIngredientPurchaseUnit] = useState<PurchaseUnit>(
@@ -32,20 +32,16 @@ export default function Ingredients() {
 		queryFn: getIngredients,
 	});
 
-	const createIngredientMutation = useMutation({
-		mutationFn: createIngredient,
-		onSuccess: async () => {
+	const createIngredientMutation = useCreateIngredient(
+		() => {
 			setNewIngredientName("");
 			setNewIngredientPurchaseUnit(PURCHASE_UNITS[0]);
 			setNewIngredientCostPerUnit("0");
 			setFormError(null);
 			setAddIngredientUIOpen(false);
-			await queryClient.invalidateQueries({ queryKey: ["ingredients"] });
 		},
-		onError: (error) => {
-			setFormError(getErrorMessage(error));
-		},
-	});
+		(error) => setFormError(error),
+	);
 
 	function onAddIngredient() {
 		setAddIngredientUIOpen((prev) => !prev);
