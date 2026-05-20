@@ -3,6 +3,18 @@
 
 export const TIME_UNITS = ["SECONDS", "MINUTES", "HOURS", "DAYS"] as const;
 
+export const MEASURE_UNITS = [
+	"GRAM",
+	"KILOGRAM",
+	"MILLILITRE",
+	"LITRE",
+	"OUNCE",
+	"POUND",
+	"PINT",
+	"PACK",
+	"UNIT",
+] as const;
+
 export const PURCHASE_UNITS = [
 	"GRAM",
 	"KILOGRAM",

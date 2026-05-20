@@ -8,6 +8,8 @@ import { getIngredients } from "@/lib/api/ingredients";
 import type { RecipeIngredient, Duration } from "@recipe-book/shared/types/recipe";
 import { createRecipe } from "@/lib/api/recipes";
 import { getErrorMessage } from "@/lib/utils";
+import { useCreateIngredient } from "@/hooks/use-create-ingredient";
+import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 
 const DEFAULT_PREP_TIME_UNIT = "MINUTES";
 const DEFAULT_COOK_TIME_UNIT = "MINUTES";
@@ -58,6 +60,10 @@ export default function Recipes() {
 			setFormError(getErrorMessage(error));
 		},
 	});
+	const createIngredientMutation = useCreateIngredient(
+		() => {},
+		(error) => console.error(error),
+	);
 
 	function onAddRecipe() {
 		setAddRecipeUIOpen((prev) => !prev);
@@ -67,18 +73,28 @@ export default function Recipes() {
 		event.preventDefault();
 		setFormError(null);
 
-		console.log("name", name);
-		console.log("ingredients", ingredients);
+		// check each ingredient against existing ingredient options and create new ingredients for any that don't already exist
+		ingredients
+			.filter((ingredient) => {
+				return !ingredientOptions.some(
+					(option) => option.name.toLowerCase() === ingredient.name.toLowerCase(),
+				);
+			})
+			.forEach((newIngredient) => {
+				console.log("Creating new ingredient:", newIngredient.name);
 
-		// TODO: check each ingredient against existing ingredient options and create new ingredients for any that don't already exist
-		ingredients.filter((ingredient) => {
-			return !ingredientOptions.some(
-				(option) => option.name.toLowerCase() === ingredient.name.toLowerCase(),
-			);
-		}); // continue implementing
-		// then fetch the ID of every ingredient (new or existing) to send with the create recipe payload
-
-		return; // until API is implemented
+				// TODO: this should be refactored to batch create new ingredients and handle duplicates
+				// TODO: recipe creation should be awaited until all new ingredients have been created and their IDs returned, so the recipe can be created with the correct ingredient IDs (currently they are sent without ids, which necessitates matching by name on the server, which then necessitates unique names)
+				createIngredientMutation.mutate({
+					ingredients: [
+						{
+							name: newIngredient.name.trim(),
+							purchaseUnit: newIngredient.unit.trim() as PurchaseUnit,
+							costPerUnit: 0.1, // TODO: replace with constant or allow user to input cost per unit when creating recipe ingredient
+						},
+					],
+				});
+			});
 
 		createRecipeMutation.mutate({
 			name: name.trim(),

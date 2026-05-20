@@ -22,6 +22,7 @@ export async function getRecipes() {
 }
 
 export async function createRecipe(payload: CreateRecipePayload) {
+	console.log("Creating recipe with payload:", payload); // Debug log to check payload structure
 	const response = await fetch(`${apiBaseUrl}/recipes`, {
 		method: "POST",
 		headers: {

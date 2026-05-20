@@ -3,12 +3,14 @@ import usersRouter from "./features/users/users.router.js";
 import { sendEmail } from "./utils/email.js";
 import { requireAuth } from "./middleware/requireAuth.js";
 import ingredientsRouter from "./features/ingredients/ingredients.router.js";
+import recipesRouter from "./features/recipes/recipes.router.js";
 
 const router = Router();
 
 router.use("/users", usersRouter);
 
 router.use("/ingredients", requireAuth, ingredientsRouter);
+router.use("/recipes", requireAuth, recipesRouter);
 
 // auth test route
 router.use("/authtest", requireAuth, async (req, res) => {
