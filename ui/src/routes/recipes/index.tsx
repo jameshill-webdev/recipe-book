@@ -6,10 +6,12 @@ import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { getIngredients } from "@/lib/api/ingredients";
 import type { RecipeIngredient, Duration } from "@recipe-book/shared/types/recipe";
-import { createRecipe } from "@/lib/api/recipes";
+import { createRecipe, getRecipes } from "@/lib/api/recipes";
 import { getErrorMessage } from "@/lib/utils";
 import { useCreateIngredient } from "@/hooks/use-create-ingredient";
 import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
+import { InlineError } from "@/components/ui/error/error";
+import type { IngredientsMutationResponse } from "@recipe-book/shared/types/ingredient";
 
 const DEFAULT_PREP_TIME_UNIT = "MINUTES";
 const DEFAULT_COOK_TIME_UNIT = "MINUTES";
@@ -20,6 +22,14 @@ export default function Recipes() {
 	const [addRecipeUIOpen, setAddRecipeUIOpen] = useState(false);
 
 	const {
+		data: recipes = [],
+		isPending: isRecipesPending,
+		error: recipesError,
+	} = useQuery({
+		queryKey: ["recipes"],
+		queryFn: getRecipes,
+	});
+	const {
 		data: ingredientOptions = [],
 		isPending: isIngredientsPending,
 		error: ingredientsError,
@@ -29,12 +39,13 @@ export default function Recipes() {
 	});
 
 	const [name, setName] = useState("");
+	// TODO: add validation to prevent user adding duplicate ingredients (name or purchase unit must be different)
 	const [ingredients, setIngredients] = useState<RecipeIngredient[]>([]);
 	const [method, setMethod] = useState("");
-	const [prepTime, setPrepTime] = useState<Duration>({ time: 0, unit: DEFAULT_PREP_TIME_UNIT });
-	const [cookTime, setCookTime] = useState<Duration>({ time: 0, unit: DEFAULT_COOK_TIME_UNIT });
+	const [prepTime, setPrepTime] = useState<Duration>({ time: 1, unit: DEFAULT_PREP_TIME_UNIT });
+	const [cookTime, setCookTime] = useState<Duration>({ time: 1, unit: DEFAULT_COOK_TIME_UNIT });
 	const [shelfLife, setShelfLife] = useState<Duration>({
-		time: 0,
+		time: 1,
 		unit: DEFAULT_SHELF_LIFE_UNIT,
 	});
 	const [numberOfPortions, setNumberOfPortions] = useState(1);
@@ -46,9 +57,9 @@ export default function Recipes() {
 		onSuccess: async () => {
 			setIngredients([]);
 			setMethod("");
-			setPrepTime({ time: 0, unit: DEFAULT_PREP_TIME_UNIT });
-			setCookTime({ time: 0, unit: DEFAULT_COOK_TIME_UNIT });
-			setShelfLife({ time: 0, unit: DEFAULT_SHELF_LIFE_UNIT });
+			setPrepTime({ time: 1, unit: DEFAULT_PREP_TIME_UNIT });
+			setCookTime({ time: 1, unit: DEFAULT_COOK_TIME_UNIT });
+			setShelfLife({ time: 1, unit: DEFAULT_SHELF_LIFE_UNIT });
 			setNumberOfPortions(1);
 			setCostPerPortion(0);
 			setFormError(null);
@@ -69,36 +80,74 @@ export default function Recipes() {
 		setAddRecipeUIOpen((prev) => !prev);
 	}
 
-	function onCreateRecipe(event: React.SubmitEvent) {
+	async function onCreateRecipe(event: React.SubmitEvent) {
 		event.preventDefault();
 		setFormError(null);
 
-		// check each ingredient against existing ingredient options and create new ingredients for any that don't already exist
-		ingredients
-			.filter((ingredient) => {
-				return !ingredientOptions.some(
-					(option) => option.name.toLowerCase() === ingredient.name.toLowerCase(),
-				);
-			})
-			.forEach((newIngredient) => {
-				console.log("Creating new ingredient:", newIngredient.name);
+		const validIngredients = ingredients.filter((ingredient) => ingredient.name.trim() !== "");
 
-				// TODO: this should be refactored to batch create new ingredients and handle duplicates
-				// TODO: recipe creation should be awaited until all new ingredients have been created and their IDs returned, so the recipe can be created with the correct ingredient IDs (currently they are sent without ids, which necessitates matching by name on the server, which then necessitates unique names)
-				createIngredientMutation.mutate({
-					ingredients: [
-						{
-							name: newIngredient.name.trim(),
-							purchaseUnit: newIngredient.unit.trim() as PurchaseUnit,
-							costPerUnit: 0.1, // TODO: replace with constant or allow user to input cost per unit when creating recipe ingredient
-						},
-					],
-				});
+		if (validIngredients.length === 0) {
+			setFormError("Please add at least one ingredient.");
+			return;
+		}
+
+		const newIngredients = validIngredients.filter((ingredient) => {
+			return !ingredientOptions.some(
+				(option) => option.name.toLowerCase() === ingredient.name.toLowerCase(),
+			);
+		});
+
+		let createdIngredients: IngredientsMutationResponse | null;
+
+		if (newIngredients.length > 0) {
+			createdIngredients = await createIngredientMutation.mutateAsync({
+				ingredients: newIngredients.map((ingredient) => ({
+					name: ingredient.name.trim(),
+					purchaseUnit: ingredient.unit.trim() as PurchaseUnit,
+					costPerUnit: 0.1, // TODO: replace with constant or allow user to input cost per unit when creating recipe ingredient
+				})),
 			});
+		}
+
+		const updatedIngredients = ingredients
+			.map((ingredient) => {
+				const isNewIngredient = newIngredients.some(
+					(newIng) =>
+						newIng.name.toLowerCase() === ingredient.name.toLowerCase() &&
+						newIng.unit.trim() === ingredient.unit.trim(),
+				);
+
+				if (isNewIngredient) {
+					return {
+						...ingredient,
+						ingredientId:
+							createdIngredients?.ingredients?.find(
+								(created) =>
+									created.name.toLowerCase() === ingredient.name.toLowerCase() &&
+									created.purchaseUnit === ingredient.unit.trim(),
+							)?.id || "",
+					};
+				}
+
+				return {
+					...ingredient,
+					ingredientId:
+						ingredientOptions.find(
+							(option) =>
+								option.name.toLowerCase() == ingredient.name.toLowerCase() &&
+								option.purchaseUnit === ingredient.unit.trim(),
+						)?.id || "",
+				};
+			})
+			.filter((updatedIngredient) => updatedIngredient.ingredientId !== ""); // TODO suspect the current issue is here
+
+		setIngredients(updatedIngredients);
+
+		console.log(`creating recipe "${name.trim()}"`);
 
 		createRecipeMutation.mutate({
 			name: name.trim(),
-			ingredients,
+			ingredients: updatedIngredients,
 			method: method.trim(),
 			prepTime,
 			cookTime,
@@ -154,6 +203,23 @@ export default function Recipes() {
 							formError={formError}
 							setFormError={setFormError}
 						/>
+					)}
+				</div>
+				<div>
+					{isRecipesPending ? (
+						<p>Loading recipes...</p>
+					) : recipesError ? (
+						<InlineError alert>{getErrorMessage(recipesError)}</InlineError>
+					) : recipes.length === 0 ? (
+						<p className="text-center text-[var(--color-muted-foreground)]">
+							No recipes yet
+						</p>
+					) : (
+						<ul className="p-0 list-none">
+							{recipes.map((recipe) => (
+								<li className="flex flex-row">{recipe.name}</li>
+							))}
+						</ul>
 					)}
 				</div>
 			</div>

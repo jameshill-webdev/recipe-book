@@ -9,6 +9,10 @@ const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin)
 
 export async function getRecipes() {
 	const response = await fetch(`${apiBaseUrl}/recipes`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
 		credentials: "include",
 	});
 

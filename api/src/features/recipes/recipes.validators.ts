@@ -7,6 +7,7 @@ const durationSchema = z.object({
 });
 
 const recipeIngredientSchema = z.object({
+	name: z.string().trim().min(1, "Ingredient name is required"),
 	ingredientId: z.uuid("Invalid ingredient ID").or(z.literal("")),
 	quantity: z.number().positive("Quantity must be positive"),
 	unit: z.enum(MEASURE_UNITS),

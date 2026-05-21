@@ -37,6 +37,7 @@ export function RecipeIngredient({
 	setFormError,
 }: RecipeIngredientProps) {
 	return (
+		// TODO: add a remove button and functionality to remove an ingredient from the recipe
 		<FieldGroup
 			key={`${ingredient.ingredientId}-${index}`}
 			className="grid gap-2 grid-cols-[5fr_1fr_2fr]"

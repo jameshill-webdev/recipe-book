@@ -4,6 +4,7 @@ import type { CreateRecipePayload, UpdateRecipePayload } from "./recipes.validat
 import { createRecipeSchema, updateRecipeSchema } from "./recipes.validators.js";
 
 export const getRecipes = async (request: Request, response: Response) => {
+	console.log("get recipes");
 	const userId = request.session?.user.id;
 
 	if (!userId) {
@@ -39,6 +40,8 @@ export const getRecipes = async (request: Request, response: Response) => {
 export type CreateRecipeRequest = Request<object, object, CreateRecipePayload>;
 
 export const createRecipe = async (request: CreateRecipeRequest, response: Response) => {
+	console.log("createRecipe request", request.body);
+
 	const userId = request.session?.user.id;
 
 	if (!userId) {
