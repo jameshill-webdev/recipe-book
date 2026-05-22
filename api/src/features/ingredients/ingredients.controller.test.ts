@@ -68,6 +68,7 @@ import {
 	updateIngredient,
 } from "./ingredients.controller.js";
 import { makeRequest, makeResponse } from "@/test/mocks.js";
+import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
 
 const testData = {
 	user: {
@@ -310,7 +311,7 @@ describe("createIngredient", () => {
 });
 
 describe("updateIngredient", () => {
-	it("updates any provided ingredient fields for the logged in user and returns 200", async () => {
+	it("updates all provided ingredient fields for the logged in user and returns 200", async () => {
 		const { res, status, json } = makeResponse();
 		const req = makeRequest({
 			session: {
@@ -323,15 +324,16 @@ describe("updateIngredient", () => {
 			},
 			body: {
 				name: "  Self-raising flour  ",
-				costPerUnit: 2.49,
+				costPerUnit: 3.59,
+				purchaseUnit: PURCHASE_UNITS[1],
 			},
 		});
 		const updatedIngredient = {
 			id: testData.ingredient.id,
 			userId: testData.user.id,
 			name: "Self-raising flour",
-			purchaseUnit: testData.ingredient.purchaseUnit,
-			costPerUnit: 2.49,
+			purchaseUnit: PURCHASE_UNITS[1],
+			costPerUnit: 3.59,
 		};
 
 		vi.mocked(prisma.ingredient.update).mockResolvedValue(updatedIngredient as never);
@@ -347,7 +349,8 @@ describe("updateIngredient", () => {
 			},
 			data: {
 				name: "Self-raising flour",
-				costPerUnit: 2.49,
+				costPerUnit: 3.59,
+				purchaseUnit: PURCHASE_UNITS[1],
 			},
 		});
 		expect(status).toHaveBeenCalledWith(200);
