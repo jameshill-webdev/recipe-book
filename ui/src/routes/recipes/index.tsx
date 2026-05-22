@@ -141,8 +141,6 @@ export default function Recipes() {
 			};
 		});
 
-		setIngredients(updatedIngredients);
-
 		console.log(`creating recipe "${name.trim()}"`);
 
 		createRecipeMutation.mutate({
@@ -155,6 +153,8 @@ export default function Recipes() {
 			numberOfPortions,
 			costPerPortion,
 		});
+
+		setIngredients(updatedIngredients);
 	}
 
 	return (

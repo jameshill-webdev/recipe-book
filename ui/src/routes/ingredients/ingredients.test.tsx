@@ -3,7 +3,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Ingredients from "@/routes/ingredients";
-import { CREATE_INGREDIENT_FORM_LABEL, INGREDIENTS_PAGE_HEADING } from "@/lib/content-strings";
+import {
+	CREATE_INGREDIENT_FORM_LABEL,
+	INGREDIENTS_PAGE_HEADING,
+	NETWORK_ERROR,
+	INGREDIENT_COST_PER_UNIT_POSITIVE,
+	INGREDIENT_COST_PER_UNIT_REQUIRED,
+} from "@/lib/content-strings";
 
 function renderIngredients() {
 	const queryClient = new QueryClient({
@@ -170,6 +176,234 @@ describe("Ingredients", () => {
 
 			expect(await screen.findByText("Tomato")).toBeInTheDocument();
 			expect(fetchMock).toHaveBeenCalledTimes(3);
+		});
+
+		it("displays a form error when cost per unit is negative", async () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: async () => ({ ok: true, ingredients: [] }),
+				}),
+			);
+
+			renderIngredients();
+
+			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
+			fireEvent.change(screen.getByLabelText(/name/i), {
+				target: { value: "Tomato" },
+			});
+
+			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
+				target: { value: -5 },
+			});
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText(INGREDIENT_COST_PER_UNIT_POSITIVE)).toBeInTheDocument();
+			});
+		});
+
+		it("displays a form error when cost per unit is not a number", async () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: async () => ({ ok: true, ingredients: [] }),
+				}),
+			);
+
+			renderIngredients();
+
+			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
+			fireEvent.change(screen.getByLabelText(/name/i), {
+				target: { value: "Tomato" },
+			});
+
+			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
+				target: { value: "invalid" },
+			});
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText(INGREDIENT_COST_PER_UNIT_REQUIRED)).toBeInTheDocument();
+			});
+		});
+
+		it("displays a form error when the API returns an error response", async () => {
+			const fetchMock = vi
+				.fn()
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => ({ ok: true, ingredients: [] }),
+				})
+				.mockResolvedValueOnce({
+					ok: false,
+					json: async () => ({ ok: false, message: "Failed to create ingredient" }),
+				});
+
+			vi.stubGlobal("fetch", fetchMock);
+
+			renderIngredients();
+
+			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
+			fireEvent.change(screen.getByLabelText(/name/i), {
+				target: { value: "Tomato" },
+			});
+
+			const purchaseUnitSelect = document.querySelector(
+				'select[name="purchaseUnit"]',
+			) as HTMLSelectElement | null;
+			fireEvent.change(purchaseUnitSelect!, {
+				target: { value: "KILOGRAM" },
+			});
+
+			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
+				target: { value: 2.5 },
+			});
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText("Failed to create ingredient")).toBeInTheDocument();
+			});
+		});
+
+		it("displays a form error with generic error message on network failure during creation", async () => {
+			const fetchMock = vi
+				.fn()
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => ({ ok: true, ingredients: [] }),
+				})
+				.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+			vi.stubGlobal("fetch", fetchMock);
+
+			renderIngredients();
+
+			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
+			fireEvent.change(screen.getByLabelText(/name/i), {
+				target: { value: "Tomato" },
+			});
+
+			const purchaseUnitSelect = document.querySelector(
+				'select[name="purchaseUnit"]',
+			) as HTMLSelectElement | null;
+			fireEvent.change(purchaseUnitSelect!, {
+				target: { value: "KILOGRAM" },
+			});
+
+			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
+				target: { value: 2.5 },
+			});
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText(NETWORK_ERROR)).toBeInTheDocument();
+			});
+		});
+	});
+
+	describe("error handling", () => {
+		it("displays an error message when initial ingredients fetch fails", async () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: false,
+					json: async () => ({ ok: false, message: "Unauthorized" }),
+				}),
+			);
+
+			renderIngredients();
+
+			await waitFor(() => {
+				expect(screen.getByText("Unauthorized")).toBeInTheDocument();
+			});
+		});
+
+		it("displays a network error message when initial ingredients fetch throws a TypeError", async () => {
+			vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+
+			renderIngredients();
+
+			await waitFor(() => {
+				expect(screen.getByText(NETWORK_ERROR)).toBeInTheDocument();
+			});
+		});
+
+		it("displays a generic error message when initial ingredients fetch throws an unknown error", async () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockRejectedValue(new Error("Database connection failed")),
+			);
+
+			renderIngredients();
+
+			await waitFor(() => {
+				expect(screen.getByText("Database connection failed")).toBeInTheDocument();
+			});
+		});
+
+		it("displays no ingredients message when the API returns an empty list", async () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: async () => ({ ok: true, ingredients: [] }),
+				}),
+			);
+
+			renderIngredients();
+
+			await waitFor(() => {
+				expect(screen.getByText("No ingredients yet.")).toBeInTheDocument();
+			});
+		});
+
+		it("clears form error when user starts editing after an error", async () => {
+			const fetchMock = vi
+				.fn()
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => ({ ok: true, ingredients: [] }),
+				})
+				.mockResolvedValueOnce({
+					ok: false,
+					json: async () => ({ ok: false, message: "Creation failed" }),
+				});
+
+			vi.stubGlobal("fetch", fetchMock);
+
+			renderIngredients();
+
+			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
+			fireEvent.change(screen.getByLabelText(/name/i), {
+				target: { value: "Tomato" },
+			});
+
+			const purchaseUnitSelect = document.querySelector(
+				'select[name="purchaseUnit"]',
+			) as HTMLSelectElement | null;
+			fireEvent.change(purchaseUnitSelect!, {
+				target: { value: "KILOGRAM" },
+			});
+
+			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
+				target: { value: 2.5 },
+			});
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText("Creation failed")).toBeInTheDocument();
+			});
+
+			// Change the name field
+			fireEvent.change(screen.getByLabelText(/name/i), {
+				target: { value: "Carrot" },
+			});
+
+			// Error should be cleared
+			expect(screen.queryByText("Creation failed")).not.toBeInTheDocument();
 		});
 	});
 });
