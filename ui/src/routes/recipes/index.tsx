@@ -109,37 +109,37 @@ export default function Recipes() {
 			});
 		}
 
-		const updatedIngredients = ingredients
-			.map((ingredient) => {
-				const isNewIngredient = newIngredients.some(
-					(newIng) =>
-						newIng.name.toLowerCase() === ingredient.name.toLowerCase() &&
-						newIng.unit.trim() === ingredient.unit.trim(),
-				);
+		const updatedIngredients = ingredients.map((ingredient) => {
+			const isNewIngredient = newIngredients.some(
+				(newIng) =>
+					newIng.name.toLowerCase() === ingredient.name.toLowerCase() &&
+					newIng.unit.trim() === ingredient.unit.trim(),
+			);
 
-				if (isNewIngredient) {
-					return {
-						...ingredient,
-						ingredientId:
-							createdIngredients?.ingredients?.find(
-								(created) =>
-									created.name.toLowerCase() === ingredient.name.toLowerCase() &&
-									created.purchaseUnit === ingredient.unit.trim(),
-							)?.id || "",
-					};
-				}
-
+			if (isNewIngredient) {
 				return {
 					...ingredient,
 					ingredientId:
-						ingredientOptions.find(
-							(option) =>
-								option.name.toLowerCase() == ingredient.name.toLowerCase() &&
-								option.purchaseUnit === ingredient.unit.trim(),
+						createdIngredients?.ingredients?.find(
+							(created) =>
+								created.name.toLowerCase() === ingredient.name.toLowerCase() &&
+								created.purchaseUnit === ingredient.unit.trim(),
 						)?.id || "",
 				};
-			})
-			.filter((updatedIngredient) => updatedIngredient.ingredientId !== ""); // TODO suspect the current issue is here
+			}
+
+			const matchingIngredientOption = ingredientOptions.find((option) => {
+				return (
+					option.name.toLowerCase() === ingredient.name.toLowerCase() &&
+					(!isNewIngredient || option.purchaseUnit === ingredient.unit.trim())
+				);
+			});
+
+			return {
+				...ingredient,
+				ingredientId: matchingIngredientOption?.id || "",
+			};
+		});
 
 		setIngredients(updatedIngredients);
 
@@ -216,8 +216,10 @@ export default function Recipes() {
 						</p>
 					) : (
 						<ul className="p-0 list-none">
-							{recipes.map((recipe) => (
-								<li className="flex flex-row">{recipe.name}</li>
+							{recipes.map((recipe, index) => (
+								<li key={`${recipe.id}_${index}`} className="flex flex-row">
+									{recipe.name}
+								</li>
 							))}
 						</ul>
 					)}

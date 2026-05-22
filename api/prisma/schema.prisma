@@ -51,7 +51,6 @@ model User {
   ingredients       Ingredient[]
   recipes           Recipe[]
   recipeIngredients RecipeIngredient[]
-  recipeSteps       RecipeStep[]
 
   name          String
   email         String
@@ -137,7 +136,7 @@ model Recipe {
   user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   name          String
   ingredients   RecipeIngredient[] @relation("RecipeToRecipeIngredient")
-  method        RecipeStep[]       @relation("RecipeToRecipeStep")
+  method        String
   prepTime      Float
   prepTimeUnit  TimeUnit
   cookTime      Float
@@ -169,22 +168,4 @@ model RecipeIngredient {
   @@index([userId, recipeId])
   @@index([userId, ingredientId])
   @@map("recipe_ingredients")
-}
-
-model RecipeStep {
-  id         String   @id @default(uuid()) @db.Uuid
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  userId     String   @map("user_id") @db.Uuid
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recipeId   String   @map("recipe_id") @db.Uuid
-  recipe     Recipe   @relation("RecipeToRecipeStep", fields: [userId, recipeId], references: [userId, id], onDelete: Cascade)
-  stepNumber Int      @map("step_number")
-  text       String   @db.VarChar(4096)
-
-  @@unique([userId, recipeId, stepNumber])
-  @@index([userId])
-  @@index([userId, recipeId])
-  @@index([userId, recipeId, stepNumber])
-  @@map("recipe_steps")
 }

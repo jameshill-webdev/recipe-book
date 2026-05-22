@@ -25,9 +25,6 @@ export const getRecipes = async (request: Request, response: Response) => {
 					},
 				},
 			},
-			method: {
-				orderBy: { stepNumber: "asc" },
-			},
 		},
 	});
 
@@ -51,9 +48,11 @@ export const createRecipe = async (request: CreateRecipeRequest, response: Respo
 	const parsedResult = createRecipeSchema.safeParse(request.body);
 
 	if (!parsedResult.success) {
+		console.log("createRecipe body failed validation");
 		const errors = parsedResult.error.issues
 			.map((err) => `${err.path.join(".")}: ${err.message}`)
 			.join("; ");
+		console.log("errors:", errors);
 		return response.status(400).json({ ok: false, message: errors });
 	}
 
@@ -65,6 +64,7 @@ export const createRecipe = async (request: CreateRecipeRequest, response: Respo
 			data: {
 				userId,
 				name,
+				method,
 				prepTime: prepTime.time,
 				prepTimeUnit: prepTime.unit,
 				cookTime: cookTime.time,
@@ -87,18 +87,6 @@ export const createRecipe = async (request: CreateRecipeRequest, response: Respo
 			data: recipeIngredientsData,
 		});
 
-		// Create recipe steps
-		const recipeStepsData = method.map((step) => ({
-			userId,
-			recipeId: recipe.id,
-			stepNumber: step.stepNumber,
-			text: step.text,
-		}));
-
-		await tx.recipeStep.createMany({
-			data: recipeStepsData,
-		});
-
 		// Fetch the created recipe with all relations
 		const fullRecipe = await tx.recipe.findUnique({
 			where: {
@@ -114,9 +102,6 @@ export const createRecipe = async (request: CreateRecipeRequest, response: Respo
 							},
 						},
 					},
-				},
-				method: {
-					orderBy: { stepNumber: "asc" },
 				},
 			},
 		});
@@ -223,21 +208,11 @@ export const updateRecipe = async (request: UpdateRecipeRequest, response: Respo
 
 		// Update recipe steps if provided
 		if (recipeData.method !== undefined) {
-			// Delete existing steps
-			await tx.recipeStep.deleteMany({
-				where: { recipeId },
-			});
-
-			// Create new steps
-			const recipeStepsData = recipeData.method.map((step) => ({
-				userId,
-				recipeId,
-				stepNumber: step.stepNumber,
-				text: step.text,
-			}));
-
-			await tx.recipeStep.createMany({
-				data: recipeStepsData,
+			await tx.recipe.update({
+				where: { id: recipeId },
+				data: {
+					method: recipeData.method,
+				},
 			});
 		}
 
@@ -254,9 +229,6 @@ export const updateRecipe = async (request: UpdateRecipeRequest, response: Respo
 							},
 						},
 					},
-				},
-				method: {
-					orderBy: { stepNumber: "asc" },
 				},
 			},
 		});

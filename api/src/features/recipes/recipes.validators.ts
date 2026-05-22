@@ -13,15 +13,10 @@ const recipeIngredientSchema = z.object({
 	unit: z.enum(MEASURE_UNITS),
 });
 
-const recipeStepSchema = z.object({
-	stepNumber: z.number().int().positive("Step number must be positive"),
-	text: z.string().trim().min(1, "Step text is required"),
-});
-
 export const createRecipeSchema = z.object({
 	name: z.string().trim().min(1, "Recipe name is required"),
 	ingredients: z.array(recipeIngredientSchema).min(1, "At least one ingredient is required"),
-	method: z.array(recipeStepSchema).min(1, "Method is required"),
+	method: z.string().trim().min(1, "Method is required"),
 	prepTime: durationSchema,
 	cookTime: durationSchema,
 	shelfLife: durationSchema,
@@ -31,7 +26,7 @@ export const createRecipeSchema = z.object({
 export const updateRecipeSchema = z.object({
 	name: z.string().trim().min(1, "Recipe name is required").optional(),
 	ingredients: z.array(recipeIngredientSchema).optional(),
-	method: z.array(recipeStepSchema).optional(),
+	method: z.string().trim().min(1, "Method is required").optional(),
 	prepTime: durationSchema.optional(),
 	cookTime: durationSchema.optional(),
 	shelfLife: durationSchema.optional(),
