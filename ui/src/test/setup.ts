@@ -9,7 +9,7 @@ const processEnv = (
 ).process?.env;
 
 if (processEnv) {
-	processEnv.DEBUG_PRINT_LIMIT = "3000";
+	processEnv.DEBUG_PRINT_LIMIT = "16000";
 }
 
 afterEach(() => {
