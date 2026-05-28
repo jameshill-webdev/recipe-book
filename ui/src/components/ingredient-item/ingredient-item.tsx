@@ -124,7 +124,7 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 		}
 
 		if (parsedCostPerUnit !== originalCostPerUnit) {
-			payload.costPerUnit = newCostPerUnit;
+			payload.costPerUnit = parsedCostPerUnit;
 		}
 
 		if (Object.keys(payload).length === 0) {
@@ -136,7 +136,7 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 	}
 
 	return (
-		<div className="flex flex-col gap-2 mb-2">
+		<div className="flex flex-col gap-2 mb-1">
 			<Item
 				data-testid="ingredient-item"
 				size="sm"

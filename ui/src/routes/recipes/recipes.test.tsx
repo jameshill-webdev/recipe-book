@@ -65,7 +65,7 @@ describe("Recipes", () => {
 	});
 
 	describe("recipes list", () => {
-		it("loads and renders recipe names returned by the API", async () => {
+		it("loads and renders recipes returned by the API as RecipeItems", async () => {
 			vi.stubGlobal(
 				"fetch",
 				vi.fn().mockResolvedValue({
@@ -105,6 +105,9 @@ describe("Recipes", () => {
 
 			expect(await screen.findByText("Pasta Carbonara")).toBeInTheDocument();
 			expect(screen.getByText("Caesar Salad")).toBeInTheDocument();
+
+			const recipeListItems = screen.getAllByTestId("recipe-list-item");
+			expect(recipeListItems.length).toBe(2);
 		});
 	});
 

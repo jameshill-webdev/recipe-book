@@ -12,6 +12,7 @@ import { useCreateIngredient } from "@/hooks/use-create-ingredient";
 import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 import { InlineError } from "@/components/ui/error/error";
 import type { IngredientsMutationResponse } from "@recipe-book/shared/types/ingredient";
+import { RecipeList } from "@/components/recipe-list/recipe-list";
 
 const DEFAULT_PREP_TIME_UNIT = "MINUTES";
 const DEFAULT_COOK_TIME_UNIT = "MINUTES";
@@ -215,13 +216,7 @@ export default function Recipes() {
 							No recipes yet
 						</p>
 					) : (
-						<ul className="p-0 list-none">
-							{recipes.map((recipe, index) => (
-								<li key={`${recipe.id}_${index}`} className="flex flex-row">
-									{recipe.name}
-								</li>
-							))}
-						</ul>
+						<RecipeList recipes={recipes} />
 					)}
 				</div>
 			</div>
