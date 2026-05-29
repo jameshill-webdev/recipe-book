@@ -25,6 +25,24 @@ export async function getRecipes() {
 	return data?.recipes ?? [];
 }
 
+export async function getRecipeById(recipeId: string) {
+	const response = await fetch(`${apiBaseUrl}/recipes/${recipeId}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		credentials: "include",
+	});
+
+	const data = (await response.json().catch(() => null)) as GetRecipesResponse | null;
+
+	if (!response.ok) {
+		throw new Error(data?.message ?? GENERIC_ERROR);
+	}
+
+	return data ?? {};
+}
+
 export async function createRecipe(payload: CreateRecipePayload) {
 	console.log("Creating recipe with payload:", payload); // Debug log to check payload structure
 	const response = await fetch(`${apiBaseUrl}/recipes`, {

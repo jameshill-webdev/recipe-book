@@ -34,6 +34,53 @@ export const getRecipes = async (request: Request, response: Response) => {
 	});
 };
 
+export const getRecipeById = async (request: Request, response: Response) => {
+	console.log(`get recipe by id: ${request.params?.id}`);
+	const userId = request.session?.user.id;
+
+	if (!userId) {
+		return response.status(401).json({ ok: false, message: "Unauthorized" });
+	}
+
+	console.log("params: ");
+	console.log(request.params);
+
+	const {
+		params: { id },
+	} = request;
+
+	console.log("id:");
+	console.log(id);
+
+	if (!id) {
+		return response.status(400).json({ ok: false, message: "ID parameter is required" });
+	}
+
+	const recipe = await prisma.recipe.findUnique({
+		where: {
+			userId,
+			id: (Array.isArray(id) ? id[0] : id) || "",
+		},
+		include: {
+			ingredients: {
+				include: {
+					ingredient: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+				},
+			},
+		},
+	});
+
+	return response.status(200).json({
+		ok: true,
+		recipe,
+	});
+};
+
 export type CreateRecipeRequest = Request<object, object, CreateRecipePayload>;
 
 export const createRecipe = async (request: CreateRecipeRequest, response: Response) => {

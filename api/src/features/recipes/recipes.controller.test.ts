@@ -24,7 +24,13 @@ vi.mock("@/database/prisma.js", () => ({
 }));
 
 import prisma from "@/database/prisma.js";
-import { createRecipe, deleteRecipe, getRecipes, updateRecipe } from "./recipes.controller.js";
+import {
+	createRecipe,
+	deleteRecipe,
+	getRecipeById,
+	getRecipes,
+	updateRecipe,
+} from "./recipes.controller.js";
 import { makeRequest, makeResponse } from "@/test/mocks.js";
 import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
 
@@ -132,6 +138,108 @@ describe("getRecipes", () => {
 		expect(prisma.recipe.findMany).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(401);
 		expect(json).toHaveBeenCalledWith({ ok: false, message: "Unauthorized" });
+	});
+});
+
+describe("getRecipeById", () => {
+	it("returns the logged in user's recipe with the provided id", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: "recipe-123",
+			},
+		});
+		const recipes = [
+			{
+				id: testData.recipe.id,
+				userId: testData.user.id,
+				name: testData.recipe.name,
+				method: testData.recipe.method,
+				prepTime: testData.recipe.prepTime,
+				prepTimeUnit: testData.recipe.prepTimeUnit,
+				cookTime: testData.recipe.cookTime,
+				cookTimeUnit: testData.recipe.cookTimeUnit,
+				shelfLifeDays: testData.recipe.shelfLifeDays,
+				portions: testData.recipe.portions,
+				ingredients: testData.recipe.ingredients,
+			},
+		];
+
+		vi.mocked(prisma.recipe.findUnique).mockResolvedValue(recipes[0] as never);
+
+		await getRecipeById(req, res);
+
+		expect(prisma.recipe.findUnique).toHaveBeenCalledWith({
+			where: { userId: testData.user.id, id: "recipe-123" },
+			include: {
+				ingredients: {
+					include: {
+						ingredient: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+				},
+			},
+		});
+		expect(status).toHaveBeenCalledWith(200);
+		expect(json).toHaveBeenCalledWith({ ok: true, recipe: recipes[0] });
+	});
+
+	it("returns 401 when there is no logged in user on the request", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest();
+
+		await getRecipeById(req, res);
+
+		expect(prisma.recipe.findUnique).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(401);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "Unauthorized" });
+	});
+
+	it("returns 400 when there is no ID route parameter provided", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {},
+		});
+
+		await getRecipeById(req, res);
+
+		expect(prisma.recipe.findUnique).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "ID parameter is required" });
+	});
+
+	it("returns 400 when the route parameter is an empty string", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: "",
+			},
+		});
+
+		await getRecipeById(req, res);
+
+		expect(prisma.recipe.findUnique).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "ID parameter is required" });
 	});
 });
 
