@@ -1,9 +1,8 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { GlobalErrorProvider } from "@/providers/global-error-provider";
 import { RequireAuth } from "@/routes/require-auth";
 import AppLayout from "./layouts/app-layout";
-import Home from "@/routes/home";
 import Login from "@/routes/login";
 import SignUp from "@/routes/sign-up";
 import VerifyEmail from "@/routes/verify-email";
@@ -29,7 +28,7 @@ function App() {
 
 						{/* protected routes */}
 						<Route element={<RequireAuth />}>
-							<Route index path="/" element={<Home />} />
+							<Route index path="/" element={<Navigate to="/recipes" replace />} />
 							<Route path="/recipes" element={<Recipes />} />
 							<Route path="/ingredients" element={<Ingredients />} />
 						</Route>

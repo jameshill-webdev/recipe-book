@@ -3,7 +3,6 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { Navigation } from "@/components/navigation/navigation";
 import {
-	NAVIGATION_LINK_TEXT_HOME,
 	NAVIGATION_LINK_TEXT_INGREDIENTS,
 	NAVIGATION_LINK_TEXT_RECIPES,
 } from "@/lib/content-strings";
@@ -26,7 +25,6 @@ describe("Navigation", () => {
 			</ThemeProvider>,
 		);
 
-		expect(screen.getByText(NAVIGATION_LINK_TEXT_HOME)).toBeInTheDocument();
 		expect(screen.getByText(NAVIGATION_LINK_TEXT_INGREDIENTS)).toBeInTheDocument();
 		expect(screen.getByText(NAVIGATION_LINK_TEXT_RECIPES)).toBeInTheDocument();
 	});

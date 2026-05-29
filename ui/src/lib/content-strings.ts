@@ -67,7 +67,6 @@ export const RESET_PASSWORD_BUTTON_TEXT = "Reset password";
 export const VERIFY_EMAIL_PAGE_HEADING = "Check your email";
 export const VERIFY_EMAIL_PAGE_MESSAGE =
 	"We have sent a verification email. Please follow the link contained in the email to verify your email address. Your email must be verified before you can log in.";
-export const NAVIGATION_LINK_TEXT_HOME = "Home";
 export const NAVIGATION_LINK_TEXT_INGREDIENTS = "Ingredients";
 export const NAVIGATION_LINK_TEXT_RECIPES = "Recipes";
 export const GLOBAL_ERROR_ALERT_LABEL = "Global error alert";

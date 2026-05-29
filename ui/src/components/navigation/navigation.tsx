@@ -9,7 +9,6 @@ import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu/navi
 import { ThemeToggle } from "@/components/theme-toggle/theme-toggle";
 import { UserMenu } from "@/components/user-menu/user-menu";
 import {
-	NAVIGATION_LINK_TEXT_HOME,
 	NAVIGATION_LINK_TEXT_INGREDIENTS,
 	NAVIGATION_LINK_TEXT_RECIPES,
 } from "@/lib/content-strings";
@@ -21,17 +20,12 @@ export function Navigation() {
 				<NavigationMenuList>
 					<NavigationMenuItem>
 						<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-							<Link to="/">{NAVIGATION_LINK_TEXT_HOME}</Link>
+							<Link to="/recipes">{NAVIGATION_LINK_TEXT_RECIPES}</Link>
 						</NavigationMenuLink>
 					</NavigationMenuItem>
 					<NavigationMenuItem>
 						<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
 							<Link to="/ingredients">{NAVIGATION_LINK_TEXT_INGREDIENTS}</Link>
-						</NavigationMenuLink>
-					</NavigationMenuItem>
-					<NavigationMenuItem>
-						<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-							<Link to="/recipes">{NAVIGATION_LINK_TEXT_RECIPES}</Link>
 						</NavigationMenuLink>
 					</NavigationMenuItem>
 				</NavigationMenuList>
