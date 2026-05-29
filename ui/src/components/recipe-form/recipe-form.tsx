@@ -123,7 +123,7 @@ export function RecipeForm({
 				/>
 				{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 			</Field>
-			<FieldSet>
+			<FieldSet className="gap-2">
 				<FieldLegend>Ingredients</FieldLegend>
 				{isIngredientsPending ? (
 					<p>Loading ingredients...</p>
@@ -150,6 +150,7 @@ export function RecipeForm({
 				)}
 				<Button
 					type="button"
+					className="mt-2"
 					onClick={() =>
 						setIngredients([
 							...ingredients,

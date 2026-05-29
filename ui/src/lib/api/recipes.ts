@@ -2,6 +2,8 @@ import type {
 	CreateRecipePayload,
 	RecipeMutationResponse,
 	GetRecipesResponse,
+	GetRecipeByIdResponse,
+	ResponseRecipe,
 } from "@recipe-book/shared/types/recipe";
 import { GENERIC_ERROR } from "../content-strings";
 
@@ -25,7 +27,7 @@ export async function getRecipes() {
 	return data?.recipes ?? [];
 }
 
-export async function getRecipeById(recipeId: string) {
+export async function getRecipeById(recipeId: string): Promise<ResponseRecipe | undefined> {
 	const response = await fetch(`${apiBaseUrl}/recipes/${recipeId}`, {
 		method: "GET",
 		headers: {
@@ -34,13 +36,13 @@ export async function getRecipeById(recipeId: string) {
 		credentials: "include",
 	});
 
-	const data = (await response.json().catch(() => null)) as GetRecipesResponse | null;
+	const data = (await response.json().catch(() => null)) as GetRecipeByIdResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
 	}
 
-	return data ?? {};
+	return data?.recipe;
 }
 
 export async function createRecipe(payload: CreateRecipePayload) {

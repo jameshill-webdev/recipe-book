@@ -19,7 +19,7 @@ export function RecipeList({ recipes }: RecipeListProps) {
 						className="p-0 items-stretch w-full overflow-hidden"
 					>
 						<Link
-							to="/"
+							to={`/recipes/${recipe.id}`}
 							className="flex p-3 w-full justify-between [a]:transition-colors [a]:hover:bg-muted [a]:focus:bg-muted"
 						>
 							<ItemContent>

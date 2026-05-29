@@ -37,3 +37,37 @@ export type GetRecipesResponse = {
 	message?: string;
 	recipes?: Recipe[];
 };
+
+export type GetRecipeByIdResponse = {
+	ok: boolean;
+	message?: string;
+	recipe?: ResponseRecipe;
+};
+
+type ResponseIngredient = {
+	createdAt: string;
+	id: string;
+	ingredient: { id: string; name: string };
+	ingredientId: string;
+	quantity: number;
+	recipeId: string;
+	unit: string;
+	updatedAt: string;
+	userId: string;
+};
+
+export type ResponseRecipe = Omit<Recipe, "ingredients"> & {
+	cookTime: number;
+	cookTimeUnit: string;
+	createdAt: string;
+	id: string;
+	ingredients: ResponseIngredient[];
+	method: string;
+	name: string;
+	portions: 1;
+	prepTime: 1;
+	prepTimeUnit: string;
+	shelfLifeDays: 1;
+	updatedAt: string;
+	userId: string;
+};

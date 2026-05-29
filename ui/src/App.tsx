@@ -11,6 +11,7 @@ import ResetPassword from "@/routes/reset-password";
 import Recipes from "@/routes/recipes";
 import Ingredients from "@/routes/ingredients";
 import NotFound from "@/routes/not-found";
+import RecipeDetails from "./routes/recipe-details/RecipeDetails";
 
 function App() {
 	return (
@@ -30,6 +31,7 @@ function App() {
 						<Route element={<RequireAuth />}>
 							<Route index path="/" element={<Navigate to="/recipes" replace />} />
 							<Route path="/recipes" element={<Recipes />} />
+							<Route path="/recipes/:id" element={<RecipeDetails />} />
 							<Route path="/ingredients" element={<Ingredients />} />
 						</Route>
 					</Route>
