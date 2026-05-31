@@ -54,6 +54,7 @@ export function RecipeIngredient({
 						setIngredients(updatedIngredients);
 						setFormError(null);
 					}}
+					value={ingredient.name}
 				>
 					<AutocompleteInput data-testid="ingredient-name-autocomplete" />
 					<AutocompletePositioner sideOffset={4}>

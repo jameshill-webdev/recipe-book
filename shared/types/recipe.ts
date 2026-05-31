@@ -5,6 +5,18 @@ export interface Duration {
 	unit: TimeUnit;
 }
 
+export type ResponseIngredient = {
+	createdAt: string;
+	id: string;
+	ingredient: { id: string; name: string };
+	ingredientId: string;
+	quantity: number;
+	recipeId: string;
+	unit: string;
+	updatedAt: string;
+	userId: string;
+};
+
 export interface RecipeIngredient {
 	ingredientId: string;
 	name: string;
@@ -26,6 +38,10 @@ export interface Recipe {
 
 export type CreateRecipePayload = Omit<Recipe, "id">;
 
+export type UpdateRecipePayload = Partial<CreateRecipePayload> & {
+	id: string;
+};
+
 export type RecipeMutationResponse = {
 	ok: boolean;
 	message?: string;
@@ -44,18 +60,6 @@ export type GetRecipeByIdResponse = {
 	recipe?: ResponseRecipe;
 };
 
-type ResponseIngredient = {
-	createdAt: string;
-	id: string;
-	ingredient: { id: string; name: string };
-	ingredientId: string;
-	quantity: number;
-	recipeId: string;
-	unit: string;
-	updatedAt: string;
-	userId: string;
-};
-
 export type ResponseRecipe = Omit<Recipe, "ingredients"> & {
 	cookTime: number;
 	cookTimeUnit: string;
@@ -64,10 +68,11 @@ export type ResponseRecipe = Omit<Recipe, "ingredients"> & {
 	ingredients: ResponseIngredient[];
 	method: string;
 	name: string;
-	portions: 1;
-	prepTime: 1;
+	portions: number;
+	prepTime: number;
 	prepTimeUnit: string;
-	shelfLifeDays: 1;
+	shelfLife: number;
+	shelfLifeUnit: string;
 	updatedAt: string;
 	userId: string;
 };

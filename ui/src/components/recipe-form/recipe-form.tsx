@@ -7,7 +7,6 @@ import { useState } from "react";
 import z from "zod";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
 import { recipeNameSchema } from "@/lib/validation/fields";
-import { Check } from "lucide-react";
 import type { Duration, RecipeIngredient } from "@recipe-book/shared/types/recipe";
 import {
 	Select,
@@ -104,10 +103,9 @@ export function RecipeForm({
 	return (
 		<form
 			onSubmit={onSubmit}
-			className={`w-full mx-auto grid ${isEdit ? "gap-2 grid-cols-[4fr_2fr_2fr_0.5fr] md:grid-cols-[6fr_2fr_2fr_0.5fr] items-start" : "grid-rows-1 gap-6 max-w-lg"}`}
+			className={`w-full mx-auto grid grid-rows-1 gap-6 max-w-lg`}
 			aria-label={label}
 		>
-			<h2 className="text-lg text-center mt-4">{isEdit ? "Edit" : "Create a"} recipe</h2>
 			<Field>
 				<FieldLabel htmlFor="name">Name</FieldLabel>
 				<Input
@@ -377,17 +375,13 @@ export function RecipeForm({
 								: "Create recipe"
 					}
 				>
-					{mutation.isPending ? (
-						isEdit ? (
-							<Check />
-						) : (
-							"Creating..."
-						)
-					) : isEdit ? (
-						<Check />
-					) : (
-						"Create"
-					)}
+					{mutation.isPending
+						? isEdit
+							? "Updating..."
+							: "Creating..."
+						: isEdit
+							? "Update"
+							: "Create"}
 				</Button>
 			</Field>
 			{formError && <InlineError alert>{formError}</InlineError>}

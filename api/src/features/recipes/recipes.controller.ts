@@ -2,6 +2,8 @@ import { type Request, type Response } from "express";
 import prisma from "../../database/prisma.js";
 import type { CreateRecipePayload, UpdateRecipePayload } from "./recipes.validators.js";
 import { createRecipeSchema, updateRecipeSchema } from "./recipes.validators.js";
+import type { TimeUnit } from "@/generated/prisma/enums.js";
+import type { Recipe } from "@/generated/prisma/client.js";
 
 export const getRecipes = async (request: Request, response: Response) => {
 	console.log("get recipes");
@@ -116,7 +118,8 @@ export const createRecipe = async (request: CreateRecipeRequest, response: Respo
 				prepTimeUnit: prepTime.unit,
 				cookTime: cookTime.time,
 				cookTimeUnit: cookTime.unit,
-				shelfLifeDays: Math.floor(shelfLife.time), // Convert to days
+				shelfLife: shelfLife.time,
+				shelfLifeUnit: shelfLife.unit,
 				portions: numberOfPortions,
 			},
 		});
@@ -207,7 +210,7 @@ export const updateRecipe = async (request: UpdateRecipeRequest, response: Respo
 	}
 
 	const updatedRecipe = await prisma.$transaction(async (tx) => {
-		const updateData: Record<string, unknown> = {};
+		const updateData: Partial<Recipe> = {};
 
 		if (recipeData.name !== undefined) {
 			updateData.name = recipeData.name;
@@ -221,7 +224,8 @@ export const updateRecipe = async (request: UpdateRecipeRequest, response: Respo
 			updateData.cookTimeUnit = recipeData.cookTime.unit;
 		}
 		if (recipeData.shelfLife !== undefined) {
-			updateData.shelfLifeDays = Math.floor(recipeData.shelfLife.time);
+			updateData.shelfLife = Math.floor(recipeData.shelfLife.time);
+			updateData.shelfLifeUnit = recipeData.shelfLife.unit as TimeUnit;
 		}
 		if (recipeData.numberOfPortions !== undefined) {
 			updateData.portions = recipeData.numberOfPortions;

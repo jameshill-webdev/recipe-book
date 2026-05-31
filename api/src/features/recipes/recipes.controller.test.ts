@@ -46,7 +46,8 @@ const testData = {
 		prepTimeUnit: "MINUTES",
 		cookTime: 30,
 		cookTimeUnit: "MINUTES",
-		shelfLifeDays: 7,
+		shelfLife: 7,
+		shelfLifeUnit: "DAYS",
 		portions: 8,
 		ingredients: [
 			{
@@ -99,7 +100,8 @@ describe("getRecipes", () => {
 				prepTimeUnit: testData.recipe.prepTimeUnit,
 				cookTime: testData.recipe.cookTime,
 				cookTimeUnit: testData.recipe.cookTimeUnit,
-				shelfLifeDays: testData.recipe.shelfLifeDays,
+				shelfLife: testData.recipe.shelfLife,
+				shelfLifeUnit: testData.recipe.shelfLifeUnit,
 				portions: testData.recipe.portions,
 				ingredients: testData.recipe.ingredients,
 			},
@@ -164,7 +166,8 @@ describe("getRecipeById", () => {
 				prepTimeUnit: testData.recipe.prepTimeUnit,
 				cookTime: testData.recipe.cookTime,
 				cookTimeUnit: testData.recipe.cookTimeUnit,
-				shelfLifeDays: testData.recipe.shelfLifeDays,
+				shelfLife: testData.recipe.shelfLife,
+				shelfLifeUnit: testData.recipe.shelfLifeUnit,
 				portions: testData.recipe.portions,
 				ingredients: testData.recipe.ingredients,
 			},
@@ -264,7 +267,7 @@ describe("createRecipe", () => {
 					unit: testData.recipe.cookTimeUnit,
 				},
 				shelfLife: {
-					time: testData.recipe.shelfLifeDays,
+					time: testData.recipe.shelfLife,
 					unit: "DAYS",
 				},
 				numberOfPortions: testData.recipe.portions,
@@ -288,7 +291,8 @@ describe("createRecipe", () => {
 			prepTimeUnit: testData.recipe.prepTimeUnit,
 			cookTime: testData.recipe.cookTime,
 			cookTimeUnit: testData.recipe.cookTimeUnit,
-			shelfLifeDays: testData.recipe.shelfLifeDays,
+			shelfLife: testData.recipe.shelfLife,
+			shelfLifeUnit: testData.recipe.shelfLifeUnit,
 			portions: testData.recipe.portions,
 			ingredients: testData.recipe.ingredients,
 		};
@@ -322,7 +326,7 @@ describe("createRecipe", () => {
 					unit: testData.recipe.cookTimeUnit,
 				},
 				shelfLife: {
-					time: testData.recipe.shelfLifeDays,
+					time: testData.recipe.shelfLife,
 					unit: "DAYS",
 				},
 				numberOfPortions: 8,
@@ -367,7 +371,7 @@ describe("createRecipe", () => {
 					unit: testData.recipe.cookTimeUnit,
 				},
 				shelfLife: {
-					time: testData.recipe.shelfLifeDays,
+					time: testData.recipe.shelfLife,
 					unit: "DAYS",
 				},
 				numberOfPortions: 8,
@@ -405,7 +409,7 @@ describe("createRecipe", () => {
 					unit: testData.recipe.cookTimeUnit,
 				},
 				shelfLife: {
-					time: testData.recipe.shelfLifeDays,
+					time: testData.recipe.shelfLife,
 					unit: "DAYS",
 				},
 				numberOfPortions: 8,
@@ -445,7 +449,7 @@ describe("createRecipe", () => {
 					unit: testData.recipe.cookTimeUnit,
 				},
 				shelfLife: {
-					time: testData.recipe.shelfLifeDays,
+					time: testData.recipe.shelfLife,
 					unit: "DAYS",
 				},
 				numberOfPortions: 8,
@@ -479,7 +483,8 @@ describe("updateRecipe", () => {
 			prepTimeUnit: "HOURS",
 			cookTime: 12,
 			cookTimeUnit: "HOURS",
-			shelfLifeDays: 3,
+			shelfLife: testData.recipe.shelfLife,
+			shelfLifeUnit: testData.recipe.shelfLifeUnit,
 			portions: 6,
 			ingredients: [
 				...testData.recipe.ingredients,
@@ -513,7 +518,7 @@ describe("updateRecipe", () => {
 					unit: updatedRecipe.cookTimeUnit,
 				},
 				shelfLife: {
-					time: updatedRecipe.shelfLifeDays,
+					time: updatedRecipe.shelfLife,
 					unit: "DAYS",
 				},
 				numberOfPortions: updatedRecipe.portions,
@@ -562,7 +567,8 @@ describe("updateRecipe", () => {
 			prepTimeUnit: testData.recipe.prepTimeUnit,
 			cookTime: testData.recipe.cookTime,
 			cookTimeUnit: testData.recipe.cookTimeUnit,
-			shelfLifeDays: testData.recipe.shelfLifeDays,
+			shelfLife: testData.recipe.shelfLife,
+			shelfLifeUnit: testData.recipe.shelfLifeUnit,
 			portions: testData.recipe.portions,
 			ingredients: testData.recipe.ingredients,
 		};
@@ -673,7 +679,8 @@ describe("deleteRecipe", () => {
 			prepTimeUnit: testData.recipe.prepTimeUnit,
 			cookTime: testData.recipe.cookTime,
 			cookTimeUnit: testData.recipe.cookTimeUnit,
-			shelfLifeDays: testData.recipe.shelfLifeDays,
+			shelfLife: testData.recipe.shelfLife,
+			shelfLifeUnit: testData.recipe.shelfLifeUnit,
 			portions: testData.recipe.portions,
 		};
 

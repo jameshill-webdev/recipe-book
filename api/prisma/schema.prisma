@@ -141,7 +141,8 @@ model Recipe {
   prepTimeUnit  TimeUnit
   cookTime      Float
   cookTimeUnit  TimeUnit
-  shelfLifeDays Int
+  shelfLife     Int                @default(1)
+  shelfLifeUnit TimeUnit           @default(DAYS)
   portions      Int
 
   @@unique([userId, id])

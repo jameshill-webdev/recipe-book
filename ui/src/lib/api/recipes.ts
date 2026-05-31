@@ -1,5 +1,6 @@
 import type {
 	CreateRecipePayload,
+	UpdateRecipePayload,
 	RecipeMutationResponse,
 	GetRecipesResponse,
 	GetRecipeByIdResponse,
@@ -49,6 +50,26 @@ export async function createRecipe(payload: CreateRecipePayload) {
 	console.log("Creating recipe with payload:", payload); // Debug log to check payload structure
 	const response = await fetch(`${apiBaseUrl}/recipes`, {
 		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		credentials: "include",
+		body: JSON.stringify(payload),
+	});
+
+	const data = (await response.json().catch(() => null)) as RecipeMutationResponse | null;
+
+	if (!response.ok) {
+		throw new Error(data?.message ?? GENERIC_ERROR);
+	}
+
+	return data;
+}
+
+export async function updateRecipe(payload: UpdateRecipePayload) {
+	console.log("Updating recipe with id:", payload.id); // Debug log to check the ID
+	const response = await fetch(`${apiBaseUrl}/recipes/${payload.id}`, {
+		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
 		},

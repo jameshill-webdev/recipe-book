@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MEASURE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
+import { PURCHASE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
 
 const durationSchema = z.object({
 	time: z.number().positive("Time must be positive"),
@@ -10,7 +10,7 @@ const recipeIngredientSchema = z.object({
 	name: z.string().trim().min(1, "Ingredient name is required"),
 	ingredientId: z.uuid("Invalid ingredient ID").or(z.literal("")),
 	quantity: z.number().positive("Quantity must be positive"),
-	unit: z.enum(MEASURE_UNITS),
+	unit: z.enum(PURCHASE_UNITS),
 });
 
 export const createRecipeSchema = z.object({

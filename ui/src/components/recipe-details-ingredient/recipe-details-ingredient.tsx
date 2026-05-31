@@ -1,16 +1,19 @@
 import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 import { Item, ItemContent } from "../ui/item/item";
+import { formatPurchaseUnit } from "@/lib/formatting";
+
+interface RecipeDetailsIngredientProps {
+	name: string;
+	quantity: number;
+	unit: PurchaseUnit;
+}
 
 export default function RecipeDetailsIngredient({
 	name,
 	quantity,
 	unit,
-}: {
-	name: string;
-	quantity: number;
-	unit: PurchaseUnit;
-}) {
-	const formattedUnit = unit.toLocaleLowerCase();
+}: RecipeDetailsIngredientProps) {
+	const formattedUnit = formatPurchaseUnit(unit, quantity);
 
 	return (
 		<>
@@ -19,11 +22,11 @@ export default function RecipeDetailsIngredient({
 					data-testid="ingredient-item"
 					size="sm"
 					variant="outline"
-					className="p-1.5 items-stretch"
+					className="px-3 py-2 items-stretch"
 				>
 					<ItemContent>
 						<span>
-							{name}, {quantity} {quantity > 1 ? `${formattedUnit}s` : formattedUnit}
+							{name}, {quantity} {formattedUnit}
 						</span>
 					</ItemContent>
 				</Item>

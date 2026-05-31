@@ -71,7 +71,7 @@ export default function Ingredients() {
 
 	return (
 		<>
-			<h1>{INGREDIENTS_PAGE_HEADING}</h1>
+			<h1 className="my-8">{INGREDIENTS_PAGE_HEADING}</h1>
 			<div className="flex flex-col gap-4 mb-8">
 				<Button
 					className="w-[10rem] mx-auto"

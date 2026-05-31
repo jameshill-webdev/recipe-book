@@ -1,0 +1,3 @@
+export const DEFAULT_PREP_TIME_UNIT = "MINUTES";
+export const DEFAULT_COOK_TIME_UNIT = "MINUTES";
+export const DEFAULT_SHELF_LIFE_UNIT = "DAYS";

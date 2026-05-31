@@ -13,10 +13,11 @@ import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 import { InlineError } from "@/components/ui/error/error";
 import type { IngredientsMutationResponse } from "@recipe-book/shared/types/ingredient";
 import { RecipeList } from "@/components/recipe-list/recipe-list";
-
-const DEFAULT_PREP_TIME_UNIT = "MINUTES";
-const DEFAULT_COOK_TIME_UNIT = "MINUTES";
-const DEFAULT_SHELF_LIFE_UNIT = "DAYS";
+import {
+	DEFAULT_PREP_TIME_UNIT,
+	DEFAULT_COOK_TIME_UNIT,
+	DEFAULT_SHELF_LIFE_UNIT,
+} from "@/lib/constants";
 
 export default function Recipes() {
 	const queryClient = useQueryClient();
@@ -160,7 +161,7 @@ export default function Recipes() {
 
 	return (
 		<>
-			<h1>{RECIPES_PAGE_HEADING}</h1>
+			<h1 className="my-8">{RECIPES_PAGE_HEADING}</h1>
 			<div className="flex flex-col gap-4 mb-8">
 				<Button
 					className="w-[10rem] mx-auto"
