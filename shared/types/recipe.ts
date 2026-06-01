@@ -60,19 +60,19 @@ export type GetRecipeByIdResponse = {
 	recipe?: ResponseRecipe;
 };
 
-export type ResponseRecipe = Omit<Recipe, "ingredients"> & {
-	cookTime: number;
-	cookTimeUnit: string;
-	createdAt: string;
+export type ResponseRecipe = {
 	id: string;
-	ingredients: ResponseIngredient[];
-	method: string;
-	name: string;
-	portions: number;
-	prepTime: number;
-	prepTimeUnit: string;
-	shelfLife: number;
-	shelfLifeUnit: string;
+	createdAt: string;
 	updatedAt: string;
 	userId: string;
+	name: string;
+	method: string;
+	prepTime: number;
+	prepTimeUnit: string;
+	cookTime: number;
+	cookTimeUnit: string;
+	shelfLife: number;
+	shelfLifeUnit: string;
+	portions: number;
+	ingredients: ResponseIngredient[];
 };

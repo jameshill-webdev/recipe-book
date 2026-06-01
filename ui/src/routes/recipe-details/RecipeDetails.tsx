@@ -1,6 +1,6 @@
 import { getRecipeById } from "@/lib/api/recipes";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { getErrorMessage } from "@/lib/utils";
 import { InlineError } from "@/components/ui/error/error";
 import ViewRecipeDetails from "@/components/view-recipe-details/view-recipe-details";
@@ -19,7 +19,7 @@ export default function RecipeDetailsPage() {
 		isPending: isRecipePending,
 		error: recipesError,
 	} = useQuery({
-		queryKey: ["recipeDetails"],
+		queryKey: ["recipeDetails", id],
 		queryFn: () => {
 			if (!id) {
 				return null;
@@ -27,6 +27,8 @@ export default function RecipeDetailsPage() {
 			return getRecipeById(id);
 		},
 	});
+
+	console.log(JSON.stringify(recipe));
 
 	return (
 		<div>
