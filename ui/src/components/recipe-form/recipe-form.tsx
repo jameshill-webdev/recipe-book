@@ -7,7 +7,7 @@ import { useState } from "react";
 import z from "zod";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
 import { recipeNameSchema } from "@/lib/validation/fields";
-import type { Duration, RecipeIngredient } from "@recipe-book/shared/types/recipe";
+import type { CreateRecipeIngredientPayload, Duration } from "@recipe-book/shared/types/recipe";
 import {
 	Select,
 	SelectTrigger,
@@ -15,10 +15,10 @@ import {
 	SelectContent,
 	SelectItem,
 } from "@/components/ui/select/select";
-import type { IngredientData } from "@recipe-book/shared/types/ingredient";
+import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 import { PURCHASE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
 import { getErrorMessage } from "@/lib/utils";
-import { RecipeIngredient as IngredientComponent } from "../recipe-ingredient/recipe-ingredient";
+import { RecipeFormIngredient } from "../recipe-ingredient/recipe-ingredient";
 
 interface RecipeFormProps {
 	label: string;
@@ -26,11 +26,11 @@ interface RecipeFormProps {
 	submitHandler: (e: React.SubmitEvent) => void;
 	name: string;
 	setName: (value: string) => void;
-	ingredientOptions: IngredientData[];
+	ingredientOptions: Ingredient[];
 	isIngredientsPending: boolean;
 	ingredientsError: Error | null;
-	ingredients: RecipeIngredient[];
-	setIngredients: (value: RecipeIngredient[]) => void;
+	ingredients: CreateRecipeIngredientPayload[];
+	setIngredients: (value: CreateRecipeIngredientPayload[]) => void;
 	method: string;
 	setMethod: (value: string) => void;
 	prepTime: Duration;
@@ -134,7 +134,7 @@ export function RecipeForm({
 				) : (
 					<>
 						{ingredients.map((ingredient, index) => (
-							<IngredientComponent
+							<RecipeFormIngredient
 								key={`${ingredient.ingredientId}-${index}`}
 								ingredient={ingredient}
 								index={index}

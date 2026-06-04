@@ -5,7 +5,7 @@ export interface Duration {
 	unit: TimeUnit;
 }
 
-export type ResponseIngredient = {
+export type RecipeIngredient = {
 	createdAt: string;
 	id: string;
 	ingredient: { id: string; name: string };
@@ -17,32 +17,51 @@ export type ResponseIngredient = {
 	userId: string;
 };
 
-export interface RecipeIngredient {
-	ingredientId: string;
+export type CreateRecipeIngredientPayload = {
 	name: string;
+	ingredientId: string;
 	quantity: number;
 	unit: PurchaseUnit;
-}
+};
 
 export interface Recipe {
 	id: string;
+	createdAt: string;
+	updatedAt: string;
+	userId: string;
 	name: string;
+	method: string;
+	prepTime: number;
+	prepTimeUnit: string;
+	cookTime: number;
+	cookTimeUnit: string;
+	shelfLife: number;
+	shelfLifeUnit: string;
+	portions: number;
 	ingredients: RecipeIngredient[];
+}
+
+export type CreateRecipePayload = {
+	name: string;
+	ingredients: CreateRecipeIngredientPayload[];
 	method: string;
 	prepTime: Duration;
 	cookTime: Duration;
 	shelfLife: Duration;
 	numberOfPortions: number;
-	costPerPortion: number | string;
-}
-
-export type CreateRecipePayload = Omit<Recipe, "id">;
+};
 
 export type UpdateRecipePayload = Partial<CreateRecipePayload> & {
 	id: string;
 };
 
-export type RecipeMutationResponse = {
+export type CreateRecipeResponse = {
+	ok: boolean;
+	message?: string;
+	recipe?: Recipe;
+};
+
+export type UpdateRecipeResponse = {
 	ok: boolean;
 	message?: string;
 	recipe?: Recipe;
@@ -57,22 +76,5 @@ export type GetRecipesResponse = {
 export type GetRecipeByIdResponse = {
 	ok: boolean;
 	message?: string;
-	recipe?: ResponseRecipe;
-};
-
-export type ResponseRecipe = {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
-	userId: string;
-	name: string;
-	method: string;
-	prepTime: number;
-	prepTimeUnit: string;
-	cookTime: number;
-	cookTimeUnit: string;
-	shelfLife: number;
-	shelfLifeUnit: string;
-	portions: number;
-	ingredients: ResponseIngredient[];
+	recipe?: Recipe;
 };

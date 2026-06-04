@@ -1,6 +1,6 @@
 import { Field, FieldLabel, FieldGroup } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
-import type { RecipeIngredient } from "@recipe-book/shared/types/recipe";
+import type { CreateRecipeIngredientPayload } from "@recipe-book/shared/types/recipe";
 import {
 	Select,
 	SelectTrigger,
@@ -17,25 +17,25 @@ import {
 	AutocompleteItem,
 } from "@/components/ui/autocomplete/autocomplete";
 import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
-import type { IngredientData } from "@recipe-book/shared/types/ingredient";
+import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 
-interface RecipeIngredientProps {
-	ingredient: RecipeIngredient;
+interface RecipeFormIngredientProps {
+	ingredient: CreateRecipeIngredientPayload;
 	index: number;
-	ingredients: RecipeIngredient[];
-	setIngredients: (value: RecipeIngredient[]) => void;
-	ingredientOptions: IngredientData[];
+	ingredients: CreateRecipeIngredientPayload[];
+	setIngredients: (value: CreateRecipeIngredientPayload[]) => void;
+	ingredientOptions: Ingredient[];
 	setFormError: (value: string | null) => void;
 }
 
-export function RecipeIngredient({
+export function RecipeFormIngredient({
 	ingredient,
 	index,
 	ingredients,
 	setIngredients,
 	ingredientOptions,
 	setFormError,
-}: RecipeIngredientProps) {
+}: RecipeFormIngredientProps) {
 	return (
 		// TODO: add a remove button and functionality to remove an ingredient from the recipe
 		<FieldGroup

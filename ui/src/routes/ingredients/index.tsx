@@ -69,6 +69,10 @@ export default function Ingredients() {
 		});
 	}
 
+	if (!isIngredientsPending && ingredients.length) {
+		console.log("ingredients", JSON.stringify(ingredients));
+	}
+
 	return (
 		<>
 			<h1 className="my-8">{INGREDIENTS_PAGE_HEADING}</h1>

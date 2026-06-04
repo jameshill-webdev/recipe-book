@@ -1,14 +1,16 @@
 import type {
 	CreateIngredientsPayload,
 	UpdateIngredientPayload,
-	IngredientsMutationResponse,
+	CreateIngredientsResponse,
 	GetIngredientsResponse,
+	Ingredient,
+	UpdateIngredientResponse,
 } from "@recipe-book/shared/types/ingredient";
 import { GENERIC_ERROR } from "../content-strings";
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");
 
-export async function getIngredients() {
+export async function getIngredients(): Promise<Ingredient[]> {
 	const response = await fetch(`${apiBaseUrl}/ingredients`, {
 		credentials: "include",
 	});
@@ -22,7 +24,7 @@ export async function getIngredients() {
 	return data?.ingredients ?? [];
 }
 
-export async function createIngredient(payload: CreateIngredientsPayload) {
+export async function createIngredients(payload: CreateIngredientsPayload): Promise<Ingredient[]> {
 	const response = await fetch(`${apiBaseUrl}/ingredients`, {
 		method: "POST",
 		headers: {
@@ -32,13 +34,13 @@ export async function createIngredient(payload: CreateIngredientsPayload) {
 		body: JSON.stringify(payload),
 	});
 
-	const data = (await response.json().catch(() => null)) as IngredientsMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as CreateIngredientsResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
 	}
 
-	return data;
+	return data?.ingredients || [];
 }
 
 export async function updateIngredient(payload: UpdateIngredientPayload) {
@@ -53,7 +55,7 @@ export async function updateIngredient(payload: UpdateIngredientPayload) {
 		body: JSON.stringify(payload),
 	});
 
-	const data = (await response.json().catch(() => null)) as IngredientsMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as UpdateIngredientResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
@@ -68,7 +70,7 @@ export async function deleteIngredient(payload: { id: string }) {
 		credentials: "include",
 	});
 
-	const data = (await response.json().catch(() => null)) as IngredientsMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as CreateIngredientsResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);

@@ -1,16 +1,17 @@
 import type {
 	CreateRecipePayload,
 	UpdateRecipePayload,
-	RecipeMutationResponse,
+	CreateRecipeResponse,
 	GetRecipesResponse,
 	GetRecipeByIdResponse,
-	ResponseRecipe,
+	Recipe,
+	UpdateRecipeResponse,
 } from "@recipe-book/shared/types/recipe";
 import { GENERIC_ERROR } from "../content-strings";
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? window.location.origin).replace(/\/$/, "");
 
-export async function getRecipes() {
+export async function getRecipes(): Promise<Recipe[]> {
 	const response = await fetch(`${apiBaseUrl}/recipes`, {
 		method: "GET",
 		headers: {
@@ -28,7 +29,7 @@ export async function getRecipes() {
 	return data?.recipes ?? [];
 }
 
-export async function getRecipeById(recipeId: string): Promise<ResponseRecipe | undefined> {
+export async function getRecipeById(recipeId: string): Promise<Recipe | undefined> {
 	const response = await fetch(`${apiBaseUrl}/recipes/${recipeId}`, {
 		method: "GET",
 		headers: {
@@ -46,7 +47,7 @@ export async function getRecipeById(recipeId: string): Promise<ResponseRecipe | 
 	return data?.recipe;
 }
 
-export async function createRecipe(payload: CreateRecipePayload) {
+export async function createRecipe(payload: CreateRecipePayload): Promise<Recipe | undefined> {
 	console.log("Creating recipe with payload:", payload); // Debug log to check payload structure
 	const response = await fetch(`${apiBaseUrl}/recipes`, {
 		method: "POST",
@@ -57,16 +58,16 @@ export async function createRecipe(payload: CreateRecipePayload) {
 		body: JSON.stringify(payload),
 	});
 
-	const data = (await response.json().catch(() => null)) as RecipeMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as CreateRecipeResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
 	}
 
-	return data;
+	return data?.recipe;
 }
 
-export async function updateRecipe(payload: UpdateRecipePayload) {
+export async function updateRecipe(payload: UpdateRecipePayload): Promise<Recipe | undefined> {
 	console.log("Updating recipe with id:", payload.id); // Debug log to check the ID
 	const response = await fetch(`${apiBaseUrl}/recipes/${payload.id}`, {
 		method: "PATCH",
@@ -77,11 +78,11 @@ export async function updateRecipe(payload: UpdateRecipePayload) {
 		body: JSON.stringify(payload),
 	});
 
-	const data = (await response.json().catch(() => null)) as RecipeMutationResponse | null;
+	const data = (await response.json().catch(() => null)) as UpdateRecipeResponse | null;
 
 	if (!response.ok) {
 		throw new Error(data?.message ?? GENERIC_ERROR);
 	}
 
-	return data;
+	return data?.recipe;
 }

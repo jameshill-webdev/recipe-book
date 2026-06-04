@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import RecipeDetailsPage from "./RecipeDetails";
-import { responseRecipe } from "@/test/fixtures";
+import { recipes } from "@/test/fixtures";
 import * as recipesApi from "@/lib/api/recipes";
 
 vi.mock("react-router-dom", async () => {
@@ -38,14 +38,14 @@ describe("Recipe Details Page", () => {
 
 	describe("static UI", () => {
 		beforeEach(() => {
-			vi.spyOn(recipesApi, "getRecipeById").mockResolvedValue(responseRecipe);
+			vi.spyOn(recipesApi, "getRecipeById").mockResolvedValue(recipes[0]);
 			renderRecipeDetails();
 		});
 
 		it("renders a level 1 heading with the correct text content (recipe name)", async () => {
 			const heading = await screen.findByRole("heading", {
 				level: 1,
-				name: responseRecipe.name,
+				name: recipes[0].name,
 			});
 
 			expect(heading).toBeInTheDocument();

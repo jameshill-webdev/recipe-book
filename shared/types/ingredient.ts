@@ -4,7 +4,7 @@ export type IngredientParams = {
 	id: string;
 };
 
-export type IngredientData = {
+export type Ingredient = {
 	id: string;
 	name: string;
 	purchaseUnit: PurchaseUnit;
@@ -23,14 +23,20 @@ export type CreateIngredientsPayload = {
 
 export type UpdateIngredientPayload = { id: string } & Partial<CreateIngredientsPayloadItem>;
 
-export type IngredientsMutationResponse = {
+export type CreateIngredientsResponse = {
 	ok: boolean;
 	message?: string;
-	ingredients?: IngredientData[];
+	ingredients?: Ingredient[];
+};
+
+export type UpdateIngredientResponse = {
+	ok: boolean;
+	message?: string;
+	ingredient?: Ingredient;
 };
 
 export type GetIngredientsResponse = {
 	ok: boolean;
 	message?: string;
-	ingredients?: IngredientData[];
+	ingredients?: Ingredient[];
 };

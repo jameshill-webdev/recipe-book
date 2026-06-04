@@ -34,9 +34,9 @@ export const getIngredients = async (request: Request, response: Response) => {
 	});
 };
 
-export type CreateIngredientRequest = Request<object, object, CreateIngredientsPayload>;
+export type CreateIngredientsRequest = Request<object, object, CreateIngredientsPayload>;
 
-export const createIngredient = async (request: CreateIngredientRequest, response: Response) => {
+export const createIngredients = async (request: CreateIngredientsRequest, response: Response) => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {

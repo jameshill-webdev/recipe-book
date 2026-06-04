@@ -5,18 +5,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { getIngredients } from "@/lib/api/ingredients";
-import type { RecipeIngredient, Duration } from "@recipe-book/shared/types/recipe";
+import type { CreateRecipeIngredientPayload, Duration } from "@recipe-book/shared/types/recipe";
 import { createRecipe, getRecipes } from "@/lib/api/recipes";
 import { getErrorMessage } from "@/lib/utils";
 import { useCreateIngredient } from "@/hooks/use-create-ingredient";
 import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 import { InlineError } from "@/components/ui/error/error";
-import type { IngredientsMutationResponse } from "@recipe-book/shared/types/ingredient";
+import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 import { RecipeList } from "@/components/recipe-list/recipe-list";
 import {
 	DEFAULT_PREP_TIME_UNIT,
 	DEFAULT_COOK_TIME_UNIT,
 	DEFAULT_SHELF_LIFE_UNIT,
+	DEFAULT_INGREDIENT_COST_PER_UNIT,
 } from "@/lib/constants";
 
 export default function Recipes() {
@@ -42,7 +43,7 @@ export default function Recipes() {
 
 	const [name, setName] = useState("");
 	// TODO: add validation to prevent user adding duplicate ingredients (name or purchase unit must be different)
-	const [ingredients, setIngredients] = useState<RecipeIngredient[]>([]);
+	const [ingredients, setIngredients] = useState<CreateRecipeIngredientPayload[]>([]);
 	const [method, setMethod] = useState("");
 	const [prepTime, setPrepTime] = useState<Duration>({ time: 1, unit: DEFAULT_PREP_TIME_UNIT });
 	const [cookTime, setCookTime] = useState<Duration>({ time: 1, unit: DEFAULT_COOK_TIME_UNIT });
@@ -99,30 +100,30 @@ export default function Recipes() {
 			);
 		});
 
-		let createdIngredients: IngredientsMutationResponse | null;
+		let createdIngredients: Ingredient[] = [];
 
 		if (newIngredients.length > 0) {
 			createdIngredients = await createIngredientMutation.mutateAsync({
 				ingredients: newIngredients.map((ingredient) => ({
 					name: ingredient.name.trim(),
 					purchaseUnit: ingredient.unit.trim() as PurchaseUnit,
-					costPerUnit: 0.1, // TODO: replace with constant or allow user to input cost per unit when creating recipe ingredient
+					costPerUnit: DEFAULT_INGREDIENT_COST_PER_UNIT,
 				})),
 			});
 		}
 
 		const updatedIngredients = ingredients.map((ingredient) => {
 			const isNewIngredient = newIngredients.some(
-				(newIng) =>
-					newIng.name.toLowerCase() === ingredient.name.toLowerCase() &&
-					newIng.unit.trim() === ingredient.unit.trim(),
+				(newIngredient) =>
+					newIngredient.name.toLowerCase() === ingredient.name.toLowerCase() &&
+					newIngredient.unit.trim() === ingredient.unit.trim(),
 			);
 
 			if (isNewIngredient) {
 				return {
 					...ingredient,
 					ingredientId:
-						createdIngredients?.ingredients?.find(
+						createdIngredients?.find(
 							(created) =>
 								created.name.toLowerCase() === ingredient.name.toLowerCase() &&
 								created.purchaseUnit === ingredient.unit.trim(),
@@ -153,10 +154,13 @@ export default function Recipes() {
 			cookTime,
 			shelfLife,
 			numberOfPortions,
-			costPerPortion,
 		});
 
 		setIngredients(updatedIngredients);
+	}
+
+	if (!isRecipesPending && recipes.length) {
+		console.log("recipes", JSON.stringify(recipes));
 	}
 
 	return (

@@ -1,5 +1,9 @@
 import { useState } from "react";
-import type { Duration, RecipeIngredient, ResponseRecipe } from "@recipe-book/shared/types/recipe";
+import type {
+	Duration,
+	RecipeIngredientResponse,
+	ResponseRecipe,
+} from "@recipe-book/shared/types/recipe";
 import { EDIT_RECIPE_FORM_LABEL } from "@/lib/content-strings";
 import {
 	DEFAULT_PREP_TIME_UNIT,
@@ -8,7 +12,7 @@ import {
 } from "@/lib/constants";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getIngredients } from "@/lib/api/ingredients";
-import type { IngredientsMutationResponse } from "@recipe-book/shared/types/ingredient";
+import type { CreateIngredientsResponse } from "@recipe-book/shared/types/ingredient";
 import { useCreateIngredient } from "@/hooks/use-create-ingredient";
 import type { PurchaseUnit, TimeUnit } from "@recipe-book/shared/lib/units";
 import { updateRecipe } from "@/lib/api/recipes";
@@ -33,7 +37,7 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 
 	const [name, setName] = useState(recipe.name);
 	// TODO: add validation to prevent user adding duplicate ingredients (name or purchase unit must be different)
-	const [ingredients, setIngredients] = useState<RecipeIngredient[]>(
+	const [ingredients, setIngredients] = useState<RecipeIngredientResponse[]>(
 		recipe.ingredients.map((responseIngredient) => ({
 			ingredientId: responseIngredient.ingredient.id,
 			name: responseIngredient.ingredient.name,
@@ -99,7 +103,7 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 			);
 		});
 
-		let createdIngredients: IngredientsMutationResponse | null;
+		let createdIngredients: CreateIngredientsResponse | null;
 
 		if (newIngredients.length > 0) {
 			createdIngredients = await createIngredientMutation.mutateAsync({

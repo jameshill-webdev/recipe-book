@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
-	CreateIngredientRequest,
+	CreateIngredientsRequest,
 	DeleteIngredientRequest,
 	UpdateIngredientRequest,
 } from "./ingredients.controller.js";
@@ -62,7 +62,7 @@ vi.mock("./ingredients.validator.js", () => ({
 
 import prisma from "@/database/prisma.js";
 import {
-	createIngredient,
+	createIngredients,
 	deleteIngredient,
 	getIngredients,
 	updateIngredient,
@@ -165,7 +165,7 @@ describe("createIngredient", () => {
 
 		vi.mocked(prisma.$transaction).mockResolvedValue([createdIngredient] as never);
 
-		await createIngredient(req as CreateIngredientRequest, res);
+		await createIngredients(req as CreateIngredientsRequest, res);
 
 		expect(prisma.$transaction).toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(201);
@@ -214,7 +214,7 @@ describe("createIngredient", () => {
 
 		vi.mocked(prisma.$transaction).mockResolvedValue(createdIngredients as never);
 
-		await createIngredient(req as CreateIngredientRequest, res);
+		await createIngredients(req as CreateIngredientsRequest, res);
 
 		expect(prisma.$transaction).toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(201);
@@ -234,7 +234,7 @@ describe("createIngredient", () => {
 			},
 		});
 
-		await createIngredient(req as CreateIngredientRequest, res);
+		await createIngredients(req as CreateIngredientsRequest, res);
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
@@ -257,7 +257,7 @@ describe("createIngredient", () => {
 			},
 		});
 
-		await createIngredient(req as CreateIngredientRequest, res);
+		await createIngredients(req as CreateIngredientsRequest, res);
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
@@ -286,7 +286,7 @@ describe("createIngredient", () => {
 			},
 		});
 
-		await createIngredient(req as CreateIngredientRequest, res);
+		await createIngredients(req as CreateIngredientsRequest, res);
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
@@ -302,7 +302,7 @@ describe("createIngredient", () => {
 			body: testData.ingredient,
 		});
 
-		await createIngredient(req as CreateIngredientRequest, res);
+		await createIngredients(req as CreateIngredientsRequest, res);
 
 		expect(prisma.ingredient.create).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(401);
