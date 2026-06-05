@@ -48,7 +48,6 @@ export async function getRecipeById(recipeId: string): Promise<Recipe | undefine
 }
 
 export async function createRecipe(payload: CreateRecipePayload): Promise<Recipe | undefined> {
-	console.log("Creating recipe with payload:", payload); // Debug log to check payload structure
 	const response = await fetch(`${apiBaseUrl}/recipes`, {
 		method: "POST",
 		headers: {
@@ -68,7 +67,6 @@ export async function createRecipe(payload: CreateRecipePayload): Promise<Recipe
 }
 
 export async function updateRecipe(payload: UpdateRecipePayload): Promise<Recipe | undefined> {
-	console.log("Updating recipe with id:", payload.id); // Debug log to check the ID
 	const response = await fetch(`${apiBaseUrl}/recipes/${payload.id}`, {
 		method: "PATCH",
 		headers: {

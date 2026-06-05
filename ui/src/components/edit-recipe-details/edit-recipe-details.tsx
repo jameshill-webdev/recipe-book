@@ -54,7 +54,6 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 		time: recipe.cookTime,
 		unit: recipe.cookTimeUnit as TimeUnit,
 	});
-	console.log(recipe);
 	const [shelfLife, setShelfLife] = useState<Duration>({
 		time: recipe.shelfLife,
 		unit: recipe.shelfLifeUnit as TimeUnit,
@@ -147,8 +146,6 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 			};
 		});
 
-		console.log(`creating recipe "${name.trim()}"`);
-
 		updateRecipeMutation.mutate({
 			id: recipe.id,
 			name: name.trim(),
@@ -158,7 +155,6 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 			cookTime,
 			shelfLife,
 			numberOfPortions,
-			costPerPortion,
 		});
 
 		setIngredients(updatedIngredients);

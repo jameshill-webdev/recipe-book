@@ -44,8 +44,6 @@ export async function createIngredients(payload: CreateIngredientsPayload): Prom
 }
 
 export async function updateIngredient(payload: UpdateIngredientPayload) {
-	console.log("Updating ingredient with payload:", payload);
-
 	const response = await fetch(`${apiBaseUrl}/ingredients/${payload.id}`, {
 		method: "PATCH",
 		headers: {

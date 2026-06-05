@@ -1,14 +1,13 @@
-import type { ResponseRecipe } from "@recipe-book/shared/types/recipe";
+import type { Recipe } from "@recipe-book/shared/types/recipe";
 import RecipeDetailsIngredient from "../recipe-details-ingredient/recipe-details-ingredient";
 import type { PurchaseUnit, TimeUnit } from "@recipe-book/shared/lib/units";
 import { formatTimeUnit } from "@/lib/formatting";
 
 interface RecipeDetailsProps {
-	recipe: ResponseRecipe;
+	recipe: Recipe;
 }
 
 export default function ViewRecipeDetails({ recipe }: RecipeDetailsProps) {
-	console.log(recipe);
 	return (
 		<article>
 			<div className="w-full flex flex-col gap-4">
@@ -41,7 +40,7 @@ export default function ViewRecipeDetails({ recipe }: RecipeDetailsProps) {
 				</dl>
 				<h2 className="text-center">Ingredients</h2>
 				<ul>
-					{(recipe as ResponseRecipe)?.ingredients.map((item, index) => (
+					{(recipe as Recipe)?.ingredients.map((item, index) => (
 						<li key={`${item.ingredient.id}-${index}`}>
 							<RecipeDetailsIngredient
 								name={item.ingredient.name}

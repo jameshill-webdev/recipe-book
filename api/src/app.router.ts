@@ -21,8 +21,6 @@ router.use("/authtest", requireAuth, async (req, res) => {
 router.use("/sendemail", async (request, response) => {
 	const now = Date.now();
 
-	console.log(process.env.TEST_EMAIL_ADDRESS);
-
 	await sendEmail({
 		to: process.env.TEST_EMAIL_ADDRESS!,
 		subject: `test email ${now}`,

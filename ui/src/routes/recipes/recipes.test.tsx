@@ -9,6 +9,16 @@ import {
 	RECIPES_PAGE_HEADING,
 	RECIPE_NAME_REQUIRED,
 } from "@/lib/content-strings";
+import {
+	ingredientBread,
+	ingredientCheddarCheese,
+	ingredientPasta,
+	ingredientWater,
+	recipeIngredientBread,
+	recipeIngredientPasta,
+	recipeIngredientPastaRecipeId,
+	recipes,
+} from "@/test/fixtures";
 
 function renderRecipes() {
 	const queryClient = new QueryClient({
@@ -72,30 +82,7 @@ describe("Recipes", () => {
 					ok: true,
 					json: async () => ({
 						ok: true,
-						recipes: [
-							{
-								id: "recipe-1",
-								name: "Pasta Carbonara",
-								ingredients: [],
-								method: "Mix and cook",
-								prepTime: { time: 10, unit: "MINUTES" },
-								cookTime: { time: 20, unit: "MINUTES" },
-								shelfLife: { time: 3, unit: "DAYS" },
-								numberOfPortions: 2,
-								costPerPortion: 5.5,
-							},
-							{
-								id: "recipe-2",
-								name: "Caesar Salad",
-								ingredients: [],
-								method: "Toss together",
-								prepTime: { time: 5, unit: "MINUTES" },
-								cookTime: { time: 0, unit: "MINUTES" },
-								shelfLife: { time: 1, unit: "DAYS" },
-								numberOfPortions: 1,
-								costPerPortion: 3.0,
-							},
-						],
+						recipes: [{ ...recipes[0] }, { ...recipes[1] }],
 						ingredients: [],
 					}),
 				}),
@@ -103,8 +90,8 @@ describe("Recipes", () => {
 
 			renderRecipes();
 
-			expect(await screen.findByText("Pasta Carbonara")).toBeInTheDocument();
-			expect(screen.getByText("Caesar Salad")).toBeInTheDocument();
+			expect(await screen.findByText(recipes[0].name)).toBeInTheDocument();
+			expect(screen.getByText(recipes[1].name)).toBeInTheDocument();
 
 			const recipeListItems = screen.getAllByTestId("recipe-list-item");
 			expect(recipeListItems.length).toBe(2);
@@ -150,14 +137,7 @@ describe("Recipes", () => {
 					json: async () => ({
 						ok: true,
 						recipes: [],
-						ingredients: [
-							{
-								id: "ingredient-1",
-								name: "Test Ingredient",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: 1.0,
-							},
-						],
+						ingredients: [{ ...ingredientCheddarCheese }],
 					}),
 				})
 				.mockResolvedValueOnce({
@@ -184,7 +164,9 @@ describe("Recipes", () => {
 			// Get the autocomplete input (first input without a visible label)
 			const inputs = screen.getAllByRole("textbox");
 			const ingredientNameInput = inputs[inputs.length - 2]; // Second to last input is ingredient name
-			fireEvent.change(ingredientNameInput, { target: { value: "Test Ingredient" } });
+			fireEvent.change(ingredientNameInput, {
+				target: { value: ingredientCheddarCheese.name },
+			});
 
 			// Get the quantity input and set its value
 			const quantityInput = screen.getAllByRole("spinbutton")[0];
@@ -207,10 +189,7 @@ describe("Recipes", () => {
 						recipes: [],
 						ingredients: [
 							{
-								id: "ingredient-1",
-								name: "Pasta",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: 2.0,
+								...ingredientBread,
 							},
 						],
 					}),
@@ -225,32 +204,11 @@ describe("Recipes", () => {
 						ok: true,
 						recipes: [
 							{
-								id: "recipe-1",
-								name: "Pasta Aglio e Olio",
-								ingredients: [
-									{
-										ingredientId: "ingredient-1",
-										name: "Pasta",
-										unit: "KILOGRAM",
-										quantity: 0.5,
-									},
-								],
-								method: "Fry garlic in oil and toss with pasta",
-								prepTime: { time: 5, unit: "MINUTES" },
-								cookTime: { time: 15, unit: "MINUTES" },
-								shelfLife: { time: 2, unit: "DAYS" },
-								numberOfPortions: 2,
-								costPerPortion: 4.0,
+								...recipes[0],
+								ingredients: [{ ...recipeIngredientBread }],
 							},
 						],
-						ingredients: [
-							{
-								id: "ingredient-1",
-								name: "Pasta",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: 2.0,
-							},
-						],
+						ingredients: [{ ...ingredientBread }],
 					}),
 				})
 				.mockResolvedValueOnce({
@@ -259,30 +217,26 @@ describe("Recipes", () => {
 						ok: true,
 						recipes: [
 							{
-								id: "recipe-1",
+								id: recipeIngredientPastaRecipeId,
 								name: "Pasta Aglio e Olio",
 								ingredients: [
 									{
-										ingredientId: "ingredient-1",
-										name: "Pasta",
-										unit: "KILOGRAM",
-										quantity: 0.5,
+										...recipeIngredientPasta,
 									},
 								],
 								method: "Fry garlic in oil and toss with pasta",
-								prepTime: { time: 5, unit: "MINUTES" },
-								cookTime: { time: 15, unit: "MINUTES" },
-								shelfLife: { time: 2, unit: "DAYS" },
-								numberOfPortions: 2,
-								costPerPortion: 4.0,
+								prepTime: 5,
+								prepTimeUnit: "MINUTES",
+								cookTime: 15,
+								cookTimenit: "MINUTES",
+								shelfLife: 2,
+								shelfLifeUnit: "DAYS",
+								portions: 2,
 							},
 						],
 						ingredients: [
 							{
-								id: "ingredient-1",
-								name: "Pasta",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: 2.0,
+								...ingredientPasta,
 							},
 						],
 					}),
@@ -342,10 +296,7 @@ describe("Recipes", () => {
 						recipes: [],
 						ingredients: [
 							{
-								id: "ingredient-1",
-								name: "Test",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: 1,
+								...ingredientWater,
 							},
 						],
 					}),
