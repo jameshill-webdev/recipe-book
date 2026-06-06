@@ -41,8 +41,6 @@ interface RecipeFormProps {
 	setShelfLife: (value: Duration) => void;
 	numberOfPortions: number;
 	setNumberOfPortions: (value: number) => void;
-	costPerPortion: number;
-	setCostPerPortion: (value: number) => void;
 	mutation: {
 		isPending: boolean;
 	};

@@ -9,13 +9,13 @@ import {
 	INGREDIENT_ITEM_EDIT_BUTTON_LABEL,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
-import type { UpdateIngredientPayload, IngredientData } from "@recipe-book/shared/types/ingredient";
+import type { UpdateIngredientPayload, Ingredient } from "@recipe-book/shared/types/ingredient";
 import { Button } from "../ui/button/button";
 import { IngredientForm } from "../ingredient-form/ingredient-form";
 import { updateIngredient, deleteIngredient } from "@/lib/api/ingredients";
 import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 
-type IngredientItemProps = Pick<IngredientData, "id" | "name" | "purchaseUnit" | "costPerUnit">;
+type IngredientItemProps = Pick<Ingredient, "id" | "name" | "purchaseUnit" | "costPerUnit">;
 
 const DEFAULT_PURCHASE_UNIT: PurchaseUnit = "UNIT";
 

@@ -52,7 +52,6 @@ export default function Recipes() {
 		unit: DEFAULT_SHELF_LIFE_UNIT,
 	});
 	const [numberOfPortions, setNumberOfPortions] = useState(1);
-	const [costPerPortion, setCostPerPortion] = useState(0);
 	const [formError, setFormError] = useState<string | null>(null);
 
 	const createRecipeMutation = useMutation({
@@ -64,7 +63,6 @@ export default function Recipes() {
 			setCookTime({ time: 1, unit: DEFAULT_COOK_TIME_UNIT });
 			setShelfLife({ time: 1, unit: DEFAULT_SHELF_LIFE_UNIT });
 			setNumberOfPortions(1);
-			setCostPerPortion(0);
 			setFormError(null);
 			setAddRecipeUIOpen(false);
 
@@ -201,8 +199,6 @@ export default function Recipes() {
 							setShelfLife={setShelfLife}
 							numberOfPortions={numberOfPortions}
 							setNumberOfPortions={setNumberOfPortions}
-							costPerPortion={costPerPortion}
-							setCostPerPortion={setCostPerPortion}
 							mutation={{
 								isPending: createRecipeMutation.isPending,
 							}}

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type {
 	Duration,
-	RecipeIngredientResponse,
-	ResponseRecipe,
+	Recipe,
+	CreateRecipeIngredientPayload,
 } from "@recipe-book/shared/types/recipe";
 import { EDIT_RECIPE_FORM_LABEL } from "@/lib/content-strings";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/lib/constants";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getIngredients } from "@/lib/api/ingredients";
-import type { CreateIngredientsResponse } from "@recipe-book/shared/types/ingredient";
+import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 import { useCreateIngredient } from "@/hooks/use-create-ingredient";
 import type { PurchaseUnit, TimeUnit } from "@recipe-book/shared/lib/units";
 import { updateRecipe } from "@/lib/api/recipes";
@@ -20,7 +20,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { RecipeForm } from "../recipe-form/recipe-form";
 
 interface EditRecipeDetailsProps {
-	recipe: ResponseRecipe;
+	recipe: Recipe;
 }
 
 export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
@@ -37,7 +37,7 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 
 	const [name, setName] = useState(recipe.name);
 	// TODO: add validation to prevent user adding duplicate ingredients (name or purchase unit must be different)
-	const [ingredients, setIngredients] = useState<RecipeIngredientResponse[]>(
+	const [ingredients, setIngredients] = useState<CreateRecipeIngredientPayload[]>(
 		recipe.ingredients.map((responseIngredient) => ({
 			ingredientId: responseIngredient.ingredient.id,
 			name: responseIngredient.ingredient.name,
@@ -59,7 +59,6 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 		unit: recipe.shelfLifeUnit as TimeUnit,
 	});
 	const [numberOfPortions, setNumberOfPortions] = useState(recipe.portions);
-	const [costPerPortion, setCostPerPortion] = useState(Number(recipe.costPerPortion));
 	const [formError, setFormError] = useState<string | null>(null);
 
 	const updateRecipeMutation = useMutation({
@@ -71,7 +70,6 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 			setCookTime({ time: 1, unit: DEFAULT_COOK_TIME_UNIT });
 			setShelfLife({ time: 1, unit: DEFAULT_SHELF_LIFE_UNIT });
 			setNumberOfPortions(1);
-			setCostPerPortion(0);
 			setFormError(null);
 
 			await queryClient.invalidateQueries({ queryKey: ["recipes"] });
@@ -102,7 +100,7 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 			);
 		});
 
-		let createdIngredients: CreateIngredientsResponse | null;
+		let createdIngredients: Ingredient[] = [];
 
 		if (newIngredients.length > 0) {
 			createdIngredients = await createIngredientMutation.mutateAsync({
@@ -125,7 +123,7 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 				return {
 					...ingredient,
 					ingredientId:
-						createdIngredients?.ingredients?.find(
+						createdIngredients?.find(
 							(created) =>
 								created.name.toLowerCase() === ingredient.name.toLowerCase() &&
 								created.purchaseUnit === ingredient.unit.trim(),
@@ -184,8 +182,6 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 				setShelfLife={setShelfLife}
 				numberOfPortions={numberOfPortions}
 				setNumberOfPortions={setNumberOfPortions}
-				costPerPortion={costPerPortion}
-				setCostPerPortion={setCostPerPortion}
 				mutation={{
 					isPending: updateRecipeMutation.isPending,
 				}}
