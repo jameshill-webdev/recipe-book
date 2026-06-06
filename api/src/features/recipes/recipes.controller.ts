@@ -5,7 +5,7 @@ import { createRecipeSchema, updateRecipeSchema } from "./recipes.validators.js"
 import type { TimeUnit } from "@/generated/prisma/enums.js";
 import type { Recipe } from "@/generated/prisma/client.js";
 
-export const getRecipes = async (request: Request, response: Response) => {
+export const getRecipes = async (request: Request, response: Response): Promise<Response> => {
 	console.log("get recipes");
 	const userId = request.session?.user.id;
 
@@ -36,7 +36,7 @@ export const getRecipes = async (request: Request, response: Response) => {
 	});
 };
 
-export const getRecipeById = async (request: Request, response: Response) => {
+export const getRecipeById = async (request: Request, response: Response): Promise<Response> => {
 	console.log(`get recipe by id: ${request.params?.id}`);
 	const userId = request.session?.user.id;
 
@@ -85,7 +85,10 @@ export const getRecipeById = async (request: Request, response: Response) => {
 
 export type CreateRecipeRequest = Request<object, object, CreateRecipePayload>;
 
-export const createRecipe = async (request: CreateRecipeRequest, response: Response) => {
+export const createRecipe = async (
+	request: CreateRecipeRequest,
+	response: Response,
+): Promise<Response> => {
 	console.log("createRecipe request", request.body);
 
 	const userId = request.session?.user.id;
@@ -168,7 +171,10 @@ export const createRecipe = async (request: CreateRecipeRequest, response: Respo
 
 export type UpdateRecipeRequest = Request<{ id: string }, object, UpdateRecipePayload>;
 
-export const updateRecipe = async (request: UpdateRecipeRequest, response: Response) => {
+export const updateRecipe = async (
+	request: UpdateRecipeRequest,
+	response: Response,
+): Promise<Response> => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {
@@ -294,7 +300,10 @@ export const updateRecipe = async (request: UpdateRecipeRequest, response: Respo
 
 export type DeleteRecipeRequest = Request<{ id: string }, object, { id: string }>;
 
-export const deleteRecipe = async (request: DeleteRecipeRequest, response: Response) => {
+export const deleteRecipe = async (
+	request: DeleteRecipeRequest,
+	response: Response,
+): Promise<Response> => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {

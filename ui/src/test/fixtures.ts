@@ -1,5 +1,9 @@
-import type { Ingredient } from "@recipe-book/shared/types/ingredient";
-import type { Recipe, RecipeIngredient } from "@recipe-book/shared/types/recipe";
+import type { GetIngredientsResponse, Ingredient } from "@recipe-book/shared/types/ingredient";
+import type {
+	GetRecipesResponse,
+	Recipe,
+	RecipeIngredient,
+} from "@recipe-book/shared/types/recipe";
 
 export const recipeIngredientPastaIngredientId = "dbeeba7e-fd28-4343-9ba1-f2d645ec5445";
 export const recipeIngredientPastaRecipeId = "67a35cd7-3667-431f-abba-dc7cc71ada12";
@@ -197,3 +201,6 @@ export const recipes: Recipe[] = [
 		...recipeCheeseOnToast,
 	},
 ];
+
+export const emptyRecipesResponse: GetRecipesResponse = { ok: true, recipes: [] };
+export const emptyIngredientsResponse: GetIngredientsResponse = { ok: true, ingredients: [] };

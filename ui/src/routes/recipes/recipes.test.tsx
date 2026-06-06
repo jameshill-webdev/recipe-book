@@ -10,15 +10,14 @@ import {
 	RECIPE_NAME_REQUIRED,
 } from "@/lib/content-strings";
 import {
-	ingredientBread,
+	emptyRecipesResponse,
 	ingredientCheddarCheese,
-	ingredientPasta,
-	ingredientWater,
-	recipeIngredientBread,
+	recipeCaek,
+	recipeCheeseOnToast,
 	recipeIngredientPasta,
 	recipeIngredientPastaRecipeId,
-	recipes,
 } from "@/test/fixtures";
+import type { GetRecipesResponse, Recipe } from "@recipe-book/shared/types/recipe";
 
 function renderRecipes() {
 	const queryClient = new QueryClient({
@@ -48,7 +47,7 @@ describe("Recipes", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, recipes: [], ingredients: [] }),
+					json: async () => ({ ...emptyRecipesResponse }),
 				}),
 			);
 
@@ -64,7 +63,7 @@ describe("Recipes", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, recipes: [], ingredients: [] }),
+					json: async () => ({ ...emptyRecipesResponse }),
 				}),
 			);
 
@@ -76,22 +75,23 @@ describe("Recipes", () => {
 
 	describe("recipes list", () => {
 		it("loads and renders recipes returned by the API as RecipeItems", async () => {
+			const mockResponse: GetRecipesResponse = {
+				ok: true,
+				recipes: [{ ...recipeCaek }, { ...recipeCheeseOnToast }],
+			};
+
 			vi.stubGlobal(
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({
-						ok: true,
-						recipes: [{ ...recipes[0] }, { ...recipes[1] }],
-						ingredients: [],
-					}),
+					json: async () => mockResponse,
 				}),
 			);
 
 			renderRecipes();
 
-			expect(await screen.findByText(recipes[0].name)).toBeInTheDocument();
-			expect(screen.getByText(recipes[1].name)).toBeInTheDocument();
+			expect(await screen.findByText(recipeCaek.name)).toBeInTheDocument();
+			expect(screen.getByText(recipeCheeseOnToast.name)).toBeInTheDocument();
 
 			const recipeListItems = screen.getAllByTestId("recipe-list-item");
 			expect(recipeListItems.length).toBe(2);
@@ -104,7 +104,7 @@ describe("Recipes", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, recipes: [], ingredients: [] }),
+					json: async () => ({ ...emptyRecipesResponse }),
 				}),
 			);
 
@@ -134,11 +134,7 @@ describe("Recipes", () => {
 				.fn()
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({
-						ok: true,
-						recipes: [],
-						ingredients: [{ ...ingredientCheddarCheese }],
-					}),
+					json: async () => ({ ...emptyRecipesResponse }),
 				})
 				.mockResolvedValueOnce({
 					ok: false,
@@ -180,19 +176,39 @@ describe("Recipes", () => {
 		});
 
 		it("creates a recipe, closes the form, and refreshes the list after a successful request", async () => {
+			const mockGetRecipesResponse: GetRecipesResponse = {
+				ok: true,
+				recipes: [
+					{
+						...recipeCaek,
+					},
+				],
+			};
+			const createdRecipe: Recipe = {
+				createdAt: "2026-05-22T20:21:46.197Z",
+				updatedAt: "2026-05-22T20:21:46.197Z",
+				userId: "4a888465-46e0-4feb-bc55-eaccb755a88d",
+				id: recipeIngredientPastaRecipeId,
+				name: "Pasta Aglio e Olio",
+				ingredients: [
+					{
+						...recipeIngredientPasta,
+					},
+				],
+				method: "Fry garlic in oil and toss with pasta",
+				prepTime: 5,
+				prepTimeUnit: "MINUTES",
+				cookTime: 15,
+				cookTimeUnit: "MINUTES",
+				shelfLife: 2,
+				shelfLifeUnit: "DAYS",
+				portions: 2,
+			};
 			const fetchMock = vi
 				.fn()
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({
-						ok: true,
-						recipes: [],
-						ingredients: [
-							{
-								...ingredientBread,
-							},
-						],
-					}),
+					json: async () => ({ ...emptyRecipesResponse }),
 				})
 				.mockResolvedValueOnce({
 					ok: true,
@@ -200,45 +216,13 @@ describe("Recipes", () => {
 				})
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({
-						ok: true,
-						recipes: [
-							{
-								...recipes[0],
-								ingredients: [{ ...recipeIngredientBread }],
-							},
-						],
-						ingredients: [{ ...ingredientBread }],
-					}),
+					json: async () => mockGetRecipesResponse,
 				})
 				.mockResolvedValueOnce({
 					ok: true,
 					json: async () => ({
 						ok: true,
-						recipes: [
-							{
-								id: recipeIngredientPastaRecipeId,
-								name: "Pasta Aglio e Olio",
-								ingredients: [
-									{
-										...recipeIngredientPasta,
-									},
-								],
-								method: "Fry garlic in oil and toss with pasta",
-								prepTime: 5,
-								prepTimeUnit: "MINUTES",
-								cookTime: 15,
-								cookTimenit: "MINUTES",
-								shelfLife: 2,
-								shelfLifeUnit: "DAYS",
-								portions: 2,
-							},
-						],
-						ingredients: [
-							{
-								...ingredientPasta,
-							},
-						],
+						recipes: [{ ...createdRecipe }],
 					}),
 				});
 
@@ -250,23 +234,20 @@ describe("Recipes", () => {
 
 			await user.click(screen.getByRole("button", { name: /add recipe/i }));
 			await user.clear(screen.getByLabelText("Name"));
-			await user.type(screen.getByLabelText("Name"), "Pasta Aglio e Olio");
+			await user.type(screen.getByLabelText("Name"), createdRecipe.name);
 			await user.clear(screen.getByLabelText("Method"));
-			await user.type(
-				screen.getByLabelText("Method"),
-				"Fry garlic in oil and toss with pasta",
-			);
+			await user.type(screen.getByLabelText("Method"), createdRecipe.method);
 
 			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
 			await user.click(addIngredientBtn);
 
 			const ingredientNameInput = screen.getByTestId("ingredient-name-autocomplete");
 			await user.clear(ingredientNameInput);
-			await user.type(ingredientNameInput, "Pasta");
+			await user.type(ingredientNameInput, recipeIngredientPasta.ingredient.name);
 
 			const quantityInput = screen.getByLabelText(/quantity/i);
 			await user.clear(quantityInput);
-			await user.type(quantityInput, "0.5");
+			await user.type(quantityInput, recipeIngredientPasta.quantity.toString());
 
 			await user.click(screen.getByRole("button", { name: /create/i }));
 
@@ -291,15 +272,7 @@ describe("Recipes", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({
-						ok: true,
-						recipes: [],
-						ingredients: [
-							{
-								...ingredientWater,
-							},
-						],
-					}),
+					json: async () => ({ ...emptyRecipesResponse }),
 				}),
 			);
 

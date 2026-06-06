@@ -10,6 +10,12 @@ import {
 	INGREDIENT_COST_PER_UNIT_POSITIVE,
 	INGREDIENT_COST_PER_UNIT_REQUIRED,
 } from "@/lib/content-strings";
+import {
+	emptyIngredientsResponse,
+	ingredientBread,
+	ingredientCheddarCheese,
+	ingredientFlour,
+} from "@/test/fixtures";
 
 function renderIngredients() {
 	const queryClient = new QueryClient({
@@ -39,7 +45,7 @@ describe("Ingredients", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				}),
 			);
 
@@ -54,7 +60,7 @@ describe("Ingredients", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				}),
 			);
 
@@ -73,16 +79,10 @@ describe("Ingredients", () => {
 						ok: true,
 						ingredients: [
 							{
-								id: "ingredient-1",
-								name: "Flour",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: "1.99",
+								...ingredientFlour,
 							},
 							{
-								id: "ingredient-2",
-								name: "Sugar",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: "2.49",
+								...ingredientBread,
 							},
 						],
 					}),
@@ -91,8 +91,8 @@ describe("Ingredients", () => {
 
 			renderIngredients();
 
-			expect(await screen.findByText("Flour")).toBeInTheDocument();
-			expect(screen.getByText("Sugar")).toBeInTheDocument();
+			expect(await screen.findByText(ingredientFlour.name)).toBeInTheDocument();
+			expect(screen.getByText(ingredientBread.name)).toBeInTheDocument();
 		});
 	});
 
@@ -102,7 +102,7 @@ describe("Ingredients", () => {
 				.fn()
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				})
 				.mockResolvedValueOnce({
 					ok: true,
@@ -112,14 +112,7 @@ describe("Ingredients", () => {
 					ok: true,
 					json: async () => ({
 						ok: true,
-						ingredients: [
-							{
-								id: "ingredient-1",
-								name: "Tomato",
-								purchaseUnit: "KILOGRAM",
-								costPerUnit: 2.5,
-							},
-						],
+						ingredients: [{ ...ingredientCheddarCheese }],
 					}),
 				});
 
@@ -133,7 +126,7 @@ describe("Ingredients", () => {
 			).toBeInTheDocument();
 
 			fireEvent.change(screen.getByLabelText(/name/i), {
-				target: { value: "Tomato" },
+				target: { value: ingredientCheddarCheese.name },
 			});
 
 			const purchaseUnitSelect = document.querySelector(
@@ -158,7 +151,7 @@ describe("Ingredients", () => {
 						body: JSON.stringify({
 							ingredients: [
 								{
-									name: "Tomato",
+									name: ingredientCheddarCheese.name,
 									purchaseUnit: "KILOGRAM",
 									costPerUnit: 2.5,
 								},
@@ -174,7 +167,7 @@ describe("Ingredients", () => {
 				).not.toBeInTheDocument();
 			});
 
-			expect(await screen.findByText("Tomato")).toBeInTheDocument();
+			expect(await screen.findByText(ingredientCheddarCheese.name)).toBeInTheDocument();
 			expect(fetchMock).toHaveBeenCalledTimes(3);
 		});
 
@@ -183,7 +176,7 @@ describe("Ingredients", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				}),
 			);
 
@@ -191,7 +184,7 @@ describe("Ingredients", () => {
 
 			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
 			fireEvent.change(screen.getByLabelText(/name/i), {
-				target: { value: "Tomato" },
+				target: { value: ingredientCheddarCheese.name },
 			});
 
 			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
@@ -209,7 +202,7 @@ describe("Ingredients", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				}),
 			);
 
@@ -217,7 +210,7 @@ describe("Ingredients", () => {
 
 			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
 			fireEvent.change(screen.getByLabelText(/name/i), {
-				target: { value: "Tomato" },
+				target: { value: ingredientCheddarCheese.name },
 			});
 
 			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
@@ -235,7 +228,7 @@ describe("Ingredients", () => {
 				.fn()
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				})
 				.mockResolvedValueOnce({
 					ok: false,
@@ -248,7 +241,7 @@ describe("Ingredients", () => {
 
 			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
 			fireEvent.change(screen.getByLabelText(/name/i), {
-				target: { value: "Tomato" },
+				target: { value: ingredientCheddarCheese.name },
 			});
 
 			const purchaseUnitSelect = document.querySelector(
@@ -273,7 +266,7 @@ describe("Ingredients", () => {
 				.fn()
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				})
 				.mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
@@ -283,7 +276,7 @@ describe("Ingredients", () => {
 
 			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
 			fireEvent.change(screen.getByLabelText(/name/i), {
-				target: { value: "Tomato" },
+				target: { value: ingredientCheddarCheese.name },
 			});
 
 			const purchaseUnitSelect = document.querySelector(
@@ -349,7 +342,7 @@ describe("Ingredients", () => {
 				"fetch",
 				vi.fn().mockResolvedValue({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				}),
 			);
 
@@ -365,7 +358,7 @@ describe("Ingredients", () => {
 				.fn()
 				.mockResolvedValueOnce({
 					ok: true,
-					json: async () => ({ ok: true, ingredients: [] }),
+					json: async () => ({ ...emptyIngredientsResponse }),
 				})
 				.mockResolvedValueOnce({
 					ok: false,
@@ -378,7 +371,7 @@ describe("Ingredients", () => {
 
 			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
 			fireEvent.change(screen.getByLabelText(/name/i), {
-				target: { value: "Tomato" },
+				target: { value: ingredientCheddarCheese.name },
 			});
 
 			const purchaseUnitSelect = document.querySelector(

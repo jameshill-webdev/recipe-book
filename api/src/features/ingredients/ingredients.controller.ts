@@ -10,7 +10,7 @@ import {
 	updateIngredientSchema,
 } from "./ingredients.validators.js";
 
-export const getIngredients = async (request: Request, response: Response) => {
+export const getIngredients = async (request: Request, response: Response): Promise<Response> => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {
@@ -36,7 +36,10 @@ export const getIngredients = async (request: Request, response: Response) => {
 
 export type CreateIngredientsRequest = Request<object, object, CreateIngredientsPayload>;
 
-export const createIngredients = async (request: CreateIngredientsRequest, response: Response) => {
+export const createIngredients = async (
+	request: CreateIngredientsRequest,
+	response: Response,
+): Promise<Response> => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {
@@ -72,7 +75,10 @@ export const createIngredients = async (request: CreateIngredientsRequest, respo
 
 export type UpdateIngredientRequest = Request<{ id: string }, object, UpdateIngredientPayload>;
 
-export const updateIngredient = async (request: UpdateIngredientRequest, response: Response) => {
+export const updateIngredient = async (
+	request: UpdateIngredientRequest,
+	response: Response,
+): Promise<Response> => {
 	const userId = request.session?.user.id;
 
 	if (!userId) {
@@ -151,7 +157,10 @@ export const updateIngredient = async (request: UpdateIngredientRequest, respons
 
 export type DeleteIngredientRequest = Request<{ id: string }, object, { id: string }>;
 
-export const deleteIngredient = async (request: DeleteIngredientRequest, response: Response) => {
+export const deleteIngredient = async (
+	request: DeleteIngredientRequest,
+	response: Response,
+): Promise<Response> => {
 	// TODO: implement try/catch for all controller functions and return 500 status code with error message if an unexpected error occurs
 
 	const userId = request.session?.user.id;

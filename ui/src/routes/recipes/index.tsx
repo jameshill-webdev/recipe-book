@@ -142,8 +142,6 @@ export default function Recipes() {
 			};
 		});
 
-		console.log(`creating recipe "${name.trim()}"`);
-
 		createRecipeMutation.mutate({
 			name: name.trim(),
 			ingredients: updatedIngredients,
@@ -155,10 +153,6 @@ export default function Recipes() {
 		});
 
 		setIngredients(updatedIngredients);
-	}
-
-	if (!isRecipesPending && recipes.length) {
-		console.log("recipes", JSON.stringify(recipes));
 	}
 
 	return (
