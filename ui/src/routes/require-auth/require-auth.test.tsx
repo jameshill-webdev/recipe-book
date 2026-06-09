@@ -52,4 +52,26 @@ describe("RequireAuth", () => {
 			expect(screen.getByText("Protected content")).toBeInTheDocument();
 		});
 	});
+
+	describe("unauthenticated state", () => {
+		beforeEach(() => {
+			mockUseSession.mockReturnValue({ data: null, isPending: false });
+		});
+
+		it("redirects to login when session is not authenticated", () => {
+			const ChildComponent = () => <div>Protected content</div>;
+			render(
+				<MemoryRouter initialEntries={["/protected"]}>
+					<Routes>
+						<Route element={<RequireAuth />}>
+							<Route path="/protected" element={<ChildComponent />} />
+						</Route>
+						<Route path="/login" element={<div>Login page</div>} />
+					</Routes>
+				</MemoryRouter>,
+			);
+			expect(screen.queryByText("Protected content")).not.toBeInTheDocument();
+			expect(screen.getByText("Login page")).toBeInTheDocument();
+		});
+	});
 });
