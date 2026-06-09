@@ -25,9 +25,7 @@ export default function RecipeDetailsIngredient({
 					className="px-3 py-2 items-stretch"
 				>
 					<ItemContent>
-						<span>
-							{name}, {quantity} {formattedUnit}
-						</span>
+						<span>{`${name}, ${quantity} ${formattedUnit}`}</span>
 					</ItemContent>
 				</Item>
 			</div>

@@ -8,7 +8,11 @@ import { useState } from "react";
 import EditRecipeDetails from "@/components/edit-recipe-details/edit-recipe-details";
 import { Button } from "@/components/ui/button/button";
 import { Pencil, X } from "lucide-react";
-import { RECIPE_ITEM_EDIT_BUTTON_LABEL } from "@/lib/content-strings";
+import {
+	RECIPE_DETAILS_LOADING,
+	RECIPE_DETAILS_NOT_FOUND,
+	RECIPE_ITEM_EDIT_BUTTON_LABEL,
+} from "@/lib/content-strings";
 
 export default function RecipeDetailsPage() {
 	const { id } = useParams();
@@ -40,9 +44,9 @@ export default function RecipeDetailsPage() {
 				</Button>
 			</div>
 			{isRecipePending ? (
-				<p>Loading recipe details...</p>
+				<p>{RECIPE_DETAILS_LOADING}</p>
 			) : !recipe ? (
-				<p>Recipe not found</p>
+				<p>{RECIPE_DETAILS_NOT_FOUND}</p>
 			) : recipesError ? (
 				<InlineError alert>{getErrorMessage(recipesError)}</InlineError>
 			) : isEditing ? (
