@@ -5,6 +5,8 @@ import Login from "@/routes/login";
 import {
 	EMAIL_REQUIRED,
 	EMAIL_VERIFIED_SUCCESS,
+	EMAIL_VERIFIED_SUCCESS_BODY,
+	EMAIL_VERIFIED_SUCCESS_TITLE,
 	FIELD_LABEL_EMAIL,
 	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
@@ -147,7 +149,9 @@ describe("Login", () => {
 				</MemoryRouter>,
 			);
 
-			expect(screen.getByText(EMAIL_VERIFIED_SUCCESS)).toBeInTheDocument();
+			expect(screen.getByText(EMAIL_VERIFIED_SUCCESS_TITLE)).toBeInTheDocument();
+			expect(screen.getByText(EMAIL_VERIFIED_SUCCESS_BODY)).toBeInTheDocument();
+			expect(screen.getByText(EMAIL_VERIFIED_SUCCESS_TITLE)).toBeInTheDocument();
 		});
 
 		it("shows logout success message when redirected after logout", () => {

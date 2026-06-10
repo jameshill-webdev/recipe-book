@@ -7,6 +7,10 @@ import { InlineError } from "@/components/ui/error/error";
 import {
 	CREATE_INGREDIENT_FORM_LABEL,
 	GENERIC_LOADING,
+	INGREDIENTS_LIST_COLUMN_LABEL_COST,
+	INGREDIENTS_LIST_COLUMN_LABEL_NAME,
+	INGREDIENTS_LIST_COLUMN_LABEL_UNIT,
+	INGREDIENTS_LIST_NO_RESULTS,
 	INGREDIENTS_PAGE_HEADING,
 } from "@/lib/content-strings";
 import { IngredientForm } from "@/components/ingredient-form/ingredient-form";
@@ -113,9 +117,9 @@ export default function Ingredients() {
 			</div>
 			<div>
 				<div className="text-[var(--muted-foreground)] border-b-2 mb-2 px-3 pb-1 w-full grid grid-cols-[4.5fr_2fr_2fr_100px] md:grid-cols-[6.5fr_2fr_2fr_100px]">
-					<span>Name</span>
-					<span>Cost</span>
-					<span>Unit</span>
+					<span>{INGREDIENTS_LIST_COLUMN_LABEL_NAME}</span>
+					<span>{INGREDIENTS_LIST_COLUMN_LABEL_COST}</span>
+					<span>{INGREDIENTS_LIST_COLUMN_LABEL_UNIT}</span>
 				</div>
 				{isIngredientsPending ? (
 					// TODO: replace with skeleton loader
@@ -123,7 +127,7 @@ export default function Ingredients() {
 				) : ingredientsError ? (
 					<InlineError alert>{getErrorMessage(ingredientsError)}</InlineError>
 				) : ingredients.length === 0 ? (
-					<p>No ingredients yet.</p>
+					<p>{INGREDIENTS_LIST_NO_RESULTS}</p>
 				) : (
 					<ul aria-label="ingredients">
 						{ingredients.map((ingredient) => (

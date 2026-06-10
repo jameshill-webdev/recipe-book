@@ -7,7 +7,9 @@ import { InlineError } from "@/components/ui/error/error";
 import { Field, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import {
-	EMAIL_VERIFIED_SUCCESS,
+	EMAIL_VERIFIED_SUCCESS_ARIA_LABEL,
+	EMAIL_VERIFIED_SUCCESS_BODY,
+	EMAIL_VERIFIED_SUCCESS_TITLE,
 	FIELD_LABEL_EMAIL,
 	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
@@ -15,8 +17,11 @@ import {
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
 	LOGIN_PAGE_HEADING,
-	LOGOUT_SUCCESS,
+	LOGOUT_SUCCESS_ARIA_LABEL,
+	LOGOUT_SUCCESS_BODY,
+	LOGOUT_SUCCESS_TITLE,
 	NETWORK_ERROR,
+	PASSWORD_CHANGED_SUCCESS_ARIA_LABEL,
 	PASSWORD_CHANGED_SUCCESS_BODY,
 	PASSWORD_CHANGED_SUCCESS_TITLE,
 	SIGNUP_LINK_TEXT,
@@ -109,23 +114,23 @@ export default function Login() {
 			>
 				{loggedOut && (
 					<NotificationAlert
-						titleText={LOGOUT_SUCCESS}
-						bodyText=""
-						ariaLabel="Logout Success"
+						titleText={LOGOUT_SUCCESS_TITLE}
+						bodyText={LOGOUT_SUCCESS_BODY}
+						ariaLabel={LOGOUT_SUCCESS_ARIA_LABEL}
 					/>
 				)}
 				{passwordChanged && (
 					<NotificationAlert
 						titleText={PASSWORD_CHANGED_SUCCESS_TITLE}
 						bodyText={PASSWORD_CHANGED_SUCCESS_BODY}
-						ariaLabel="Password Changed Success"
+						ariaLabel={PASSWORD_CHANGED_SUCCESS_ARIA_LABEL}
 					/>
 				)}
 				{emailVerified === "1" && (
 					<NotificationAlert
-						titleText={EMAIL_VERIFIED_SUCCESS}
-						bodyText=""
-						ariaLabel="Email Verified Success"
+						titleText={EMAIL_VERIFIED_SUCCESS_TITLE}
+						bodyText={EMAIL_VERIFIED_SUCCESS_BODY}
+						ariaLabel={EMAIL_VERIFIED_SUCCESS_ARIA_LABEL}
 					/>
 				)}
 				<Field>

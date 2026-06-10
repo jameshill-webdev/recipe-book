@@ -1,6 +1,14 @@
 import { RecipeForm } from "@/components/recipe-form/recipe-form";
 import { Button } from "@/components/ui/button/button";
-import { CREATE_RECIPE_FORM_LABEL, RECIPES_PAGE_HEADING } from "@/lib/content-strings";
+import {
+	FORM_CLOSE_BUTTON_LABEL,
+	CREATE_RECIPE_FORM_LABEL,
+	RECIPE_FORM_NO_VALID_INGREDIENTS,
+	RECIPE_FORM_OPEN_BUTTON_LABEL,
+	RECIPES_PAGE_HEADING,
+	RECIPE_LIST_LOADING,
+	RECIPE_LIST_NO_RESULTS,
+} from "@/lib/content-strings";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
@@ -88,7 +96,7 @@ export default function Recipes() {
 		const validIngredients = ingredients.filter((ingredient) => ingredient.name.trim() !== "");
 
 		if (validIngredients.length === 0) {
-			setFormError("Please add at least one ingredient.");
+			setFormError(RECIPE_FORM_NO_VALID_INGREDIENTS);
 			return;
 		}
 
@@ -164,12 +172,13 @@ export default function Recipes() {
 					type="button"
 					variant="outline"
 					onClick={onAddRecipe}
-					aria-label="Add recipe"
 					aria-expanded={addRecipeUIOpen}
 					aria-controls="add-recipe-form-container"
 				>
 					{addRecipeUIOpen ? <Minus /> : <Plus />}
-					<span>{addRecipeUIOpen ? "Close" : "Add recipe"}</span>
+					<span>
+						{addRecipeUIOpen ? FORM_CLOSE_BUTTON_LABEL : RECIPE_FORM_OPEN_BUTTON_LABEL}
+					</span>
 				</Button>
 				<div id="add-recipe-form-container" role="region">
 					{addRecipeUIOpen && (
@@ -203,12 +212,12 @@ export default function Recipes() {
 				</div>
 				<div>
 					{isRecipesPending ? (
-						<p>Loading recipes...</p>
+						<p>{RECIPE_LIST_LOADING}</p>
 					) : recipesError ? (
 						<InlineError alert>{getErrorMessage(recipesError)}</InlineError>
 					) : recipes.length === 0 ? (
 						<p className="text-center text-[var(--color-muted-foreground)]">
-							No recipes yet
+							{RECIPE_LIST_NO_RESULTS}
 						</p>
 					) : (
 						<RecipeList recipes={recipes} />
