@@ -15,8 +15,10 @@ import {
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
 	LOGIN_PAGE_HEADING,
-	LOGOUT_SUCCESS,
+	LOGOUT_SUCCESS_BODY,
+	LOGOUT_SUCCESS_TITLE,
 	NETWORK_ERROR,
+	PASSWORD_CHANGED_SUCCESS_BODY,
 	PASSWORD_CHANGED_SUCCESS_TITLE,
 	PASSWORD_REQUIRED,
 	PASSWORD_TOO_LONG,
@@ -151,7 +153,6 @@ describe("Login", () => {
 
 			expect(screen.getByText(EMAIL_VERIFIED_SUCCESS_TITLE)).toBeInTheDocument();
 			expect(screen.getByText(EMAIL_VERIFIED_SUCCESS_BODY)).toBeInTheDocument();
-			expect(screen.getByText(EMAIL_VERIFIED_SUCCESS_TITLE)).toBeInTheDocument();
 		});
 
 		it("shows logout success message when redirected after logout", () => {
@@ -161,7 +162,7 @@ describe("Login", () => {
 				</MemoryRouter>,
 			);
 
-			expect(screen.queryByText(LOGOUT_SUCCESS)).not.toBeInTheDocument();
+			expect(screen.queryByText(LOGOUT_SUCCESS_TITLE)).not.toBeInTheDocument();
 
 			render(
 				<MemoryRouter
@@ -176,7 +177,8 @@ describe("Login", () => {
 				</MemoryRouter>,
 			);
 
-			expect(screen.getByText(LOGOUT_SUCCESS)).toBeInTheDocument();
+			expect(screen.getByText(LOGOUT_SUCCESS_TITLE)).toBeInTheDocument();
+			expect(screen.getByText(LOGOUT_SUCCESS_BODY)).toBeInTheDocument();
 		});
 
 		it("shows password changed success message when redirected after password change", () => {
@@ -202,6 +204,7 @@ describe("Login", () => {
 			);
 
 			expect(screen.getByText(PASSWORD_CHANGED_SUCCESS_TITLE)).toBeInTheDocument();
+			expect(screen.getByText(PASSWORD_CHANGED_SUCCESS_BODY)).toBeInTheDocument();
 		});
 	});
 
