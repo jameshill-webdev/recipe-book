@@ -18,7 +18,16 @@ import {
 	ingredientNameSchema,
 	ingredientPurchaseUnitSchema,
 } from "@/lib/validation/fields";
-import { Check } from "lucide-react";
+import {
+	INGREDIENT_FORM_COST_LABEL,
+	INGREDIENT_FORM_CREATE_LABEL,
+	INGREDIENT_FORM_CREATING_LABEL,
+	INGREDIENT_FORM_NAME_LABEL,
+	INGREDIENT_FORM_UNIT_LABEL,
+	INGREDIENT_FORM_UNIT_SELECT_PLACEHOLDER,
+	INGREDIENT_FORM_UPDATE_LABEL,
+	INGREDIENT_FORM_UPDATING_LABEL,
+} from "@/lib/content-strings";
 
 interface IngredientFormProps {
 	label: string;
@@ -90,7 +99,7 @@ export function IngredientForm({
 		>
 			<Field>
 				<FieldLabel htmlFor="name" className={isEdit ? "sr-only" : ""}>
-					Name
+					{INGREDIENT_FORM_NAME_LABEL}
 				</FieldLabel>
 				<Input
 					id="name"
@@ -101,13 +110,13 @@ export function IngredientForm({
 						setName(e.target.value);
 						setFormError(null);
 					}}
-					placeholder="Name"
+					placeholder={INGREDIENT_FORM_NAME_LABEL}
 				/>
 				{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 			</Field>
 			<Field>
 				<FieldLabel htmlFor="costPerUnit" className={isEdit ? "sr-only" : ""}>
-					Cost per unit
+					{INGREDIENT_FORM_COST_LABEL}
 				</FieldLabel>
 				<Input
 					id="costPerUnit"
@@ -121,7 +130,7 @@ export function IngredientForm({
 						setCostPerUnit(e.target.value);
 						setFormError(null);
 					}}
-					placeholder="Cost per unit"
+					placeholder={INGREDIENT_FORM_COST_LABEL}
 				/>
 				{fieldErrors.costPerUnit && (
 					<InlineError alert>{fieldErrors.costPerUnit}</InlineError>
@@ -129,7 +138,7 @@ export function IngredientForm({
 			</Field>
 			<Field>
 				<FieldLabel htmlFor="purchaseUnit" className={isEdit ? "sr-only" : ""}>
-					Purchase unit
+					{INGREDIENT_FORM_UNIT_LABEL}
 				</FieldLabel>
 				<Select
 					name="purchaseUnit"
@@ -140,7 +149,7 @@ export function IngredientForm({
 					}}
 				>
 					<SelectTrigger id="purchaseUnit" className="w-full">
-						<SelectValue placeholder="Select a unit" />
+						<SelectValue placeholder={INGREDIENT_FORM_UNIT_SELECT_PLACEHOLDER} />
 					</SelectTrigger>
 					<SelectContent>
 						{PURCHASE_UNITS.map((unit) => (
@@ -159,27 +168,14 @@ export function IngredientForm({
 					type="submit"
 					disabled={mutation.isPending}
 					className={`block ${isEdit ? "" : "md:mt-6"}`}
-					aria-label={
-						isEdit
-							? mutation.isPending
-								? "Updating ingredient"
-								: "Update ingredient"
-							: mutation.isPending
-								? "Creating ingredient"
-								: "Create ingredient"
-					}
 				>
-					{mutation.isPending ? (
-						isEdit ? (
-							<Check />
-						) : (
-							"Creating..."
-						)
-					) : isEdit ? (
-						<Check />
-					) : (
-						"Create"
-					)}
+					{isEdit
+						? mutation.isPending
+							? INGREDIENT_FORM_UPDATING_LABEL
+							: INGREDIENT_FORM_UPDATE_LABEL
+						: mutation.isPending
+							? INGREDIENT_FORM_CREATING_LABEL
+							: INGREDIENT_FORM_CREATE_LABEL}
 				</Button>
 			</Field>
 			{formError && <InlineError alert>{formError}</InlineError>}

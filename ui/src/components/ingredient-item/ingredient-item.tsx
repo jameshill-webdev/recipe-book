@@ -3,10 +3,17 @@ import { useState } from "react";
 import { Pencil, X, Trash2 } from "lucide-react";
 import { Item, ItemActions, ItemContent, ItemTitle } from "@/components/ui/item/item";
 import {
+	CONFIRM_DELETE_INGREDIENT_WARNING,
 	EDIT_INGREDIENT_FORM_LABEL,
 	GENERIC_ERROR,
+	INGREDIENT_COST_REQUIRED_ERROR,
+	INGREDIENT_ITEM_COST_ARIA_LABEL,
 	INGREDIENT_ITEM_DELETE_BUTTON_LABEL,
 	INGREDIENT_ITEM_EDIT_BUTTON_LABEL,
+	INGREDIENT_ITEM_NAME_ARIA_LABEL,
+	INGREDIENT_ITEM_UNIT_ARIA_LABEL,
+	INGREDIENT_NAME_REQUIRED_ERROR,
+	INGREDIENT_UNIT_REQUIRED_ERROR,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
 import type { UpdateIngredientPayload, Ingredient } from "@recipe-book/shared/types/ingredient";
@@ -78,11 +85,7 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 		event.preventDefault();
 		setFormError(null);
 
-		if (
-			!window.confirm(
-				"Are you sure you want to delete this ingredient? This action cannot be undone.",
-			)
-		) {
+		if (!window.confirm(CONFIRM_DELETE_INGREDIENT_WARNING)) {
 			return;
 		}
 
@@ -99,17 +102,17 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 		const originalCostPerUnit = Number(costPerUnit);
 
 		if (!trimmedName) {
-			setFormError("Name is required.");
+			setFormError(INGREDIENT_NAME_REQUIRED_ERROR);
 			return;
 		}
 
 		if (!trimmedPurchaseUnit) {
-			setFormError("Please select a purchase unit.");
+			setFormError(INGREDIENT_UNIT_REQUIRED_ERROR);
 			return;
 		}
 
 		if (!Number.isFinite(parsedCostPerUnit) || parsedCostPerUnit < 0) {
-			setFormError("Please enter a valid non-negative cost per unit.");
+			setFormError(INGREDIENT_COST_REQUIRED_ERROR);
 			return;
 		}
 
@@ -161,16 +164,21 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 						/>
 					) : (
 						<div className="w-full grid grid-cols-[4.5fr_2fr_2fr] md:grid-cols-[6.5fr_2fr_2fr]">
-							<ItemTitle className="pl-2" aria-label={`Ingredient name: ${name}`}>
+							<ItemTitle
+								className="pl-2"
+								aria-label={`${INGREDIENT_ITEM_NAME_ARIA_LABEL} ${name}`}
+							>
 								{name}
 							</ItemTitle>
 							<span
 								className=""
-								aria-label={`Ingredient cost: ${Number(costPerUnit).toFixed(2)}`}
+								aria-label={`${INGREDIENT_ITEM_COST_ARIA_LABEL} ${Number(costPerUnit).toFixed(2)}`}
 							>
 								{Number(costPerUnit).toFixed(2)}
 							</span>
-							<span aria-label={`Purchase unit: ${purchaseUnit.toLocaleLowerCase()}`}>
+							<span
+								aria-label={`${INGREDIENT_ITEM_UNIT_ARIA_LABEL} ${purchaseUnit.toLocaleLowerCase()}`}
+							>
 								{purchaseUnit.toLocaleLowerCase()}
 							</span>
 						</div>

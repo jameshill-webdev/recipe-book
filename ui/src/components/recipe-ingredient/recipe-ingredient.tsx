@@ -18,6 +18,11 @@ import {
 } from "@/components/ui/autocomplete/autocomplete";
 import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
 import type { Ingredient } from "@recipe-book/shared/types/ingredient";
+import {
+	RECIPE_INGREDIENT_NAME_LABEL,
+	RECIPE_INGREDIENT_QUANTITY_LABEL,
+	RECIPE_INGREDIENT_UNIT_LABEL,
+} from "@/lib/content-strings";
 
 interface RecipeFormIngredientProps {
 	ingredient: CreateRecipeIngredientPayload;
@@ -44,7 +49,7 @@ export function RecipeFormIngredient({
 		>
 			<Field>
 				<FieldLabel htmlFor={`ingredients[${index}][ingredientId]`} className="sr-only">
-					Ingredient
+					{RECIPE_INGREDIENT_NAME_LABEL}
 				</FieldLabel>
 				<Autocomplete
 					items={ingredientOptions.map((option) => option.name)}
@@ -72,7 +77,7 @@ export function RecipeFormIngredient({
 			</Field>
 			<Field>
 				<FieldLabel htmlFor={`ingredients[${index}][quantity]`} className="sr-only">
-					Quantity
+					{RECIPE_INGREDIENT_QUANTITY_LABEL}
 				</FieldLabel>
 				<Input
 					id={`ingredients[${index}][quantity]`}
@@ -88,12 +93,12 @@ export function RecipeFormIngredient({
 						setIngredients(updatedIngredients);
 						setFormError(null);
 					}}
-					placeholder="Quantity"
+					placeholder={RECIPE_INGREDIENT_QUANTITY_LABEL}
 				/>
 			</Field>
 			<Field>
 				<FieldLabel htmlFor={`ingredients[${index}][unit]`} className="sr-only">
-					Unit
+					{RECIPE_INGREDIENT_UNIT_LABEL}
 				</FieldLabel>
 				<Select
 					name={`ingredients[${index}][unit]`}

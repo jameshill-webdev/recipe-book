@@ -4,7 +4,7 @@ import type {
 	Recipe,
 	CreateRecipeIngredientPayload,
 } from "@recipe-book/shared/types/recipe";
-import { EDIT_RECIPE_FORM_LABEL } from "@/lib/content-strings";
+import { EDIT_RECIPE_FORM_LABEL, EDIT_RECIPE_NO_INGREDIENTS_ERROR } from "@/lib/content-strings";
 import {
 	DEFAULT_PREP_TIME_UNIT,
 	DEFAULT_COOK_TIME_UNIT,
@@ -90,7 +90,7 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 		const validIngredients = ingredients.filter((ingredient) => ingredient.name.trim() !== "");
 
 		if (validIngredients.length === 0) {
-			setFormError("Please add at least one ingredient.");
+			setFormError(EDIT_RECIPE_NO_INGREDIENTS_ERROR);
 			return;
 		}
 

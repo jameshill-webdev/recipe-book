@@ -19,6 +19,33 @@ import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 import { PURCHASE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
 import { getErrorMessage } from "@/lib/utils";
 import { RecipeFormIngredient } from "../recipe-ingredient/recipe-ingredient";
+import { LoadingSpinner } from "../loading-spinner/loading-spinner";
+import {
+	INGREDIENTS_LIST_NO_RESULTS,
+	RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL,
+	RECIPE_FORM_COOK_TIME_LABEL,
+	RECIPE_FORM_COOK_TIME_UNIT_LABEL,
+	RECIPE_FORM_COOK_TIME_UNIT_PLACEHOLDER,
+	RECIPE_FORM_COOK_TIME_VALUE_LABEL,
+	RECIPE_FORM_CREATE_BUTTON_LABEL,
+	RECIPE_FORM_CREATING_BUTTON_LABEL,
+	RECIPE_FORM_INGREDIENTS_LABEL,
+	RECIPE_FORM_METHOD_LABEL,
+	RECIPE_FORM_METHOD_PLACEHOLDER,
+	RECIPE_FORM_NAME_LABEL,
+	RECIPE_FORM_NAME_PLACEHOLDER,
+	RECIPE_FORM_PORTIONS_LABEL,
+	RECIPE_FORM_PREP_TIME_LABEL,
+	RECIPE_FORM_PREP_TIME_UNIT_LABEL,
+	RECIPE_FORM_PREP_TIME_UNIT_PLACEHOLDER,
+	RECIPE_FORM_PREP_TIME_VALUE_LABEL,
+	RECIPE_FORM_SHELF_LIFE_LABEL,
+	RECIPE_FORM_SHELF_LIFE_UNIT_LABEL,
+	RECIPE_FORM_SHELF_LIFE_UNIT_PLACEHOLDER,
+	RECIPE_FORM_SHELF_LIFE_VALUE_LABEL,
+	RECIPE_FORM_UPDATE_BUTTON_LABEL,
+	RECIPE_FORM_UPDATING_BUTTON_LABEL,
+} from "@/lib/content-strings";
 
 interface RecipeFormProps {
 	label: string;
@@ -105,7 +132,7 @@ export function RecipeForm({
 			aria-label={label}
 		>
 			<Field>
-				<FieldLabel htmlFor="name">Name</FieldLabel>
+				<FieldLabel htmlFor="name">{RECIPE_FORM_NAME_LABEL}</FieldLabel>
 				<Input
 					id="name"
 					type="text"
@@ -115,19 +142,19 @@ export function RecipeForm({
 						setName(e.target.value);
 						setFormError(null);
 					}}
-					placeholder="Enter recipe name"
+					placeholder={RECIPE_FORM_NAME_PLACEHOLDER}
 				/>
 				{fieldErrors.name && <InlineError alert>{fieldErrors.name}</InlineError>}
 			</Field>
 			<FieldSet className="gap-2">
-				<FieldLegend>Ingredients</FieldLegend>
+				<FieldLegend>{RECIPE_FORM_INGREDIENTS_LABEL}</FieldLegend>
 				{isIngredientsPending ? (
-					<p>Loading ingredients...</p>
+					<LoadingSpinner />
 				) : ingredientsError ? (
 					<InlineError alert>{getErrorMessage(ingredientsError)}</InlineError>
 				) : ingredients.length === 0 ? (
 					<p className="text-center text-[var(--color-muted-foreground)]">
-						No ingredients yet
+						{INGREDIENTS_LIST_NO_RESULTS}
 					</p>
 				) : (
 					<>
@@ -159,11 +186,11 @@ export function RecipeForm({
 						])
 					}
 				>
-					Add ingredient
+					{RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL}
 				</Button>
 			</FieldSet>
 			<Field>
-				<FieldLabel htmlFor="method">Method</FieldLabel>
+				<FieldLabel htmlFor="method">{RECIPE_FORM_METHOD_LABEL}</FieldLabel>
 				<Textarea
 					id="method"
 					autoComplete="off"
@@ -172,16 +199,16 @@ export function RecipeForm({
 						setMethod(e.target.value);
 						setFormError(null);
 					}}
-					placeholder="Enter recipe instructions"
+					placeholder={RECIPE_FORM_METHOD_PLACEHOLDER}
 				/>
 			</Field>
 			<div className="grid gap-6 grid-cols-[1fr_1fr]">
 				<FieldSet>
-					<FieldLegend>Prep time</FieldLegend>
+					<FieldLegend>{RECIPE_FORM_PREP_TIME_LABEL}</FieldLegend>
 					<FieldGroup className="grid gap-2 grid-cols-[1fr_1fr]">
 						<Field>
 							<FieldLabel className="sr-only" htmlFor="prepTime">
-								Time
+								{RECIPE_FORM_PREP_TIME_VALUE_LABEL}
 							</FieldLabel>
 							<Input
 								id="prepTime"
@@ -197,12 +224,12 @@ export function RecipeForm({
 									});
 									setFormError(null);
 								}}
-								placeholder="Time"
+								placeholder={RECIPE_FORM_PREP_TIME_VALUE_LABEL}
 							/>
 						</Field>
 						<Field>
 							<FieldLabel className="sr-only" htmlFor={`prepTimeUnit`}>
-								Unit
+								{RECIPE_FORM_PREP_TIME_UNIT_LABEL}
 							</FieldLabel>
 							<Select
 								name={`prepTimeUnit`}
@@ -217,7 +244,9 @@ export function RecipeForm({
 								}}
 							>
 								<SelectTrigger id={`prepTimeUnit`} className="w-full">
-									<SelectValue placeholder="Select a unit" />
+									<SelectValue
+										placeholder={RECIPE_FORM_PREP_TIME_UNIT_PLACEHOLDER}
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									{TIME_UNITS.map((unit) => (
@@ -231,11 +260,11 @@ export function RecipeForm({
 					</FieldGroup>
 				</FieldSet>
 				<FieldSet>
-					<FieldLegend>Cook time</FieldLegend>
+					<FieldLegend>{RECIPE_FORM_COOK_TIME_LABEL}</FieldLegend>
 					<FieldGroup className="grid gap-2 grid-cols-[1fr_1fr]">
 						<Field>
 							<FieldLabel className="sr-only" htmlFor="cookTime">
-								Time
+								{RECIPE_FORM_COOK_TIME_VALUE_LABEL}
 							</FieldLabel>
 							<Input
 								id="cookTime"
@@ -251,12 +280,12 @@ export function RecipeForm({
 									});
 									setFormError(null);
 								}}
-								placeholder="Time"
+								placeholder={RECIPE_FORM_COOK_TIME_VALUE_LABEL}
 							/>
 						</Field>
 						<Field>
 							<FieldLabel className="sr-only" htmlFor={`cookTimeUnit`}>
-								Unit
+								{RECIPE_FORM_COOK_TIME_UNIT_LABEL}
 							</FieldLabel>
 							<Select
 								name={`cookTimeUnit`}
@@ -271,7 +300,9 @@ export function RecipeForm({
 								}}
 							>
 								<SelectTrigger id={`cookTimeUnit`} className="w-full">
-									<SelectValue placeholder="Select a unit" />
+									<SelectValue
+										placeholder={RECIPE_FORM_COOK_TIME_UNIT_PLACEHOLDER}
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									{TIME_UNITS.map((unit) => (
@@ -287,11 +318,11 @@ export function RecipeForm({
 			</div>
 			<div className="grid gap-6 grid-cols-[1fr_1fr]">
 				<FieldSet>
-					<FieldLegend>Shelf life</FieldLegend>
+					<FieldLegend>{RECIPE_FORM_SHELF_LIFE_LABEL}</FieldLegend>
 					<FieldGroup className="grid gap-2 grid-cols-[1fr_1fr]">
 						<Field>
 							<FieldLabel className="sr-only" htmlFor="shelfLife">
-								Time
+								{RECIPE_FORM_SHELF_LIFE_VALUE_LABEL}
 							</FieldLabel>
 							<Input
 								id="shelfLife"
@@ -307,12 +338,12 @@ export function RecipeForm({
 									});
 									setFormError(null);
 								}}
-								placeholder="Time"
+								placeholder={RECIPE_FORM_SHELF_LIFE_VALUE_LABEL}
 							/>
 						</Field>
 						<Field>
 							<FieldLabel className="sr-only" htmlFor={`shelfLifeUnit`}>
-								Unit
+								{RECIPE_FORM_SHELF_LIFE_UNIT_LABEL}
 							</FieldLabel>
 							<Select
 								name={`shelfLifeUnit`}
@@ -327,7 +358,9 @@ export function RecipeForm({
 								}}
 							>
 								<SelectTrigger id={`shelfLifeUnit`} className="w-full">
-									<SelectValue placeholder="Select a unit" />
+									<SelectValue
+										placeholder={RECIPE_FORM_SHELF_LIFE_UNIT_PLACEHOLDER}
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									{TIME_UNITS.map((unit) => (
@@ -341,7 +374,7 @@ export function RecipeForm({
 					</FieldGroup>
 				</FieldSet>
 				<Field>
-					<FieldLabel htmlFor="numberOfPortions">Number of portions</FieldLabel>
+					<FieldLabel htmlFor="numberOfPortions">{RECIPE_FORM_PORTIONS_LABEL}</FieldLabel>
 					<Input
 						className="max-w-[6rem]"
 						id="numberOfPortions"
@@ -354,7 +387,7 @@ export function RecipeForm({
 							setNumberOfPortions(parseInt(e.target.value, 10));
 							setFormError(null);
 						}}
-						placeholder="Number of portions"
+						placeholder={RECIPE_FORM_PORTIONS_LABEL}
 					/>
 				</Field>
 			</div>
@@ -363,23 +396,14 @@ export function RecipeForm({
 					type="submit"
 					disabled={mutation.isPending}
 					className={`block ${isEdit ? "" : "md:mt-6"}`}
-					aria-label={
-						isEdit
-							? mutation.isPending
-								? "Updating recipe"
-								: "Update recipe"
-							: mutation.isPending
-								? "Creating recipe"
-								: "Create recipe"
-					}
 				>
-					{mutation.isPending
-						? isEdit
-							? "Updating..."
-							: "Creating..."
-						: isEdit
-							? "Update"
-							: "Create"}
+					{isEdit
+						? mutation.isPending
+							? RECIPE_FORM_UPDATING_BUTTON_LABEL
+							: RECIPE_FORM_UPDATE_BUTTON_LABEL
+						: mutation.isPending
+							? RECIPE_FORM_CREATING_BUTTON_LABEL
+							: RECIPE_FORM_CREATE_BUTTON_LABEL}
 				</Button>
 			</Field>
 			{formError && <InlineError alert>{formError}</InlineError>}
