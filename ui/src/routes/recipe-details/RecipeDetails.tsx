@@ -8,11 +8,8 @@ import { useState } from "react";
 import EditRecipeDetails from "@/components/edit-recipe-details/edit-recipe-details";
 import { Button } from "@/components/ui/button/button";
 import { Pencil, X } from "lucide-react";
-import {
-	RECIPE_DETAILS_LOADING,
-	RECIPE_DETAILS_NOT_FOUND,
-	RECIPE_ITEM_EDIT_BUTTON_LABEL,
-} from "@/lib/content-strings";
+import { RECIPE_DETAILS_NOT_FOUND, RECIPE_ITEM_EDIT_BUTTON_LABEL } from "@/lib/content-strings";
+import { LoadingSpinner } from "@/components/loading-spinner/loading-spinner";
 
 export default function RecipeDetailsPage() {
 	const { id } = useParams();
@@ -35,7 +32,7 @@ export default function RecipeDetailsPage() {
 	console.log(JSON.stringify(recipe));
 
 	return (
-		<div>
+		<div data-testid="recipe-details-page">
 			<div className="my-8 w-full flex justify-center gap-2">
 				<h1 className="my-0">{recipe?.name || ""}</h1>
 				<Button type="button" variant="outline" onClick={() => setIsEditing(!isEditing)}>
@@ -44,7 +41,7 @@ export default function RecipeDetailsPage() {
 				</Button>
 			</div>
 			{isRecipePending ? (
-				<p>{RECIPE_DETAILS_LOADING}</p>
+				<LoadingSpinner />
 			) : !recipe ? (
 				<p>{RECIPE_DETAILS_NOT_FOUND}</p>
 			) : recipesError ? (

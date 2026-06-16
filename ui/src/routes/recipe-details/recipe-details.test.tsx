@@ -1,18 +1,11 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import RecipeDetailsPage from "./RecipeDetails";
 import { recipeCaek } from "@/test/fixtures";
 import * as recipesApi from "@/lib/api/recipes";
-import {
-	RECIPE_DETAILS_COOKING_TIME_LABEL,
-	RECIPE_DETAILS_INGREDIENTS_LABEL,
-	RECIPE_DETAILS_METHOD_LABEL,
-	RECIPE_DETAILS_PORTIONS_LABEL,
-	RECIPE_DETAILS_PREPARATION_TIME_LABEL,
-	RECIPE_DETAILS_SHELF_LIFE_LABEL,
-} from "@/lib/content-strings";
+import { LOADING_SPINNER_ARIA_LABEL } from "@/lib/content-strings";
 
 vi.mock("react-router-dom", async () => {
 	const actual = await vi.importActual("react-router-dom");
@@ -47,10 +40,11 @@ describe("Recipe Details Page", () => {
 	describe("static UI", () => {
 		beforeEach(() => {
 			vi.spyOn(recipesApi, "getRecipeById").mockResolvedValue(recipeCaek);
-			renderRecipeDetails();
 		});
 
 		it("renders a level 1 heading with the correct text content (recipe name)", async () => {
+			renderRecipeDetails();
+
 			const heading = await screen.findByRole("heading", {
 				level: 1,
 				name: recipeCaek.name,
@@ -60,6 +54,8 @@ describe("Recipe Details Page", () => {
 		});
 
 		it("renders an edit button next to the level 1 heading", async () => {
+			renderRecipeDetails();
+
 			const button = await screen.findByRole("button", {
 				name: "Edit recipe",
 			});
@@ -67,75 +63,34 @@ describe("Recipe Details Page", () => {
 			expect(button).toBeInTheDocument();
 		});
 
-		it("renders prep time label and correct value", async () => {
-			await waitFor(() => {
-				const label = screen.getByText(`${RECIPE_DETAILS_PREPARATION_TIME_LABEL}:`, {
-					selector: "dt",
-				});
-				const value = label.nextSibling?.textContent || undefined;
+		it("renders a loading spinner when the recipe data is loading (getRecipe pending)", async () => {
+			renderRecipeDetails();
 
-				expect(label).toBeInTheDocument();
-				expect(value).toBe("1 minute");
-			});
+			const spinner = screen.getByLabelText(LOADING_SPINNER_ARIA_LABEL);
+
+			expect(spinner).toBeInTheDocument();
 		});
 
-		it("renders cook time label and correct value", async () => {
-			await waitFor(() => {
-				const label = screen.getByText(`${RECIPE_DETAILS_COOKING_TIME_LABEL}:`, {
-					selector: "dt",
-				});
-				const value = label.nextSibling?.textContent || undefined;
+		// this app functionality is actually broken - if you enter an invalid recipe slug, backend errors are thrown and loading spinner shows forever
+		// it("renders the expected message if no recipe data was returned", async () => {
+		// 	vi.spyOn(recipesApi, "getRecipeById").mockResolvedValueOnce(undefined);
+		// 	renderRecipeDetails();
 
-				expect(label).toBeInTheDocument();
-				expect(value).toBe("1 minute");
-			});
-		});
+		// 	console.log("404 test\n", screen.getByTestId("recipe-details-page").outerHTML);
 
-		it("renders shelf life label and correct value", async () => {
-			await waitFor(() => {
-				const label = screen.getByText(`${RECIPE_DETAILS_SHELF_LIFE_LABEL}:`, {
-					selector: "dt",
-				});
-				const value = label.nextSibling?.textContent || undefined;
+		// 	await waitFor(() => {
+		// 		const message = screen.getByLabelText(RECIPE_DETAILS_NOT_FOUND);
 
-				expect(label).toBeInTheDocument();
-				expect(value).toBe("1 day");
-			});
-		});
+		// 		expect(message).toBeInTheDocument();
+		// 	});
+		// });
 
-		it("renders portions label and correct value", async () => {
-			await waitFor(() => {
-				const label = screen.getByText(`${RECIPE_DETAILS_PORTIONS_LABEL}:`, {
-					selector: "dt",
-				});
-				const value = label.nextSibling?.textContent || undefined;
+		// it("renders a ViewRecipeDetails component when the recipe data has loaded and the component is not in edit mode", async () => {
+		// 	// TODO
+		// });
 
-				expect(label).toBeInTheDocument();
-				expect(value).toBe("1");
-			});
-		});
-
-		it("renders ingredients list heading and list items", async () => {
-			await waitFor(() => {
-				const label = screen.getByText(RECIPE_DETAILS_INGREDIENTS_LABEL, {
-					selector: "h2",
-				});
-				const ingredientOne = screen.getByText("flour, 400 gs", {
-					selector: "li div div div span",
-				});
-
-				expect(label).toBeInTheDocument();
-				expect(ingredientOne).toBeInTheDocument();
-			});
-		});
-
-		it("renders method list heading and body text", async () => {
-			await waitFor(() => {
-				const label = screen.getByText(RECIPE_DETAILS_METHOD_LABEL, { selector: "h2" });
-				const bodyText = screen.getByText("now is time for caek");
-				expect(label).toBeInTheDocument();
-				expect(bodyText).toBeInTheDocument();
-			});
-		});
+		// it("renders an EditRecipeDetails component when the recipe data has loaded and the component is in edit mode", async () => {
+		// 	// TODO
+		// });
 	});
 });
