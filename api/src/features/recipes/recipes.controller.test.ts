@@ -39,7 +39,7 @@ const testData = {
 		id: "user-123",
 	},
 	recipe: {
-		id: "recipe-123",
+		id: "4a888465-46e0-4feb-bc55-eaccb755a88d",
 		name: "Chocolate Cake",
 		method: "Mix ingredients and bake at 180C for 30 minutes",
 		prepTime: 15,
@@ -153,7 +153,7 @@ describe("getRecipeById", () => {
 				},
 			} as never,
 			params: {
-				id: "recipe-123",
+				id: "4a888465-46e0-4feb-bc55-eaccb755a88d",
 			},
 		});
 		const recipes = [
@@ -178,7 +178,7 @@ describe("getRecipeById", () => {
 		await getRecipeById(req, res);
 
 		expect(prisma.recipe.findUnique).toHaveBeenCalledWith({
-			where: { userId: testData.user.id, id: "recipe-123" },
+			where: { userId: testData.user.id, id: "4a888465-46e0-4feb-bc55-eaccb755a88d" },
 			include: {
 				ingredients: {
 					include: {

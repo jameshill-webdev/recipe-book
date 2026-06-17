@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import RecipeDetailsPage from "./RecipeDetails";
 import { recipeCaek } from "@/test/fixtures";
 import * as recipesApi from "@/lib/api/recipes";
-import { LOADING_SPINNER_ARIA_LABEL } from "@/lib/content-strings";
+import { LOADING_SPINNER_ARIA_LABEL, RECIPE_DETAILS_NOT_FOUND } from "@/lib/content-strings";
 
 vi.mock("react-router-dom", async () => {
 	const actual = await vi.importActual("react-router-dom");
@@ -71,19 +71,18 @@ describe("Recipe Details Page", () => {
 			expect(spinner).toBeInTheDocument();
 		});
 
-		// this app functionality is actually broken - if you enter an invalid recipe slug, backend errors are thrown and loading spinner shows forever
-		// it("renders the expected message if no recipe data was returned", async () => {
-		// 	vi.spyOn(recipesApi, "getRecipeById").mockResolvedValueOnce(undefined);
-		// 	renderRecipeDetails();
+		it("renders the expected message if no recipe data was returned", async () => {
+			vi.spyOn(recipesApi, "getRecipeById").mockResolvedValueOnce(undefined);
+			renderRecipeDetails();
 
-		// 	console.log("404 test\n", screen.getByTestId("recipe-details-page").outerHTML);
+			await waitFor(() => {
+				const message = screen.getByText(RECIPE_DETAILS_NOT_FOUND);
 
-		// 	await waitFor(() => {
-		// 		const message = screen.getByLabelText(RECIPE_DETAILS_NOT_FOUND);
+				expect(message).toBeInTheDocument();
+			});
+		});
 
-		// 		expect(message).toBeInTheDocument();
-		// 	});
-		// });
+		// TODO: implement tests below
 
 		// it("renders a ViewRecipeDetails component when the recipe data has loaded and the component is not in edit mode", async () => {
 		// 	// TODO

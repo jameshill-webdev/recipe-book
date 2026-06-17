@@ -41,7 +41,10 @@ export async function getRecipeById(recipeId: string): Promise<Recipe | undefine
 	const data = (await response.json().catch(() => null)) as GetRecipeByIdResponse | null;
 
 	if (!response.ok) {
-		throw new Error(data?.message ?? GENERIC_ERROR);
+		const error: Error & { status?: number } = new Error(data?.message ?? GENERIC_ERROR);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(error as any).status = response.status;
+		throw error;
 	}
 
 	return data?.recipe;
