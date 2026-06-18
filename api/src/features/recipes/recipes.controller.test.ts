@@ -34,9 +34,14 @@ import {
 import { makeRequest, makeResponse } from "@/test/mocks.js";
 import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
 
+// TODO: update this to use fixtures (refactor to shared package)
 const testData = {
 	user: {
 		id: "user-123",
+	},
+	uuid: {
+		valid: "3a787465-87e1-5aac-bc65-beacc755a76d",
+		invalid: "abc-123",
 	},
 	recipe: {
 		id: "4a888465-46e0-4feb-bc55-eaccb755a88d",
@@ -243,6 +248,26 @@ describe("getRecipeById", () => {
 		expect(prisma.recipe.findUnique).not.toHaveBeenCalled();
 		expect(status).toHaveBeenCalledWith(400);
 		expect(json).toHaveBeenCalledWith({ ok: false, message: "ID parameter is required" });
+	});
+
+	it("returns 400 when the route parameter is not a valid UUID", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: testData.uuid.invalid,
+			},
+		});
+
+		await getRecipeById(req, res);
+
+		expect(prisma.recipe.findUnique).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "recipe ID is not a valid UUID" });
 	});
 });
 
@@ -609,6 +634,32 @@ describe("updateRecipe", () => {
 		});
 	});
 
+	it("returns 400 when recipe id is not a valid UUID", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: testData.uuid.invalid,
+			},
+			body: {
+				name: "Updated Name",
+			},
+		});
+
+		await updateRecipe(req as UpdateRecipeRequest, res);
+
+		expect(prisma.recipe.findFirst).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "recipe ID is not a valid UUID",
+		});
+	});
+
 	it("returns 404 when recipe is not found", async () => {
 		const { res, status, json } = makeResponse();
 		const req = makeRequest({
@@ -618,7 +669,7 @@ describe("updateRecipe", () => {
 				},
 			} as never,
 			params: {
-				id: "nonexistent-id",
+				id: testData.uuid.valid,
 			},
 			body: {
 				name: "Updated Name",
@@ -720,6 +771,29 @@ describe("deleteRecipe", () => {
 		expect(json).toHaveBeenCalledWith({
 			ok: false,
 			message: "Invalid recipe data",
+		});
+	});
+
+	it("returns 400 when recipe id is not a valid UUID", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: testData.uuid.invalid,
+			},
+		});
+
+		await deleteRecipe(req as DeleteRecipeRequest, res);
+
+		expect(prisma.recipe.delete).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "recipe ID is not a valid UUID",
 		});
 	});
 

@@ -62,7 +62,9 @@ export const getRecipeById = async (request: Request, response: Response): Promi
 		const validatedId = z.uuid().safeParse(Array.isArray(id) ? id[0] : id);
 
 		if (!validatedId.success) {
-			return response.status(400).json({ ok: false, message: "Invalid recipe ID format" });
+			return response
+				.status(400)
+				.json({ ok: false, message: "recipe ID is not a valid UUID" });
 		}
 
 		const recipe = await prisma.recipe.findUnique({
@@ -83,9 +85,6 @@ export const getRecipeById = async (request: Request, response: Response): Promi
 				},
 			},
 		});
-
-		console.log(`recipe ${id}:`);
-		console.log(JSON.stringify(recipe));
 
 		return response.status(200).json({
 			ok: true,
@@ -208,6 +207,14 @@ export const updateRecipe = async (
 			});
 		}
 
+		const validatedId = z.uuid().safeParse(recipeId);
+
+		if (!validatedId.success) {
+			return response
+				.status(400)
+				.json({ ok: false, message: "recipe ID is not a valid UUID" });
+		}
+
 		const parsedResult = updateRecipeSchema.safeParse(request.body ?? {});
 
 		if (!parsedResult.success) {
@@ -221,7 +228,7 @@ export const updateRecipe = async (
 
 		const existingRecipe = await prisma.recipe.findFirst({
 			where: {
-				id: recipeId,
+				id: validatedId.data,
 				userId,
 			},
 		});
@@ -256,7 +263,7 @@ export const updateRecipe = async (
 			}
 
 			await tx.recipe.update({
-				where: { id: recipeId },
+				where: { id: validatedId.data },
 				data: updateData,
 			});
 
@@ -264,13 +271,13 @@ export const updateRecipe = async (
 			if (recipeData.ingredients !== undefined) {
 				// Delete existing ingredients
 				await tx.recipeIngredient.deleteMany({
-					where: { recipeId },
+					where: { recipeId: validatedId.data },
 				});
 
 				// Create new ingredients
 				const recipeIngredientsData = recipeData.ingredients.map((ingredient) => ({
 					userId,
-					recipeId,
+					recipeId: validatedId.data,
 					ingredientId: ingredient.ingredientId,
 					quantity: ingredient.quantity,
 					unit: ingredient.unit,
@@ -284,7 +291,7 @@ export const updateRecipe = async (
 			// Update recipe steps if provided
 			if (recipeData.method !== undefined) {
 				await tx.recipe.update({
-					where: { id: recipeId },
+					where: { id: validatedId.data },
 					data: {
 						method: recipeData.method,
 					},
@@ -293,7 +300,7 @@ export const updateRecipe = async (
 
 			// Fetch the updated recipe with all relations
 			return await tx.recipe.findUnique({
-				where: { id: recipeId },
+				where: { id: validatedId.data },
 				include: {
 					ingredients: {
 						include: {
@@ -341,11 +348,19 @@ export const deleteRecipe = async (
 			});
 		}
 
+		const validatedId = z.uuid().safeParse(recipeId);
+
+		if (!validatedId.success) {
+			return response
+				.status(400)
+				.json({ ok: false, message: "recipe ID is not a valid UUID" });
+		}
+
 		const recipe = await prisma.recipe.delete({
 			where: {
 				userId_id: {
 					userId,
-					id: recipeId,
+					id: validatedId.data,
 				},
 			},
 		});
