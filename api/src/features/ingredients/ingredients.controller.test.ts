@@ -74,8 +74,12 @@ const testData = {
 	user: {
 		id: "user-123",
 	},
+	uuid: {
+		valid: "3a787465-87e1-5aac-bc65-beacc755a76d",
+		invalid: "abc-123",
+	},
 	ingredient: {
-		id: "ingredient-123",
+		id: "1b2c0b94-04ee-4767-b45b-4102f6971730",
 		name: "Flour",
 		purchaseUnit: "KILOGRAM",
 		costPerUnit: 1.99,
@@ -432,6 +436,55 @@ describe("updateIngredient", () => {
 		});
 	});
 
+	it("returns 400 when ingredient id is not provided", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: "",
+			},
+			body: {
+				name: "New name",
+			},
+		});
+
+		await updateIngredient(req as UpdateIngredientRequest, res);
+
+		expect(prisma.ingredient.update).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({ ok: false, message: "Invalid ingredient data" });
+	});
+
+	it("returns 400 when ingredient id is not a valid UUID", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: testData.uuid.invalid,
+			},
+			body: {
+				name: "New name",
+			},
+		});
+
+		await updateIngredient(req as UpdateIngredientRequest, res);
+
+		expect(prisma.ingredient.update).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "ingredient ID is not a valid UUID",
+		});
+	});
+
 	it("returns 401 when there is no logged in user on the request", async () => {
 		const { res, status, json } = makeResponse();
 		const req = makeRequest({
@@ -508,6 +561,29 @@ describe("deleteIngredient", () => {
 		expect(json).toHaveBeenCalledWith({
 			ok: false,
 			message: "Invalid ingredient data",
+		});
+	});
+
+	it("returns 400 when ingredient id is not a valid UUID", async () => {
+		const { res, status, json } = makeResponse();
+		const req = makeRequest({
+			session: {
+				user: {
+					id: testData.user.id,
+				},
+			} as never,
+			params: {
+				id: testData.uuid.invalid,
+			},
+		});
+
+		await deleteIngredient(req as DeleteIngredientRequest, res);
+
+		expect(prisma.ingredient.delete).not.toHaveBeenCalled();
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({
+			ok: false,
+			message: "ingredient ID is not a valid UUID",
 		});
 	});
 
