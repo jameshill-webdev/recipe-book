@@ -5,7 +5,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import RecipeDetailsPage from "./RecipeDetails";
 import { recipeCaek } from "@/test/fixtures";
 import * as recipesApi from "@/lib/api/recipes";
-import { LOADING_SPINNER_ARIA_LABEL, RECIPE_DETAILS_NOT_FOUND } from "@/lib/content-strings";
+import {
+	EDIT_RECIPE_FORM_LABEL,
+	LOADING_SPINNER_ARIA_LABEL,
+	RECIPE_DETAILS_NOT_FOUND,
+	RECIPE_ITEM_EDIT_BUTTON_LABEL,
+} from "@/lib/content-strings";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("react-router-dom", async () => {
 	const actual = await vi.importActual("react-router-dom");
@@ -82,14 +88,28 @@ describe("Recipe Details Page", () => {
 			});
 		});
 
-		// TODO: implement tests below
+		it("renders a ViewRecipeDetails component when the recipe data has loaded and the component is not in edit mode", async () => {
+			renderRecipeDetails();
 
-		// it("renders a ViewRecipeDetails component when the recipe data has loaded and the component is not in edit mode", async () => {
-		// 	// TODO
-		// });
+			await waitFor(async () => {
+				const viewRecipeDetails = screen.getByTestId("view-recipe-details");
 
-		// it("renders an EditRecipeDetails component when the recipe data has loaded and the component is in edit mode", async () => {
-		// 	// TODO
-		// });
+				expect(viewRecipeDetails).toBeInTheDocument();
+			});
+		});
+
+		it("renders an EditRecipeDetails component when the recipe data has loaded and the component is in edit mode", async () => {
+			renderRecipeDetails();
+
+			const user = userEvent.setup();
+
+			await user.click(screen.getByRole("button", { name: RECIPE_ITEM_EDIT_BUTTON_LABEL }));
+
+			await waitFor(() => {
+				const editRecipeForm = screen.getByLabelText(EDIT_RECIPE_FORM_LABEL);
+
+				expect(editRecipeForm).toBeInTheDocument();
+			});
+		});
 	});
 });

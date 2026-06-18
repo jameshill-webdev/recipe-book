@@ -29,8 +29,6 @@ export default function RecipeDetailsPage() {
 		},
 	});
 
-	console.log(JSON.stringify(recipe));
-
 	return (
 		<div data-testid="recipe-details-page">
 			<div className="my-8 w-full flex justify-center gap-2">

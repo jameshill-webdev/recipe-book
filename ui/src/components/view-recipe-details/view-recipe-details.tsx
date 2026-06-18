@@ -17,7 +17,7 @@ interface RecipeDetailsProps {
 
 export default function ViewRecipeDetails({ recipe }: RecipeDetailsProps) {
 	return (
-		<article>
+		<article data-testid="view-recipe-details">
 			<div className="w-full flex flex-col gap-4">
 				<dl className="grid grid-cols-2 gap-2">
 					<div className="flex gap-1">
