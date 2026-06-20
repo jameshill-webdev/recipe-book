@@ -15,7 +15,6 @@ import {
 	RECIPE_NAME_REQUIRED,
 } from "@/lib/content-strings";
 import {
-	emptyRecipesResponse,
 	ingredients,
 	ingredientCheddarCheese,
 	recipeCaek,
@@ -29,6 +28,18 @@ import * as ingredientsApi from "@/lib/api/ingredients";
 
 vi.mock("@/lib/api/recipes");
 vi.mock("@/lib/api/ingredients");
+
+function mockGetRecipes() {
+	vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([
+		{
+			...recipeCaek,
+		},
+	]);
+}
+
+function mockGetIngredients() {
+	vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+}
 
 function renderRecipes() {
 	const queryClient = new QueryClient({
@@ -49,18 +60,13 @@ function renderRecipes() {
 
 describe("Recipes", () => {
 	beforeEach(() => {
-		vi.restoreAllMocks();
+		vi.resetAllMocks();
 	});
 
 	describe("static UI", () => {
 		it("renders a level 1 heading with the correct text content", () => {
-			vi.stubGlobal(
-				"fetch",
-				vi.fn().mockResolvedValue({
-					ok: true,
-					json: async () => ({ ...emptyRecipesResponse }),
-				}),
-			);
+			mockGetRecipes();
+			mockGetIngredients();
 
 			renderRecipes();
 
@@ -70,27 +76,20 @@ describe("Recipes", () => {
 		});
 
 		it("renders a button to open the create recipe form", () => {
-			vi.stubGlobal(
-				"fetch",
-				vi.fn().mockResolvedValue({
-					ok: true,
-					json: async () => ({ ...emptyRecipesResponse }),
-				}),
-			);
+			mockGetRecipes();
+			mockGetIngredients();
 
 			renderRecipes();
 
 			expect(screen.getByRole("button", { name: /add recipe/i })).toBeInTheDocument();
 		});
-	});
 
-	describe("recipes list", () => {
 		it("loads and renders recipes returned by the API as RecipeItems", async () => {
 			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([
 				{ ...recipeCaek },
 				{ ...recipeCheeseOnToast },
 			]);
-			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+			mockGetIngredients();
 
 			renderRecipes();
 
@@ -102,12 +101,7 @@ describe("Recipes", () => {
 		});
 	});
 
-	// TODO: move into recipe form component tests
-	describe("create recipe form", () => {
-		beforeEach(() => {
-			vi.resetAllMocks();
-		});
-
+	describe("create recipe", () => {
 		it("displays a form error when no ingredients are provided", async () => {
 			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
 			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
@@ -173,11 +167,9 @@ describe("Recipes", () => {
 		});
 
 		it("creates a recipe, closes the form, and refreshes the list after a successful request", async () => {
-			const existingRecipes: Recipe[] = [
-				{
-					...recipeCaek,
-				},
-			];
+			mockGetRecipes();
+			mockGetIngredients();
+
 			const createRecipePayload: CreateRecipePayload = {
 				name: "Pasta Aglio e Olio",
 				ingredients: [
@@ -223,8 +215,6 @@ describe("Recipes", () => {
 				shelfLifeUnit: createRecipePayload.shelfLife.unit,
 				portions: createRecipePayload.numberOfPortions,
 			};
-			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce(existingRecipes);
-			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
 			vi.mocked(recipesApi.createRecipe).mockResolvedValueOnce(createdRecipe);
 
 			renderRecipes();
@@ -290,13 +280,8 @@ describe("Recipes", () => {
 		});
 
 		it("displays a validation error when name is missing", async () => {
-			const existingRecipes: Recipe[] = [
-				{
-					...recipeCaek,
-				},
-			];
-			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce(existingRecipes);
-			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+			mockGetRecipes();
+			mockGetIngredients();
 
 			renderRecipes();
 
