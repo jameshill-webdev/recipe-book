@@ -7,6 +7,7 @@ import {
 	INGREDIENT_COST_PER_UNIT_POSITIVE,
 	CREATE_INGREDIENT_FORM_LABEL,
 	EDIT_INGREDIENT_FORM_LABEL,
+	INGREDIENT_FORM_COST_LABEL,
 } from "../../lib/content-strings";
 import type { PurchaseUnit } from "@recipe-book/shared/lib/units";
 
@@ -155,6 +156,23 @@ describe("IngredientForm", () => {
 
 			expect(screen.getByText(INGREDIENT_COST_PER_UNIT_POSITIVE)).toBeInTheDocument();
 			expect(props.submitHandler).not.toHaveBeenCalled();
+		});
+
+		it("clears zod validation error when user starts typing in the corresponding field after an error", () => {
+			const { props } = renderIngredientForm({
+				costPerUnit: "-1",
+			});
+
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			expect(screen.getByText(INGREDIENT_COST_PER_UNIT_POSITIVE)).toBeInTheDocument();
+			expect(props.submitHandler).not.toHaveBeenCalled();
+
+			fireEvent.change(screen.getByRole("textbox", { name: INGREDIENT_FORM_COST_LABEL }), {
+				target: { value: "" },
+			});
+
+			expect(screen.queryByText(INGREDIENT_COST_PER_UNIT_POSITIVE)).not.toBeInTheDocument();
 		});
 	});
 

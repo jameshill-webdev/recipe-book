@@ -103,12 +103,14 @@ export function IngredientForm({
 				</FieldLabel>
 				<Input
 					id="name"
+					name="name"
 					type="text"
 					autoComplete="off"
 					value={name}
 					onChange={(e) => {
 						setName(e.target.value);
 						setFormError(null);
+						setFieldErrors((prev) => ({ ...prev, name: undefined }));
 					}}
 					placeholder={INGREDIENT_FORM_NAME_LABEL}
 				/>
@@ -120,6 +122,7 @@ export function IngredientForm({
 				</FieldLabel>
 				<Input
 					id="costPerUnit"
+					name="costPerUnit"
 					type="text"
 					autoComplete="off"
 					inputMode="decimal"
@@ -129,6 +132,7 @@ export function IngredientForm({
 					onChange={(e) => {
 						setCostPerUnit(e.target.value);
 						setFormError(null);
+						setFieldErrors((prev) => ({ ...prev, costPerUnit: undefined }));
 					}}
 					placeholder={INGREDIENT_FORM_COST_LABEL}
 				/>
@@ -146,6 +150,7 @@ export function IngredientForm({
 					onValueChange={(value) => {
 						setPurchaseUnit(value as PurchaseUnit);
 						setFormError(null);
+						setFieldErrors((prev) => ({ ...prev, purchaseUnit: undefined }));
 					}}
 				>
 					<SelectTrigger id="purchaseUnit" className="w-full">

@@ -270,9 +270,6 @@ describe("Recipes", () => {
 				}
 			});
 
-			console.log("createRecipe mock called with");
-			console.log(vi.mocked(recipesApi.createRecipe).mock.calls);
-
 			expect(vi.mocked(recipesApi.createRecipe)).toHaveBeenCalledOnce();
 			expect(vi.mocked(recipesApi.createRecipe).mock.calls[0][0]).toEqual(
 				createRecipePayload,
