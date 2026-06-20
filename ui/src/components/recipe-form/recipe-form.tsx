@@ -151,7 +151,9 @@ export function RecipeForm({
 				{isIngredientsPending ? (
 					<LoadingSpinner />
 				) : ingredientsError ? (
-					<InlineError alert>{getErrorMessage(ingredientsError)}</InlineError>
+					<InlineError alert data-ingredients-error={ingredientsError}>
+						{getErrorMessage(ingredientsError)}
+					</InlineError>
 				) : ingredients.length === 0 ? (
 					<p className="text-center text-[var(--color-muted-foreground)]">
 						{INGREDIENTS_LIST_NO_RESULTS}
@@ -212,15 +214,14 @@ export function RecipeForm({
 							</FieldLabel>
 							<Input
 								id="prepTime"
-								type="number"
+								type="text"
 								autoComplete="off"
-								inputMode="decimal"
-								min="0"
+								inputMode="numeric"
 								value={prepTime.time}
 								onChange={(e) => {
 									setPrepTime({
 										...prepTime,
-										time: parseInt(e.target.value, 10),
+										time: parseInt(e.target.value || "0", 10),
 									});
 									setFormError(null);
 								}}
@@ -268,15 +269,14 @@ export function RecipeForm({
 							</FieldLabel>
 							<Input
 								id="cookTime"
-								type="number"
+								type="text"
 								autoComplete="off"
-								inputMode="decimal"
-								min="0"
+								inputMode="numeric"
 								value={cookTime.time}
 								onChange={(e) => {
 									setCookTime({
 										...cookTime,
-										time: parseInt(e.target.value, 10),
+										time: parseInt(e.target.value || "0", 10),
 									});
 									setFormError(null);
 								}}
@@ -326,15 +326,14 @@ export function RecipeForm({
 							</FieldLabel>
 							<Input
 								id="shelfLife"
-								type="number"
+								type="text"
 								autoComplete="off"
-								inputMode="decimal"
-								min="0"
+								inputMode="numeric"
 								value={shelfLife.time}
 								onChange={(e) => {
 									setShelfLife({
 										...shelfLife,
-										time: parseInt(e.target.value, 10),
+										time: parseInt(e.target.value || "0", 10),
 									});
 									setFormError(null);
 								}}
@@ -378,13 +377,12 @@ export function RecipeForm({
 					<Input
 						className="max-w-[6rem]"
 						id="numberOfPortions"
-						type="number"
+						type="text"
 						autoComplete="off"
-						inputMode="decimal"
-						min="1"
+						inputMode="numeric"
 						value={numberOfPortions}
 						onChange={(e) => {
-							setNumberOfPortions(parseInt(e.target.value, 10));
+							setNumberOfPortions(parseInt(e.target.value || "0", 10));
 							setFormError(null);
 						}}
 						placeholder={RECIPE_FORM_PORTIONS_LABEL}

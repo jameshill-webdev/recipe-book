@@ -7,17 +7,28 @@ import Recipes from "@/routes/recipes";
 import {
 	CREATE_RECIPE_FORM_LABEL,
 	RECIPES_PAGE_HEADING,
+	RECIPE_FORM_COOK_TIME_VALUE_LABEL,
+	RECIPE_FORM_PORTIONS_LABEL,
+	RECIPE_FORM_PREP_TIME_VALUE_LABEL,
+	RECIPE_FORM_SHELF_LIFE_VALUE_LABEL,
+	RECIPE_INGREDIENT_QUANTITY_LABEL,
 	RECIPE_NAME_REQUIRED,
 } from "@/lib/content-strings";
 import {
 	emptyRecipesResponse,
+	ingredients,
 	ingredientCheddarCheese,
 	recipeCaek,
 	recipeCheeseOnToast,
 	recipeIngredientPasta,
 	recipeIngredientPastaRecipeId,
 } from "@/test/fixtures";
-import type { GetRecipesResponse, Recipe } from "@recipe-book/shared/types/recipe";
+import type { CreateRecipePayload, Recipe } from "@recipe-book/shared/types/recipe";
+import * as recipesApi from "@/lib/api/recipes";
+import * as ingredientsApi from "@/lib/api/ingredients";
+
+vi.mock("@/lib/api/recipes");
+vi.mock("@/lib/api/ingredients");
 
 function renderRecipes() {
 	const queryClient = new QueryClient({
@@ -75,18 +86,11 @@ describe("Recipes", () => {
 
 	describe("recipes list", () => {
 		it("loads and renders recipes returned by the API as RecipeItems", async () => {
-			const mockResponse: GetRecipesResponse = {
-				ok: true,
-				recipes: [{ ...recipeCaek }, { ...recipeCheeseOnToast }],
-			};
-
-			vi.stubGlobal(
-				"fetch",
-				vi.fn().mockResolvedValue({
-					ok: true,
-					json: async () => mockResponse,
-				}),
-			);
+			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([
+				{ ...recipeCaek },
+				{ ...recipeCheeseOnToast },
+			]);
+			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
 
 			renderRecipes();
 
@@ -98,15 +102,15 @@ describe("Recipes", () => {
 		});
 	});
 
+	// TODO: move into recipe form component tests
 	describe("create recipe form", () => {
+		beforeEach(() => {
+			vi.resetAllMocks();
+		});
+
 		it("displays a form error when no ingredients are provided", async () => {
-			vi.stubGlobal(
-				"fetch",
-				vi.fn().mockResolvedValue({
-					ok: true,
-					json: async () => ({ ...emptyRecipesResponse }),
-				}),
-			);
+			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
+			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
 
 			renderRecipes();
 
@@ -130,18 +134,11 @@ describe("Recipes", () => {
 		});
 
 		it("displays a form error when the API returns an error response", async () => {
-			const fetchMock = vi
-				.fn()
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({ ...emptyRecipesResponse }),
-				})
-				.mockResolvedValueOnce({
-					ok: false,
-					json: async () => ({ ok: false, message: "Method is required" }),
-				});
-
-			vi.stubGlobal("fetch", fetchMock);
+			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
+			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+			vi.mocked(recipesApi.createRecipe).mockRejectedValueOnce(
+				new Error("Method is required"),
+			);
 
 			renderRecipes();
 
@@ -157,15 +154,15 @@ describe("Recipes", () => {
 			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
 			fireEvent.click(addIngredientBtn);
 
-			// Get the autocomplete input (first input without a visible label)
-			const inputs = screen.getAllByRole("textbox");
-			const ingredientNameInput = inputs[inputs.length - 2]; // Second to last input is ingredient name
-			fireEvent.change(ingredientNameInput, {
+			// Get the autocomplete input
+			const combobox = await screen.findByTestId("ingredient-name-autocomplete");
+
+			fireEvent.change(combobox, {
 				target: { value: ingredientCheddarCheese.name },
 			});
 
 			// Get the quantity input and set its value
-			const quantityInput = screen.getAllByRole("spinbutton")[0];
+			const quantityInput = screen.getByLabelText(RECIPE_INGREDIENT_QUANTITY_LABEL);
 			fireEvent.change(quantityInput, { target: { value: "1" } });
 
 			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
@@ -176,67 +173,67 @@ describe("Recipes", () => {
 		});
 
 		it("creates a recipe, closes the form, and refreshes the list after a successful request", async () => {
-			const mockGetRecipesResponse: GetRecipesResponse = {
-				ok: true,
-				recipes: [
+			const existingRecipes: Recipe[] = [
+				{
+					...recipeCaek,
+				},
+			];
+			const createRecipePayload: CreateRecipePayload = {
+				name: "Pasta Aglio e Olio",
+				ingredients: [
 					{
-						...recipeCaek,
+						ingredientId: "",
+						name: recipeIngredientPasta.ingredient.name,
+						quantity: 999,
+						unit: "GRAM",
 					},
 				],
+				method: "Fry garlic in oil and toss with pasta",
+				prepTime: {
+					time: 5,
+					unit: "MINUTES",
+				},
+				cookTime: {
+					time: 15,
+					unit: "MINUTES",
+				},
+				shelfLife: {
+					time: 2,
+					unit: "DAYS",
+				},
+				numberOfPortions: 2,
 			};
 			const createdRecipe: Recipe = {
 				createdAt: "2026-05-22T20:21:46.197Z",
 				updatedAt: "2026-05-22T20:21:46.197Z",
 				userId: "4a888465-46e0-4feb-bc55-eaccb755a88d",
 				id: recipeIngredientPastaRecipeId,
-				name: "Pasta Aglio e Olio",
+				name: createRecipePayload.name,
 				ingredients: [
 					{
 						...recipeIngredientPasta,
 					},
 				],
-				method: "Fry garlic in oil and toss with pasta",
-				prepTime: 5,
-				prepTimeUnit: "MINUTES",
-				cookTime: 15,
-				cookTimeUnit: "MINUTES",
-				shelfLife: 2,
-				shelfLifeUnit: "DAYS",
-				portions: 2,
+				method: createRecipePayload.method,
+				prepTime: createRecipePayload.prepTime.time,
+				prepTimeUnit: createRecipePayload.prepTime.unit,
+				cookTime: createRecipePayload.cookTime.time,
+				cookTimeUnit: createRecipePayload.cookTime.unit,
+				shelfLife: createRecipePayload.shelfLife.time,
+				shelfLifeUnit: createRecipePayload.shelfLife.unit,
+				portions: createRecipePayload.numberOfPortions,
 			};
-			const fetchMock = vi
-				.fn()
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({ ...emptyRecipesResponse }),
-				})
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({ ok: true }),
-				})
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => mockGetRecipesResponse,
-				})
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
-						ok: true,
-						recipes: [{ ...createdRecipe }],
-					}),
-				});
-
-			vi.stubGlobal("fetch", fetchMock);
+			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce(existingRecipes);
+			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+			vi.mocked(recipesApi.createRecipe).mockResolvedValueOnce(createdRecipe);
 
 			renderRecipes();
 
 			const user = userEvent.setup();
 
 			await user.click(screen.getByRole("button", { name: /add recipe/i }));
-			await user.clear(screen.getByLabelText("Name"));
+			await user.clear(screen.getByLabelText("Name")); // TODO: swap out for constant
 			await user.type(screen.getByLabelText("Name"), createdRecipe.name);
-			await user.clear(screen.getByLabelText("Method"));
-			await user.type(screen.getByLabelText("Method"), createdRecipe.method);
 
 			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
 			await user.click(addIngredientBtn);
@@ -245,9 +242,28 @@ describe("Recipes", () => {
 			await user.clear(ingredientNameInput);
 			await user.type(ingredientNameInput, recipeIngredientPasta.ingredient.name);
 
-			const quantityInput = screen.getByLabelText(/quantity/i);
-			await user.clear(quantityInput);
-			await user.type(quantityInput, recipeIngredientPasta.quantity.toString());
+			const ingredientQuantityInput = screen.getByLabelText(/quantity/i);
+			await user.clear(ingredientQuantityInput);
+			await user.type(ingredientQuantityInput, recipeIngredientPasta.quantity.toString());
+
+			await user.clear(screen.getByLabelText("Method")); // TODO: swap out for constant
+			await user.type(screen.getByLabelText("Method"), createdRecipe.method);
+
+			const prepTimeValueInput = screen.getByLabelText(RECIPE_FORM_PREP_TIME_VALUE_LABEL);
+			await user.clear(prepTimeValueInput);
+			await user.type(prepTimeValueInput, createdRecipe.prepTime.toString());
+
+			const cookTimeValueInput = screen.getByLabelText(RECIPE_FORM_COOK_TIME_VALUE_LABEL);
+			await user.clear(cookTimeValueInput);
+			await user.type(cookTimeValueInput, createdRecipe.cookTime.toString());
+
+			const shelfLifeValueInput = screen.getByLabelText(RECIPE_FORM_SHELF_LIFE_VALUE_LABEL);
+			await user.clear(shelfLifeValueInput);
+			await user.type(shelfLifeValueInput, createdRecipe.shelfLife.toString());
+
+			const portionsValueInput = screen.getByLabelText(RECIPE_FORM_PORTIONS_LABEL);
+			await user.clear(portionsValueInput);
+			await user.type(portionsValueInput, createdRecipe.portions.toString());
 
 			await user.click(screen.getByRole("button", { name: /create/i }));
 
@@ -255,7 +271,7 @@ describe("Recipes", () => {
 			await waitFor(() => {
 				const errorMessages = screen.queryByText(/please add at least one ingredient/i);
 				if (errorMessages) {
-					console.log("Form validation failed - ingredient not added properly");
+					console.log("Form validation failed");
 				} else if (screen.queryByText("Pasta Aglio e Olio")) {
 					expect(screen.getByText("Pasta Aglio e Olio")).toBeInTheDocument();
 				} else {
@@ -264,36 +280,41 @@ describe("Recipes", () => {
 				}
 			});
 
-			expect(fetchMock).toHaveBeenCalledTimes(5);
+			console.log("createRecipe mock called with");
+			console.log(vi.mocked(recipesApi.createRecipe).mock.calls);
+
+			expect(vi.mocked(recipesApi.createRecipe)).toHaveBeenCalledOnce();
+			expect(vi.mocked(recipesApi.createRecipe).mock.calls[0][0]).toEqual(
+				createRecipePayload,
+			);
 		});
 
 		it("displays a validation error when name is missing", async () => {
-			vi.stubGlobal(
-				"fetch",
-				vi.fn().mockResolvedValue({
-					ok: true,
-					json: async () => ({ ...emptyRecipesResponse }),
-				}),
-			);
+			const existingRecipes: Recipe[] = [
+				{
+					...recipeCaek,
+				},
+			];
+			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce(existingRecipes);
+			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
 
 			renderRecipes();
 
-			fireEvent.click(screen.getByRole("button", { name: /add recipe/i }));
-			expect(
-				screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
-			).toBeInTheDocument();
+			const user = userEvent.setup();
 
-			// Leave name blank and add a valid ingredient and method
-			fireEvent.change(screen.getByLabelText("Method"), {
-				target: { value: "Do something" },
-			});
+			await user.click(screen.getByRole("button", { name: /add recipe/i }));
+			await user.clear(screen.getByLabelText("Name")); // TODO: swap out for constant
+
 			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
-			fireEvent.click(addIngredientBtn);
-			const inputs = screen.getAllByRole("textbox");
-			const ingredientNameInput = inputs[inputs.length - 2];
-			fireEvent.change(ingredientNameInput, { target: { value: "" } });
-			const quantityInput = screen.getAllByRole("spinbutton")[0];
-			fireEvent.change(quantityInput, { target: { value: "1" } });
+			await user.click(addIngredientBtn);
+
+			const ingredientNameInput = screen.getByTestId("ingredient-name-autocomplete");
+			await user.clear(ingredientNameInput);
+			await user.type(ingredientNameInput, recipeIngredientPasta.ingredient.name);
+
+			const ingredientQuantityInput = screen.getByLabelText(/quantity/i);
+			await user.clear(ingredientQuantityInput);
+			await user.type(ingredientQuantityInput, recipeIngredientPasta.quantity.toString());
 
 			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
 

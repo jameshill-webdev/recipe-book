@@ -1,5 +1,5 @@
 import { getRecipeById } from "@/lib/api/recipes";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { getErrorMessage } from "@/lib/utils";
 import { InlineError } from "@/components/ui/error/error";
@@ -28,10 +28,11 @@ export default function RecipeDetailsPage() {
 			return getRecipeById(id);
 		},
 	});
+	const queryClient = useQueryClient();
 
 	return (
 		<div data-testid="recipe-details-page">
-			<div className="my-8 w-full flex justify-center gap-2">
+			<div className="my-8 w-full flex justify-center gap-6">
 				<h1 className="my-0">{recipe?.name || ""}</h1>
 				<Button type="button" variant="outline" onClick={() => setIsEditing(!isEditing)}>
 					{isEditing ? <X /> : <Pencil />}
@@ -45,7 +46,16 @@ export default function RecipeDetailsPage() {
 			) : recipesError ? (
 				<InlineError alert>{getErrorMessage(recipesError)}</InlineError>
 			) : isEditing ? (
-				<EditRecipeDetails recipe={recipe} />
+				<EditRecipeDetails
+					recipe={recipe}
+					onSubmit={async () => {
+						await queryClient.invalidateQueries({
+							queryKey: ["recipeDetails", id],
+							exact: true,
+						});
+						setIsEditing(false);
+					}}
+				/>
 			) : (
 				<ViewRecipeDetails recipe={recipe} />
 			)}

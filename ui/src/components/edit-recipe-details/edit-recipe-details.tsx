@@ -21,9 +21,10 @@ import { RecipeForm } from "../recipe-form/recipe-form";
 
 interface EditRecipeDetailsProps {
 	recipe: Recipe;
+	onSubmit: () => void;
 }
 
-export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
+export default function EditRecipeDetails({ recipe, onSubmit }: EditRecipeDetailsProps) {
 	const queryClient = useQueryClient();
 
 	const {
@@ -144,7 +145,7 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 			};
 		});
 
-		updateRecipeMutation.mutate({
+		await updateRecipeMutation.mutateAsync({
 			id: recipe.id,
 			name: name.trim(),
 			ingredients: updatedIngredients,
@@ -156,38 +157,36 @@ export default function EditRecipeDetails({ recipe }: EditRecipeDetailsProps) {
 		});
 
 		setIngredients(updatedIngredients);
+		onSubmit();
 	}
 
 	return (
-		<>
-			<h1>Edit {recipe.name}</h1>
-			<RecipeForm
-				label={EDIT_RECIPE_FORM_LABEL}
-				isEdit={true}
-				submitHandler={onEditRecipe}
-				name={name}
-				setName={setName}
-				ingredientOptions={ingredientOptions}
-				isIngredientsPending={isIngredientsPending}
-				ingredientsError={ingredientsError}
-				ingredients={ingredients}
-				setIngredients={setIngredients}
-				method={method}
-				setMethod={setMethod}
-				prepTime={prepTime}
-				setPrepTime={setPrepTime}
-				cookTime={cookTime}
-				setCookTime={setCookTime}
-				shelfLife={shelfLife}
-				setShelfLife={setShelfLife}
-				numberOfPortions={numberOfPortions}
-				setNumberOfPortions={setNumberOfPortions}
-				mutation={{
-					isPending: updateRecipeMutation.isPending,
-				}}
-				formError={formError}
-				setFormError={setFormError}
-			/>
-		</>
+		<RecipeForm
+			label={EDIT_RECIPE_FORM_LABEL}
+			isEdit={true}
+			submitHandler={onEditRecipe}
+			name={name}
+			setName={setName}
+			ingredientOptions={ingredientOptions}
+			isIngredientsPending={isIngredientsPending}
+			ingredientsError={ingredientsError}
+			ingredients={ingredients}
+			setIngredients={setIngredients}
+			method={method}
+			setMethod={setMethod}
+			prepTime={prepTime}
+			setPrepTime={setPrepTime}
+			cookTime={cookTime}
+			setCookTime={setCookTime}
+			shelfLife={shelfLife}
+			setShelfLife={setShelfLife}
+			numberOfPortions={numberOfPortions}
+			setNumberOfPortions={setNumberOfPortions}
+			mutation={{
+				isPending: updateRecipeMutation.isPending,
+			}}
+			formError={formError}
+			setFormError={setFormError}
+		/>
 	);
 }

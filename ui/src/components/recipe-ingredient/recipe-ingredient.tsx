@@ -19,10 +19,13 @@ import {
 import { PURCHASE_UNITS } from "@recipe-book/shared/lib/units";
 import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 import {
+	RECIPE_INGREDIENT_DELETE_LABEL,
 	RECIPE_INGREDIENT_NAME_LABEL,
 	RECIPE_INGREDIENT_QUANTITY_LABEL,
 	RECIPE_INGREDIENT_UNIT_LABEL,
 } from "@/lib/content-strings";
+import { Button } from "../ui/button/button";
+import { X } from "lucide-react";
 
 interface RecipeFormIngredientProps {
 	ingredient: CreateRecipeIngredientPayload;
@@ -45,7 +48,7 @@ export function RecipeFormIngredient({
 		// TODO: add a remove button and functionality to remove an ingredient from the recipe
 		<FieldGroup
 			key={`${ingredient.ingredientId}-${index}`}
-			className="grid gap-2 grid-cols-[5fr_1fr_2fr]"
+			className="grid gap-2 grid-cols-[6fr_2fr_3fr_1fr]"
 		>
 			<Field>
 				<FieldLabel htmlFor={`ingredients[${index}][ingredientId]`} className="sr-only">
@@ -81,15 +84,13 @@ export function RecipeFormIngredient({
 				</FieldLabel>
 				<Input
 					id={`ingredients[${index}][quantity]`}
-					type="number"
+					type="text"
 					autoComplete="off"
-					inputMode="decimal"
-					min="0"
-					step="0.01"
+					inputMode="numeric"
 					value={ingredient.quantity}
 					onChange={(e) => {
 						const updatedIngredients = [...ingredients];
-						updatedIngredients[index].quantity = parseFloat(e.target.value);
+						updatedIngredients[index].quantity = parseFloat(e.target.value || "0");
 						setIngredients(updatedIngredients);
 						setFormError(null);
 					}}
@@ -121,6 +122,16 @@ export function RecipeFormIngredient({
 						))}
 					</SelectContent>
 				</Select>
+			</Field>
+			<Field>
+				<Button
+					type="button"
+					variant="outline"
+					onClick={() => console.log("delete recipe ingredient click")}
+				>
+					<X />
+					<span className="sr-only">{RECIPE_INGREDIENT_DELETE_LABEL}</span>
+				</Button>
 			</Field>
 		</FieldGroup>
 	);
