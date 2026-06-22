@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,7 +12,7 @@ import {
 	RECIPE_DETAILS_NOT_FOUND,
 	RECIPE_ITEM_EDIT_BUTTON_LABEL,
 } from "@/lib/content-strings";
-import userEvent from "@testing-library/user-event";
+import type { Recipe } from "@recipe-book/shared/types/recipe";
 
 vi.mock("react-router-dom", async () => {
 	const actual = await vi.importActual("react-router-dom");
@@ -20,6 +21,12 @@ vi.mock("react-router-dom", async () => {
 		useParams: () => ({ id: "123" }),
 	};
 });
+
+vi.mock("@/lib/api/recipes");
+
+function mockGetRecipeById(recipe: Recipe | undefined = recipeCaek) {
+	vi.mocked(recipesApi.getRecipeById).mockResolvedValueOnce(recipe);
+}
 
 function renderRecipeDetails() {
 	const queryClient = new QueryClient({
@@ -40,15 +47,12 @@ function renderRecipeDetails() {
 
 describe("Recipe Details Page", () => {
 	beforeEach(() => {
-		vi.restoreAllMocks();
+		vi.resetAllMocks();
 	});
 
 	describe("static UI", () => {
-		beforeEach(() => {
-			vi.spyOn(recipesApi, "getRecipeById").mockResolvedValue(recipeCaek);
-		});
-
 		it("renders a level 1 heading with the correct text content (recipe name)", async () => {
+			mockGetRecipeById();
 			renderRecipeDetails();
 
 			const heading = await screen.findByRole("heading", {
@@ -60,6 +64,7 @@ describe("Recipe Details Page", () => {
 		});
 
 		it("renders an edit button next to the level 1 heading", async () => {
+			mockGetRecipeById();
 			renderRecipeDetails();
 
 			const button = await screen.findByRole("button", {
@@ -70,6 +75,7 @@ describe("Recipe Details Page", () => {
 		});
 
 		it("renders a loading spinner when the recipe data is loading (getRecipe pending)", async () => {
+			mockGetRecipeById();
 			renderRecipeDetails();
 
 			const spinner = screen.getByLabelText(LOADING_SPINNER_ARIA_LABEL);
@@ -78,7 +84,7 @@ describe("Recipe Details Page", () => {
 		});
 
 		it("renders the expected message if no recipe data was returned", async () => {
-			vi.spyOn(recipesApi, "getRecipeById").mockResolvedValueOnce(undefined);
+			vi.mocked(recipesApi.getRecipeById).mockRejectedValueOnce(undefined);
 			renderRecipeDetails();
 
 			await waitFor(() => {
@@ -89,6 +95,7 @@ describe("Recipe Details Page", () => {
 		});
 
 		it("renders a ViewRecipeDetails component when the recipe data has loaded and the component is not in edit mode", async () => {
+			mockGetRecipeById();
 			renderRecipeDetails();
 
 			await waitFor(async () => {
@@ -99,6 +106,7 @@ describe("Recipe Details Page", () => {
 		});
 
 		it("renders an EditRecipeDetails component when the recipe data has loaded and the component is in edit mode", async () => {
+			mockGetRecipeById();
 			renderRecipeDetails();
 
 			const user = userEvent.setup();
