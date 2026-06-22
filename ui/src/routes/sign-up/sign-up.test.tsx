@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 import SignUp from "@/routes/sign-up";
+import * as auth from "@/lib/auth";
 import {
 	DISPLAY_NAME_TOO_LONG,
 	DISPLAY_NAME_TOO_SHORT,
@@ -27,19 +28,19 @@ import {
 	MINIMUM_PASSWORD_LENGTH,
 } from "@recipe-book/shared/lib/constants";
 
-const { mockSignUpFunction, mockSendVerificationEmailFunction } = vi.hoisted(() => ({
-	mockSignUpFunction: vi.fn(),
-	mockSendVerificationEmailFunction: vi.fn(),
-}));
-
 vi.mock("@/lib/auth", () => ({
 	authClient: {
 		signUp: {
-			email: mockSignUpFunction,
+			email: vi.fn(),
 		},
-		sendVerificationEmail: mockSendVerificationEmailFunction,
+		sendVerificationEmail: vi.fn(),
 	},
 }));
+
+beforeEach(() => {
+	vi.mocked(auth.authClient.signUp.email).mockReset();
+	vi.mocked(auth.authClient.sendVerificationEmail).mockReset();
+});
 
 describe("SignUp", () => {
 	const TEST_DATA = {
@@ -141,7 +142,9 @@ describe("SignUp", () => {
 		});
 
 		it("shows a network error message when sign-up request fails to reach server", async () => {
-			mockSignUpFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+			vi.mocked(auth.authClient.signUp.email).mockRejectedValueOnce(
+				new TypeError("Failed to fetch"),
+			);
 
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
 				target: { value: TEST_DATA.valid.email },
@@ -155,14 +158,14 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(await screen.findByText(NETWORK_ERROR)).toBeInTheDocument();
-			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.sendVerificationEmail)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when email is missing", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(EMAIL_REQUIRED)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when password is missing", () => {
@@ -172,7 +175,7 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_REQUIRED)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when display name is missing", () => {
@@ -185,7 +188,7 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(DISPLAY_NAME_REQUIRED)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when email is invalid", () => {
@@ -195,8 +198,8 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(INVALID_EMAIL)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
-			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.sendVerificationEmail)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when password is too short", () => {
@@ -206,8 +209,8 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_TOO_SHORT)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
-			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.sendVerificationEmail)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when password is too long", () => {
@@ -217,8 +220,8 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_TOO_LONG)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
-			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.sendVerificationEmail)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when display name is too short", () => {
@@ -228,8 +231,8 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(DISPLAY_NAME_TOO_SHORT)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
-			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.sendVerificationEmail)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when display name is too long", () => {
@@ -239,15 +242,15 @@ describe("SignUp", () => {
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
 			expect(screen.getByText(DISPLAY_NAME_TOO_LONG)).toBeInTheDocument();
-			expect(mockSignUpFunction).not.toHaveBeenCalled();
-			expect(mockSendVerificationEmailFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signUp.email)).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.sendVerificationEmail)).not.toHaveBeenCalled();
 		});
 	});
 
 	describe("success path", () => {
 		it("calls signUp.email and sendVerificationEmail with correct arguments when form is submitted with valid data", async () => {
-			mockSignUpFunction.mockResolvedValueOnce({ error: null });
-			mockSendVerificationEmailFunction.mockResolvedValueOnce({ error: null });
+			vi.mocked(auth.authClient.signUp.email).mockResolvedValueOnce({ error: null });
+			vi.mocked(auth.authClient.sendVerificationEmail).mockResolvedValueOnce({ error: null });
 
 			render(
 				<MemoryRouter>
@@ -266,14 +269,14 @@ describe("SignUp", () => {
 			});
 			fireEvent.submit(screen.getByRole("button", { name: SIGNUP_BUTTON_TEXT }));
 
-			expect(mockSignUpFunction).toHaveBeenCalledWith({
+			expect(vi.mocked(auth.authClient.signUp.email)).toHaveBeenCalledWith({
 				email: TEST_DATA.valid.email,
 				password: TEST_DATA.valid.password,
 				name: TEST_DATA.valid.displayName,
 				callbackURL: `${window.location.origin}/verify-email`,
 			});
 			await waitFor(() => {
-				expect(mockSendVerificationEmailFunction).toHaveBeenCalledWith({
+				expect(vi.mocked(auth.authClient.sendVerificationEmail)).toHaveBeenCalledWith({
 					email: TEST_DATA.valid.email,
 					callbackURL: `${window.location.origin}/login?verified=1`,
 				});
