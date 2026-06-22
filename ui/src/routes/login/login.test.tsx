@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import Login from "@/routes/login";
+import * as auth from "@/lib/auth";
 import {
 	EMAIL_REQUIRED,
 	EMAIL_VERIFIED_SUCCESS,
@@ -30,24 +31,20 @@ import {
 	MAXIMUM_PASSWORD_LENGTH,
 } from "@recipe-book/shared/lib/constants";
 
-const { mockLoginFunction, mockUseSession } = vi.hoisted(() => ({
-	mockLoginFunction: vi.fn(),
-	mockUseSession: vi.fn(),
-}));
-
 vi.mock("@/lib/auth", () => ({
 	authClient: {
-		useSession: mockUseSession,
+		useSession: vi.fn(),
 		signIn: {
-			email: mockLoginFunction,
+			email: vi.fn(),
 		},
 	},
 }));
 
 beforeEach(() => {
-	mockLoginFunction.mockReset();
-	mockUseSession.mockReset();
-	mockUseSession.mockReturnValue({ data: null, isPending: false });
+	vi.mocked(auth.authClient.signIn.email).mockReset();
+	vi.mocked(auth.authClient.useSession).mockReset();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	vi.mocked(auth.authClient.useSession).mockReturnValue({ data: null, isPending: false } as any);
 });
 
 describe("Login", () => {
@@ -121,10 +118,11 @@ describe("Login", () => {
 
 	describe("conditional content", () => {
 		it("renders a spinner when auth session is pending", () => {
-			mockUseSession.mockReturnValueOnce({
+			vi.mocked(auth.authClient.useSession).mockReturnValueOnce({
 				data: null,
 				isPending: true,
-			});
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			} as any);
 
 			render(
 				<MemoryRouter initialEntries={["/login"]}>
@@ -210,10 +208,11 @@ describe("Login", () => {
 
 	describe("redirect behaviour", () => {
 		it("redirects to home when user is already logged in", async () => {
-			mockUseSession.mockReturnValueOnce({
+			vi.mocked(auth.authClient.useSession).mockReturnValueOnce({
 				data: { session: { id: "session_123" } },
 				isPending: false,
-			});
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			} as any);
 
 			render(
 				<MemoryRouter initialEntries={["/login"]}>
@@ -230,12 +229,10 @@ describe("Login", () => {
 		});
 
 		it("navigates to the home page after successful login", async () => {
-			mockLoginFunction.mockImplementationOnce(
-				async (
-					_credentials: { email: string; password: string },
-					options: { onSuccess?: () => void },
-				) => {
-					options.onSuccess?.();
+			vi.mocked(auth.authClient.signIn.email).mockImplementationOnce(
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				async (_credentials: any, _options: any) => {
+					_options.onSuccess?.();
 				},
 			);
 
@@ -289,7 +286,9 @@ describe("Login", () => {
 		});
 
 		it("shows a network error message when login request fails to reach server", async () => {
-			mockLoginFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+			vi.mocked(auth.authClient.signIn.email).mockRejectedValueOnce(
+				new TypeError("Failed to fetch"),
+			);
 
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
 				target: { value: TEST_DATA.valid.email },
@@ -306,7 +305,7 @@ describe("Login", () => {
 			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
 
 			expect(screen.getByText(EMAIL_REQUIRED)).toBeInTheDocument();
-			expect(mockLoginFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signIn.email)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when password is missing", () => {
@@ -316,7 +315,7 @@ describe("Login", () => {
 			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_REQUIRED)).toBeInTheDocument();
-			expect(mockLoginFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signIn.email)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when email is invalid", () => {
@@ -326,7 +325,7 @@ describe("Login", () => {
 			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
 
 			expect(screen.getByText(INVALID_EMAIL)).toBeInTheDocument();
-			expect(mockLoginFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signIn.email)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when password is too short", () => {
@@ -336,7 +335,7 @@ describe("Login", () => {
 			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_TOO_SHORT)).toBeInTheDocument();
-			expect(mockLoginFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signIn.email)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when password is too long", () => {
@@ -346,7 +345,7 @@ describe("Login", () => {
 			fireEvent.submit(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORD_TOO_LONG)).toBeInTheDocument();
-			expect(mockLoginFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.signIn.email)).not.toHaveBeenCalled();
 		});
 
 		it("clears email validation error when user corrects email input", () => {

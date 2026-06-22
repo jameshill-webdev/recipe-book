@@ -13,19 +13,16 @@ import {
 	INVALID_EMAIL,
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
-
-const { mockRequestPasswordResetFunction } = vi.hoisted(() => ({
-	mockRequestPasswordResetFunction: vi.fn(),
-}));
+import * as auth from "@/lib/auth";
 
 vi.mock("@/lib/auth", () => ({
 	authClient: {
-		requestPasswordReset: mockRequestPasswordResetFunction,
+		requestPasswordReset: vi.fn(),
 	},
 }));
 
 beforeEach(() => {
-	mockRequestPasswordResetFunction.mockReset();
+	vi.mocked(auth.authClient.requestPasswordReset).mockReset();
 });
 
 describe("Forgot Password", () => {
@@ -109,7 +106,7 @@ describe("Forgot Password", () => {
 		});
 
 		it("shows a network error message when forgot password request fails to reach server", async () => {
-			mockRequestPasswordResetFunction.mockRejectedValueOnce(
+			vi.mocked(auth.authClient.requestPasswordReset).mockRejectedValueOnce(
 				new TypeError("Failed to fetch"),
 			);
 
@@ -125,7 +122,7 @@ describe("Forgot Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(EMAIL_REQUIRED)).toBeInTheDocument();
-			expect(mockRequestPasswordResetFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.requestPasswordReset)).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when email is invalid", () => {
@@ -135,7 +132,7 @@ describe("Forgot Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(INVALID_EMAIL)).toBeInTheDocument();
-			expect(mockRequestPasswordResetFunction).not.toHaveBeenCalled();
+			expect(vi.mocked(auth.authClient.requestPasswordReset)).not.toHaveBeenCalled();
 		});
 
 		it("clears email validation error when user corrects email input", () => {
@@ -152,7 +149,7 @@ describe("Forgot Password", () => {
 
 	describe("success path", () => {
 		it("calls requestPasswordReset with expected parameters on successful submit", async () => {
-			mockRequestPasswordResetFunction.mockResolvedValueOnce({ error: null });
+			vi.mocked(auth.authClient.requestPasswordReset).mockResolvedValueOnce({ error: null });
 
 			render(
 				<MemoryRouter>
@@ -165,9 +162,11 @@ describe("Forgot Password", () => {
 			});
 			fireEvent.submit(screen.getByRole("button", { name: FORGOT_PASSWORD_BUTTON_TEXT }));
 
-			await waitFor(() => expect(mockRequestPasswordResetFunction).toHaveBeenCalledTimes(1));
+			await waitFor(() =>
+				expect(vi.mocked(auth.authClient.requestPasswordReset)).toHaveBeenCalledTimes(1),
+			);
 
-			expect(mockRequestPasswordResetFunction).toHaveBeenCalledWith({
+			expect(vi.mocked(auth.authClient.requestPasswordReset)).toHaveBeenCalledWith({
 				email: TEST_DATA.valid.email,
 				redirectTo: new URL("/reset-password", window.location.origin).toString(),
 			});
@@ -176,7 +175,7 @@ describe("Forgot Password", () => {
 
 	describe("render after form submission", () => {
 		it("renders an introductory paragraph with the correct text content, and does not render the form", async () => {
-			mockRequestPasswordResetFunction.mockResolvedValueOnce({ error: null });
+			vi.mocked(auth.authClient.requestPasswordReset).mockResolvedValueOnce({ error: null });
 
 			render(
 				<MemoryRouter>
