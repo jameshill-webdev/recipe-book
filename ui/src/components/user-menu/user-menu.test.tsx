@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserMenu } from "@/components/user-menu/user-menu";
 import { useGlobalErrorStore } from "@/hooks/use-global-error-store";
 import { GlobalErrorProvider } from "@/providers/global-error-provider";
+import * as auth from "@/lib/auth";
 import {
 	LOGIN_BUTTON_TEXT,
 	LOGOUT_BUTTON_TEXT,
@@ -11,8 +12,6 @@ import {
 	NETWORK_ERROR,
 } from "@/lib/content-strings";
 
-const signOutMock = vi.fn();
-const useSessionMock = vi.fn();
 const navigateMock = vi.fn();
 
 function GlobalErrorStoreProbe() {
@@ -32,10 +31,23 @@ vi.mock("react-router-dom", async () => {
 
 vi.mock("@/lib/auth", () => ({
 	authClient: {
-		useSession: (...args: unknown[]) => useSessionMock(...args),
-		signOut: (...args: unknown[]) => signOutMock(...args),
+		useSession: vi.fn(),
+		signOut: vi.fn(),
 	},
 }));
+
+const mockUseSession = vi.mocked(auth.authClient.useSession);
+const mockSignOut = vi.mocked(auth.authClient.signOut);
+
+type UseSessionResult = ReturnType<typeof auth.authClient.useSession>;
+
+function createUseSessionResult(overrides: Partial<UseSessionResult> = {}): UseSessionResult {
+	return {
+		data: null,
+		isPending: false,
+		...overrides,
+	} as UseSessionResult;
+}
 
 function renderUserMenu() {
 	return render(
@@ -49,19 +61,33 @@ function renderUserMenu() {
 }
 
 describe("UserMenu", () => {
-	const TEST_DATA = { user: { name: "TheUser" } };
+	const TEST_DATA = {
+		user: {
+			id: "user-123",
+			name: "TheUser",
+			email: "user@example.com",
+			emailVerified: true,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		},
+		session: {
+			id: "session-123",
+			userId: "user-123",
+			token: "token-123",
+			expiresAt: new Date(),
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		},
+	};
 
 	beforeEach(() => {
-		signOutMock.mockReset();
-		useSessionMock.mockReset();
+		mockUseSession.mockReset();
+		mockSignOut.mockReset();
 		navigateMock.mockReset();
 	});
 
 	it("renders loading state and no user name or button when isPending is true", () => {
-		useSessionMock.mockReturnValue({
-			data: null,
-			isPending: true,
-		});
+		mockUseSession.mockReturnValue(createUseSessionResult({ isPending: true }));
 
 		renderUserMenu();
 
@@ -72,10 +98,7 @@ describe("UserMenu", () => {
 	});
 
 	it("renders login button and no user name when no session exists", () => {
-		useSessionMock.mockReturnValue({
-			data: null,
-			isPending: false,
-		});
+		mockUseSession.mockReturnValue(createUseSessionResult());
 
 		renderUserMenu();
 
@@ -85,10 +108,9 @@ describe("UserMenu", () => {
 	});
 
 	it("renders user name and logout button when a session exists", () => {
-		useSessionMock.mockReturnValue({
-			data: { user: TEST_DATA.user },
-			isPending: false,
-		});
+		mockUseSession.mockReturnValue(
+			createUseSessionResult({ data: { user: TEST_DATA.user, session: TEST_DATA.session } }),
+		);
 
 		renderUserMenu();
 
@@ -98,17 +120,16 @@ describe("UserMenu", () => {
 	});
 
 	it("calls signOut and navigates to the login page when logout button is clicked", async () => {
-		useSessionMock.mockReturnValue({
-			data: { user: TEST_DATA.user },
-			isPending: false,
-		});
-		signOutMock.mockResolvedValue({ error: null });
+		mockUseSession.mockReturnValue(
+			createUseSessionResult({ data: { user: TEST_DATA.user, session: TEST_DATA.session } }),
+		);
+		mockSignOut.mockResolvedValue({ error: null });
 
 		renderUserMenu();
 
 		fireEvent.click(screen.getByRole("button", { name: LOGOUT_BUTTON_TEXT }));
 
-		expect(signOutMock).toHaveBeenCalledTimes(1);
+		expect(mockSignOut).toHaveBeenCalledTimes(1);
 
 		await waitFor(() => {
 			expect(navigateMock).toHaveBeenCalledWith("/login", {
@@ -122,11 +143,12 @@ describe("UserMenu", () => {
 	it("sets API error message in global error store when sign out fails", async () => {
 		const signoutFailedMessage = "Sign out failed";
 
-		useSessionMock.mockReturnValue({
-			data: { user: TEST_DATA.user },
-			isPending: false,
+		mockUseSession.mockReturnValue(
+			createUseSessionResult({ data: { user: TEST_DATA.user, session: TEST_DATA.session } }),
+		);
+		mockSignOut.mockResolvedValue({
+			error: { message: signoutFailedMessage },
 		});
-		signOutMock.mockResolvedValue({ error: { message: signoutFailedMessage } });
 
 		renderUserMenu();
 
@@ -140,11 +162,10 @@ describe("UserMenu", () => {
 	});
 
 	it("sets default logout error in global error store when API error has no message", async () => {
-		useSessionMock.mockReturnValue({
-			data: { user: TEST_DATA.user },
-			isPending: false,
-		});
-		signOutMock.mockResolvedValue({ error: {} });
+		mockUseSession.mockReturnValue(
+			createUseSessionResult({ data: { user: TEST_DATA.user, session: TEST_DATA.session } }),
+		);
+		mockSignOut.mockResolvedValue({ error: {} });
 
 		renderUserMenu();
 
@@ -156,11 +177,10 @@ describe("UserMenu", () => {
 	});
 
 	it("sets network error in global error store when sign out throws", async () => {
-		useSessionMock.mockReturnValue({
-			data: { user: TEST_DATA.user },
-			isPending: false,
-		});
-		signOutMock.mockRejectedValue(new Error("network"));
+		mockUseSession.mockReturnValue(
+			createUseSessionResult({ data: { user: TEST_DATA.user, session: TEST_DATA.session } }),
+		);
+		mockSignOut.mockRejectedValue(new Error("network"));
 
 		renderUserMenu();
 
