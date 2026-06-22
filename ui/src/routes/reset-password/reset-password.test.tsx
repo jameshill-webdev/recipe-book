@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import ResetPassword from "@/routes/reset-password";
+import * as auth from "@/lib/auth";
 import {
 	CONFIRM_PASSWORD_REQUIRED,
 	CONFIRM_PASSWORD_TOO_LONG,
@@ -23,18 +24,16 @@ import {
 	MINIMUM_PASSWORD_LENGTH,
 } from "@recipe-book/shared/lib/constants";
 
-const { mockResetPasswordFunction } = vi.hoisted(() => ({
-	mockResetPasswordFunction: vi.fn(),
-}));
-
 vi.mock("@/lib/auth", () => ({
 	authClient: {
-		resetPassword: mockResetPasswordFunction,
+		resetPassword: vi.fn(),
 	},
 }));
 
+const resetPasswordMock = () => vi.mocked(auth.authClient.resetPassword);
+
 beforeEach(() => {
-	mockResetPasswordFunction.mockReset();
+	resetPasswordMock().mockReset();
 });
 
 describe("Reset Password", () => {
@@ -138,11 +137,11 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(TOKEN_ERROR)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("shows a network error message when reset password request fails to reach server", async () => {
-			mockResetPasswordFunction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+			resetPasswordMock().mockRejectedValueOnce(new TypeError("Failed to fetch"));
 			renderWithToken();
 
 			fireEvent.change(screen.getByLabelText(FIELD_LABEL_NEW_PASSWORD), {
@@ -162,7 +161,7 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(NEW_PASSWORD_REQUIRED)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when new password is too short", () => {
@@ -174,7 +173,7 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(NEW_PASSWORD_TOO_SHORT)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when new password is too long", () => {
@@ -186,7 +185,7 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(NEW_PASSWORD_TOO_LONG)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when confirm password is missing", () => {
@@ -195,7 +194,7 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(CONFIRM_PASSWORD_REQUIRED)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when confirm password is too short", () => {
@@ -207,7 +206,7 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(CONFIRM_PASSWORD_TOO_SHORT)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when confirm password is too long", () => {
@@ -219,7 +218,7 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(CONFIRM_PASSWORD_TOO_LONG)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("shows the correct validation error and skips API calls when passwords do not match", () => {
@@ -234,7 +233,7 @@ describe("Reset Password", () => {
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
 			expect(screen.getByText(PASSWORDS_DO_NOT_MATCH)).toBeInTheDocument();
-			expect(mockResetPasswordFunction).not.toHaveBeenCalled();
+			expect(resetPasswordMock()).not.toHaveBeenCalled();
 		});
 
 		it("clears new password validation error when user corrects password input", () => {
@@ -270,7 +269,7 @@ describe("Reset Password", () => {
 
 	describe("success path", () => {
 		it("calls resetPassword with expected parameters on successful submit", async () => {
-			mockResetPasswordFunction.mockResolvedValueOnce({ error: null });
+			resetPasswordMock().mockResolvedValueOnce({ error: null });
 
 			window.history.pushState({}, "", "/reset-password?token=" + TEST_DATA.valid.token);
 
@@ -288,9 +287,9 @@ describe("Reset Password", () => {
 			});
 			fireEvent.submit(screen.getByRole("button", { name: RESET_PASSWORD_BUTTON_TEXT }));
 
-			await waitFor(() => expect(mockResetPasswordFunction).toHaveBeenCalledTimes(1));
+			await waitFor(() => expect(resetPasswordMock()).toHaveBeenCalledTimes(1));
 
-			expect(mockResetPasswordFunction).toHaveBeenCalledWith({
+			expect(resetPasswordMock()).toHaveBeenCalledWith({
 				newPassword: TEST_DATA.valid.password,
 				token: TEST_DATA.valid.token,
 			});
