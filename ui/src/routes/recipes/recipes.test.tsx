@@ -83,7 +83,9 @@ describe("Recipes", () => {
 
 			expect(screen.getByRole("button", { name: /add recipe/i })).toBeInTheDocument();
 		});
+	});
 
+	describe("conditional UI", () => {
 		it("loads and renders recipes returned by the API as RecipeItems", async () => {
 			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([
 				{ ...recipeCaek },
@@ -99,73 +101,12 @@ describe("Recipes", () => {
 			const recipeListItems = screen.getAllByTestId("recipe-list-item");
 			expect(recipeListItems.length).toBe(2);
 		});
+
+		// TODO: add test for "does not render the create recipe form by default"
+		// TODO: add test for "renders the create recipe form when the add recipe button is clicked"
 	});
 
 	describe("create recipe", () => {
-		it("displays a form error when no ingredients are provided", async () => {
-			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
-			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
-
-			renderRecipes();
-
-			fireEvent.click(screen.getByRole("button", { name: /add recipe/i }));
-			expect(
-				screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
-			).toBeInTheDocument();
-
-			fireEvent.change(screen.getByLabelText("Name"), {
-				target: { value: "Empty Recipe" },
-			});
-			fireEvent.change(screen.getByLabelText("Method"), {
-				target: { value: "Do something" },
-			});
-
-			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
-
-			await waitFor(() => {
-				expect(screen.getByText(/please add at least one ingredient/i)).toBeInTheDocument();
-			});
-		});
-
-		it("displays a form error when the API returns an error response", async () => {
-			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
-			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
-			vi.mocked(recipesApi.createRecipe).mockRejectedValueOnce(
-				new Error("Method is required"),
-			);
-
-			renderRecipes();
-
-			fireEvent.click(screen.getByRole("button", { name: /add recipe/i }));
-			fireEvent.change(screen.getByLabelText("Name"), {
-				target: { value: "Test Recipe" },
-			});
-			fireEvent.change(screen.getByLabelText("Method"), {
-				target: { value: "Do something" },
-			});
-
-			// Add an ingredient using the add button
-			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
-			fireEvent.click(addIngredientBtn);
-
-			// Get the autocomplete input
-			const combobox = await screen.findByTestId("ingredient-name-autocomplete");
-
-			fireEvent.change(combobox, {
-				target: { value: ingredientCheddarCheese.name },
-			});
-
-			// Get the quantity input and set its value
-			const quantityInput = screen.getByLabelText(RECIPE_INGREDIENT_QUANTITY_LABEL);
-			fireEvent.change(quantityInput, { target: { value: "1" } });
-
-			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
-
-			await waitFor(() => {
-				expect(screen.getByText(/method is required/i)).toBeInTheDocument();
-			});
-		});
-
 		it("creates a recipe, closes the form, and refreshes the list after a successful request", async () => {
 			mockGetRecipes();
 			mockGetIngredients();
@@ -302,6 +243,76 @@ describe("Recipes", () => {
 
 			await waitFor(() => {
 				expect(screen.getByText(RECIPE_NAME_REQUIRED)).toBeInTheDocument();
+			});
+		});
+
+		it("displays a form error when no ingredients are provided", async () => {
+			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
+			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+
+			renderRecipes();
+
+			fireEvent.click(screen.getByRole("button", { name: /add recipe/i }));
+			expect(
+				screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+			).toBeInTheDocument();
+
+			fireEvent.change(screen.getByLabelText("Name"), {
+				target: { value: "Empty Recipe" },
+			});
+			fireEvent.change(screen.getByLabelText("Method"), {
+				target: { value: "Do something" },
+			});
+
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText(/please add at least one ingredient/i)).toBeInTheDocument();
+			});
+		});
+
+		// TODO: add test for "displays a form error when no method is provided"
+		// TODO: add test for "displays a form error when prep time value is negative"
+		// TODO: add test for "displays a form error when cook time value is negative"
+		// TODO: add test for "displays a form error when shelf life value is negative"
+		// TODO: add test for "displays a form error when portions value is negative"
+
+		it("displays a form error when the API returns an error response", async () => {
+			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
+			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+			vi.mocked(recipesApi.createRecipe).mockRejectedValueOnce(
+				new Error("Method is required"),
+			);
+
+			renderRecipes();
+
+			fireEvent.click(screen.getByRole("button", { name: /add recipe/i }));
+			fireEvent.change(screen.getByLabelText("Name"), {
+				target: { value: "Test Recipe" },
+			});
+			fireEvent.change(screen.getByLabelText("Method"), {
+				target: { value: "Do something" },
+			});
+
+			// Add an ingredient using the add button
+			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
+			fireEvent.click(addIngredientBtn);
+
+			// Get the autocomplete input
+			const combobox = await screen.findByTestId("ingredient-name-autocomplete");
+
+			fireEvent.change(combobox, {
+				target: { value: ingredientCheddarCheese.name },
+			});
+
+			// Get the quantity input and set its value
+			const quantityInput = screen.getByLabelText(RECIPE_INGREDIENT_QUANTITY_LABEL);
+			fireEvent.change(quantityInput, { target: { value: "1" } });
+
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText(/method is required/i)).toBeInTheDocument();
 			});
 		});
 	});

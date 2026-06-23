@@ -9,6 +9,7 @@ import {
 	NETWORK_ERROR,
 	INGREDIENT_COST_PER_UNIT_POSITIVE,
 	INGREDIENT_COST_PER_UNIT_REQUIRED,
+	INGREDIENT_NAME_REQUIRED,
 } from "@/lib/content-strings";
 import {
 	ingredientBread,
@@ -84,6 +85,11 @@ describe("Ingredients", () => {
 		});
 	});
 
+	// describe("conditional UI", () => {
+	// 	// TODO: add test for "does not render the create ingredient form by default"
+	// 	// TODO: add test for "renders the create ingredient form when the add ingredient button is clicked"
+	// });
+
 	describe("ingredients list", () => {
 		it("loads and renders ingredient names returned by the API", async () => {
 			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce([
@@ -153,6 +159,29 @@ describe("Ingredients", () => {
 			});
 
 			expect(await screen.findByText(ingredientCheddarCheese.name)).toBeInTheDocument();
+		});
+
+		it("displays a form error when name is empty", async () => {
+			mockCreateIngredients();
+
+			renderIngredients();
+
+			fireEvent.click(screen.getByRole("button", { name: /add ingredient/i }));
+			fireEvent.change(screen.getByLabelText(/name/i), {
+				target: { value: "" },
+			});
+
+			fireEvent.change(screen.getByLabelText(/cost per unit/i), {
+				target: { value: 1 },
+			});
+
+			mockCreateIngredientsResponse();
+
+			fireEvent.submit(screen.getByRole("form", { name: CREATE_INGREDIENT_FORM_LABEL }));
+
+			await waitFor(() => {
+				expect(screen.getByText(INGREDIENT_NAME_REQUIRED)).toBeInTheDocument();
+			});
 		});
 
 		it("displays a form error when cost per unit is negative", async () => {
@@ -288,7 +317,7 @@ describe("Ingredients", () => {
 			});
 		});
 
-		it("displays no ingredients message when the API returns an empty list", async () => {
+		it("displays the expected message when the API returns an empty list", async () => {
 			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce([]);
 
 			renderIngredients();

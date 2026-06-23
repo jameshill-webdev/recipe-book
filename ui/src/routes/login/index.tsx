@@ -45,7 +45,7 @@ export default function Login() {
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
 	const { data: session, isPending } = authClient.useSession();
-	const from = location.state?.from ?? "/";
+	const from = location.state?.from ?? "/recipes";
 	const loggedOut = Boolean(location.state?.loggedOut);
 	const passwordChanged = Boolean(location.state?.passwordChanged);
 	const emailVerified = searchParams.get("verified");

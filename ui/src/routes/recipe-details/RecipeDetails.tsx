@@ -41,10 +41,10 @@ export default function RecipeDetailsPage() {
 			</div>
 			{isRecipePending ? (
 				<LoadingSpinner />
-			) : !recipe ? (
-				<p>{RECIPE_DETAILS_NOT_FOUND}</p>
 			) : recipesError ? (
 				<InlineError alert>{getErrorMessage(recipesError)}</InlineError>
+			) : !recipe ? (
+				<p>{RECIPE_DETAILS_NOT_FOUND}</p>
 			) : isEditing ? (
 				<EditRecipeDetails
 					recipe={recipe}

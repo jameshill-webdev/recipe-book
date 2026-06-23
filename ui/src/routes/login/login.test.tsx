@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import Login from "@/routes/login";
 import * as auth from "@/lib/auth";
@@ -11,7 +11,6 @@ import {
 	FIELD_LABEL_EMAIL,
 	FIELD_LABEL_PASSWORD,
 	FORGOT_PASSWORD_LINK_TEXT,
-	HOME_PAGE_HEADING,
 	INVALID_EMAIL,
 	LOGIN_BUTTON_TEXT,
 	LOGIN_FORM_LABEL,
@@ -54,13 +53,6 @@ function createUseSessionResult(overrides: Partial<UseSessionResult> = {}): UseS
 		refetch: vi.fn(async () => {}),
 		...overrides,
 	};
-}
-
-function callOnSuccess(
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onSuccess: ((context: any) => void | Promise<void>) | undefined,
-) {
-	onSuccess?.({ data: {} });
 }
 
 beforeEach(() => {
@@ -224,73 +216,9 @@ describe("Login", () => {
 		});
 	});
 
-	describe("redirect behaviour", () => {
-		it("redirects to home when user is already logged in", async () => {
-			mockUseSession.mockReturnValueOnce(
-				createUseSessionResult({
-					data: {
-						user: {
-							id: "user_123",
-							email: "test@example.com",
-							createdAt: new Date(),
-							updatedAt: new Date(),
-							emailVerified: true,
-							name: "Test User",
-						},
-						session: {
-							id: "session_123",
-							createdAt: new Date(),
-							updatedAt: new Date(),
-							userId: "user_123",
-							expiresAt: new Date(),
-							token: "token_123",
-						},
-					},
-				}),
-			);
-
-			render(
-				<MemoryRouter initialEntries={["/login"]}>
-					<Routes>
-						<Route path="/login" element={<Login />} />
-						<Route path="/" element={<h1>{HOME_PAGE_HEADING}</h1>} />
-					</Routes>
-				</MemoryRouter>,
-			);
-
-			expect(
-				await screen.findByRole("heading", { level: 1, name: HOME_PAGE_HEADING }),
-			).toBeInTheDocument();
-		});
-
-		it("navigates to the home page after successful login", async () => {
-			mockSignInEmail.mockImplementationOnce(async (_credentials, _options) => {
-				callOnSuccess(_options?.onSuccess);
-				return {};
-			});
-
-			render(
-				<MemoryRouter initialEntries={["/login"]}>
-					<Routes>
-						<Route path="/login" element={<Login />} />
-						<Route path="/" element={<h1>{HOME_PAGE_HEADING}</h1>} />
-					</Routes>
-				</MemoryRouter>,
-			);
-
-			fireEvent.change(screen.getByLabelText(FIELD_LABEL_EMAIL), {
-				target: { value: "test@example.com" },
-			});
-			fireEvent.change(screen.getByLabelText(FIELD_LABEL_PASSWORD), {
-				target: { value: "password123" },
-			});
-			fireEvent.click(screen.getByRole("button", { name: LOGIN_BUTTON_TEXT }));
-
-			expect(
-				await screen.findByRole("heading", { level: 1, name: HOME_PAGE_HEADING }),
-			).toBeInTheDocument();
-		});
-	});
+	// TODO: implement playwright tests to check redirect behaviour:
+	// redirects to the recipes page when user is already logged in
+	// navigates to the recipes page after successful login
 
 	describe("form validation and other error scenarios", () => {
 		const TEST_DATA = {

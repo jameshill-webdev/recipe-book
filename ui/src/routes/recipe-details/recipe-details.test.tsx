@@ -8,11 +8,13 @@ import { recipeCaek } from "@/test/fixtures";
 import * as recipesApi from "@/lib/api/recipes";
 import {
 	EDIT_RECIPE_FORM_LABEL,
+	GENERIC_ERROR,
 	LOADING_SPINNER_ARIA_LABEL,
 	RECIPE_DETAILS_NOT_FOUND,
 	RECIPE_ITEM_EDIT_BUTTON_LABEL,
 } from "@/lib/content-strings";
 import type { Recipe } from "@recipe-book/shared/types/recipe";
+import { createApiError } from "@/test/utils";
 
 vi.mock("react-router-dom", async () => {
 	const actual = await vi.importActual("react-router-dom");
@@ -73,7 +75,9 @@ describe("Recipe Details Page", () => {
 
 			expect(button).toBeInTheDocument();
 		});
+	});
 
+	describe("conditional UI", () => {
 		it("renders a loading spinner when the recipe data is loading (getRecipe pending)", async () => {
 			mockGetRecipeById();
 			renderRecipeDetails();
@@ -89,6 +93,19 @@ describe("Recipe Details Page", () => {
 
 			await waitFor(() => {
 				const message = screen.getByText(RECIPE_DETAILS_NOT_FOUND);
+
+				expect(message).toBeInTheDocument();
+			});
+		});
+
+		it("renders the error alert UI when getRecipe returns an error", async () => {
+			vi.mocked(recipesApi.getRecipeById).mockRejectedValueOnce(
+				createApiError(GENERIC_ERROR, 500),
+			);
+			renderRecipeDetails();
+
+			await waitFor(() => {
+				const message = screen.getByText(GENERIC_ERROR);
 
 				expect(message).toBeInTheDocument();
 			});
