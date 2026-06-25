@@ -14,7 +14,7 @@ vi.mock("@/components/user-menu", () => ({
 }));
 
 describe("Navigation", () => {
-	it("renders navigation links with the correct text content", () => {
+	it("renders the expected navigation links with the correct text content", () => {
 		render(
 			<ThemeProvider defaultTheme="light" storageKey="test-theme">
 				<GlobalErrorProvider>
@@ -29,7 +29,7 @@ describe("Navigation", () => {
 		expect(screen.getByText(NAVIGATION_LINK_TEXT_RECIPES)).toBeInTheDocument();
 	});
 
-	it("renders a user menu", () => {
+	it("renders the user menu", () => {
 		render(
 			<ThemeProvider defaultTheme="light" storageKey="test-theme">
 				<GlobalErrorProvider>
@@ -43,7 +43,7 @@ describe("Navigation", () => {
 		expect(screen.getByTestId("user-menu")).toBeInTheDocument();
 	});
 
-	it("renders a theme toggle", () => {
+	it("renders the theme toggle", () => {
 		render(
 			<ThemeProvider defaultTheme="light" storageKey="test-theme">
 				<GlobalErrorProvider>

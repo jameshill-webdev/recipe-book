@@ -76,6 +76,7 @@ describe("ThemeToggle", () => {
 		renderThemeToggle("system");
 
 		openThemeMenu();
+
 		fireEvent.click(await screen.findByRole("menuitem", { name: optionLabel }));
 
 		await waitFor(() => {

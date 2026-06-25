@@ -86,7 +86,7 @@ describe("UserMenu", () => {
 		navigateMock.mockReset();
 	});
 
-	it("renders loading state and no user name or button when isPending is true", () => {
+	it("renders loading state and no user name or button when session is pending", () => {
 		mockUseSession.mockReturnValue(createUseSessionResult({ isPending: true }));
 
 		renderUserMenu();
@@ -161,7 +161,7 @@ describe("UserMenu", () => {
 		});
 	});
 
-	it("sets default logout error in global error store when API error has no message", async () => {
+	it("sets default logout error in global error store when sign out fails with no error message", async () => {
 		mockUseSession.mockReturnValue(
 			createUseSessionResult({ data: { user: TEST_DATA.user, session: TEST_DATA.session } }),
 		);

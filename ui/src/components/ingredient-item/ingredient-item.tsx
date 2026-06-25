@@ -163,22 +163,20 @@ export function IngredientItem({ id, name, purchaseUnit, costPerUnit }: Ingredie
 							setFormError={setFormError}
 						/>
 					) : (
-						<div className="w-full grid grid-cols-[4.5fr_2fr_2fr] md:grid-cols-[6.5fr_2fr_2fr]">
+						<div
+							className="w-full grid grid-cols-[4.5fr_2fr_2fr] md:grid-cols-[6.5fr_2fr_2fr]"
+							data-testid="ingredient-data"
+						>
 							<ItemTitle
 								className="pl-2"
-								aria-label={`${INGREDIENT_ITEM_NAME_ARIA_LABEL} ${name}`}
+								aria-label={INGREDIENT_ITEM_NAME_ARIA_LABEL}
 							>
 								{name}
 							</ItemTitle>
-							<span
-								className=""
-								aria-label={`${INGREDIENT_ITEM_COST_ARIA_LABEL} ${Number(costPerUnit).toFixed(2)}`}
-							>
+							<span className="" aria-label={INGREDIENT_ITEM_COST_ARIA_LABEL}>
 								{Number(costPerUnit).toFixed(2)}
 							</span>
-							<span
-								aria-label={`${INGREDIENT_ITEM_UNIT_ARIA_LABEL} ${purchaseUnit.toLocaleLowerCase()}`}
-							>
+							<span aria-label={INGREDIENT_ITEM_UNIT_ARIA_LABEL}>
 								{purchaseUnit.toLocaleLowerCase()}
 							</span>
 						</div>

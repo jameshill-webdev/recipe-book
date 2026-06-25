@@ -70,7 +70,7 @@ describe("IngredientForm", () => {
 	});
 
 	describe("dynamic behavior", () => {
-		it("calls the field setters and clears form errors when text inputs change", () => {
+		it("calls the field and error setters with expected values when text inputs change", () => {
 			const setName = vi.fn();
 			const setCostPerUnit = vi.fn();
 			const setFormError = vi.fn();
@@ -84,6 +84,8 @@ describe("IngredientForm", () => {
 				setFormError,
 			});
 
+			expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong");
+
 			fireEvent.change(screen.getByRole("textbox", { name: "Name" }), {
 				target: { value: "Flour" },
 			});
@@ -95,10 +97,9 @@ describe("IngredientForm", () => {
 			expect(setCostPerUnit).toHaveBeenCalledWith("1.25");
 			expect(setFormError).toHaveBeenNthCalledWith(1, null);
 			expect(setFormError).toHaveBeenNthCalledWith(2, null);
-			expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong");
 		});
 
-		it("updates the selected purchase unit and clears the form error", () => {
+		it("calls setters to update the selected purchase unit and clear the form error", () => {
 			const setPurchaseUnit = vi.fn();
 			const setFormError = vi.fn();
 

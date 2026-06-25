@@ -79,6 +79,7 @@ export const GLOBAL_ERROR_ALERT_LABEL = "Global error alert";
 export const GLOBAL_ERROR_ALERT_TITLE = "There was a problem";
 export const GLOBAL_ERROR_ALERT_DISMISS_BUTTON_LABEL = "Dismiss global error";
 export const GLOBAL_ERROR_ALERT_DISMISS_BUTTON_TEXT = "Dismiss";
+export const NOTIFICATION_ALERT_DEFAULT_LABEL = "Alert";
 export const FORGOT_PASSWORD_LINK_TEXT = "Forgot your password?";
 export const SIGNUP_LINK_TEXT = "Don't have an account? Sign up";
 export const LOGIN_LINK_TEXT = "Already have an account? Log in";
