@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { userEvent, type UserEvent } from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -7,12 +7,21 @@ import Recipes from "@/routes/recipes";
 import {
 	CREATE_RECIPE_FORM_LABEL,
 	RECIPES_PAGE_HEADING,
+	RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL,
 	RECIPE_FORM_COOK_TIME_VALUE_LABEL,
+	RECIPE_FORM_OPEN_BUTTON_LABEL,
 	RECIPE_FORM_PORTIONS_LABEL,
 	RECIPE_FORM_PREP_TIME_VALUE_LABEL,
 	RECIPE_FORM_SHELF_LIFE_VALUE_LABEL,
 	RECIPE_INGREDIENT_QUANTITY_LABEL,
 	RECIPE_NAME_REQUIRED,
+	RECIPE_FORM_METHOD_LABEL,
+	RECIPE_FORM_CREATE_BUTTON_LABEL,
+	RECIPE_FORM_NAME_LABEL,
+	RECIPE_INGREDIENTS_REQUIRED,
+	RECIPE_INGREDIENT_DELETE_LABEL,
+	RECIPE_INGREDIENT_UNTITLED_LABEL,
+	RECIPE_METHOD_REQUIRED,
 } from "@/lib/content-strings";
 import {
 	ingredients,
@@ -58,6 +67,102 @@ function renderRecipes() {
 	);
 }
 
+function mockAndRenderAll() {
+	mockGetRecipes();
+	mockGetIngredients();
+	renderRecipes();
+}
+
+async function openAndPopulateRecipeForm(user: UserEvent, validValues: Recipe) {
+	await user.click(screen.getByRole("button", { name: RECIPE_FORM_OPEN_BUTTON_LABEL }));
+	await user.clear(screen.getByLabelText(RECIPE_FORM_NAME_LABEL));
+	await user.type(screen.getByLabelText(RECIPE_FORM_NAME_LABEL), validValues.name);
+
+	const addIngredientBtn = screen.getByRole("button", {
+		name: RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL,
+	});
+	await user.click(addIngredientBtn);
+
+	const ingredientItem = screen.getByRole("listitem", {
+		name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 1`,
+	});
+	const ingredientNameInput = within(ingredientItem).getByTestId("ingredient-name-autocomplete");
+	await user.clear(ingredientNameInput);
+	await user.type(ingredientNameInput, recipeIngredientPasta.ingredient.name);
+
+	const ingredientQuantityInput = within(ingredientItem).getByLabelText(
+		RECIPE_INGREDIENT_QUANTITY_LABEL,
+	);
+	await user.clear(ingredientQuantityInput);
+	await user.type(ingredientQuantityInput, recipeIngredientPasta.quantity.toString());
+
+	await user.clear(screen.getByLabelText(RECIPE_FORM_METHOD_LABEL));
+	await user.type(screen.getByLabelText(RECIPE_FORM_METHOD_LABEL), validValues.method);
+
+	const prepTimeValueInput = screen.getByLabelText(RECIPE_FORM_PREP_TIME_VALUE_LABEL);
+	await user.clear(prepTimeValueInput);
+	await user.type(prepTimeValueInput, validValues.prepTime.toString());
+
+	const cookTimeValueInput = screen.getByLabelText(RECIPE_FORM_COOK_TIME_VALUE_LABEL);
+	await user.clear(cookTimeValueInput);
+	await user.type(cookTimeValueInput, validValues.cookTime.toString());
+
+	const shelfLifeValueInput = screen.getByLabelText(RECIPE_FORM_SHELF_LIFE_VALUE_LABEL);
+	await user.clear(shelfLifeValueInput);
+	await user.type(shelfLifeValueInput, validValues.shelfLife.toString());
+
+	const portionsValueInput = screen.getByLabelText(RECIPE_FORM_PORTIONS_LABEL);
+	await user.clear(portionsValueInput);
+	await user.type(portionsValueInput, validValues.portions.toString());
+}
+
+const createRecipePayload: CreateRecipePayload = {
+	name: "Pasta Aglio e Olio",
+	ingredients: [
+		{
+			ingredientId: "",
+			name: recipeIngredientPasta.ingredient.name,
+			quantity: 999,
+			unit: "GRAM",
+		},
+	],
+	method: "Fry garlic in oil and toss with pasta",
+	prepTime: {
+		time: 5,
+		unit: "MINUTES",
+	},
+	cookTime: {
+		time: 15,
+		unit: "MINUTES",
+	},
+	shelfLife: {
+		time: 2,
+		unit: "DAYS",
+	},
+	numberOfPortions: 2,
+};
+
+const createdRecipe: Recipe = {
+	createdAt: "2026-05-22T20:21:46.197Z",
+	updatedAt: "2026-05-22T20:21:46.197Z",
+	userId: "4a888465-46e0-4feb-bc55-eaccb755a88d",
+	id: recipeIngredientPastaRecipeId,
+	name: createRecipePayload.name,
+	ingredients: [
+		{
+			...recipeIngredientPasta,
+		},
+	],
+	method: createRecipePayload.method,
+	prepTime: createRecipePayload.prepTime.time,
+	prepTimeUnit: createRecipePayload.prepTime.unit,
+	cookTime: createRecipePayload.cookTime.time,
+	cookTimeUnit: createRecipePayload.cookTime.unit,
+	shelfLife: createRecipePayload.shelfLife.time,
+	shelfLifeUnit: createRecipePayload.shelfLife.unit,
+	portions: createRecipePayload.numberOfPortions,
+};
+
 describe("Recipes", () => {
 	beforeEach(() => {
 		vi.resetAllMocks();
@@ -65,10 +170,7 @@ describe("Recipes", () => {
 
 	describe("static UI", () => {
 		it("renders a level 1 heading with the correct text content", () => {
-			mockGetRecipes();
-			mockGetIngredients();
-
-			renderRecipes();
+			mockAndRenderAll();
 
 			expect(
 				screen.getByRole("heading", { level: 1, name: RECIPES_PAGE_HEADING }),
@@ -76,12 +178,11 @@ describe("Recipes", () => {
 		});
 
 		it("renders a button to open the create recipe form", () => {
-			mockGetRecipes();
-			mockGetIngredients();
+			mockAndRenderAll();
 
-			renderRecipes();
-
-			expect(screen.getByRole("button", { name: /add recipe/i })).toBeInTheDocument();
+			expect(
+				screen.getByRole("button", { name: RECIPE_FORM_OPEN_BUTTON_LABEL }),
+			).toBeInTheDocument();
 		});
 	});
 
@@ -92,7 +193,6 @@ describe("Recipes", () => {
 				{ ...recipeCheeseOnToast },
 			]);
 			mockGetIngredients();
-
 			renderRecipes();
 
 			expect(await screen.findByText(recipeCaek.name)).toBeInTheDocument();
@@ -102,217 +202,321 @@ describe("Recipes", () => {
 			expect(recipeListItems.length).toBe(2);
 		});
 
-		// TODO: add test for "does not render the create recipe form by default"
-		// TODO: add test for "renders the create recipe form when the add recipe button is clicked"
+		it("renders the create recipe form when the add recipe button is clicked", async () => {
+			mockAndRenderAll();
+
+			expect(
+				screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+			).not.toBeInTheDocument();
+
+			const user = userEvent.setup();
+
+			user.click(screen.getByRole("button", { name: RECIPE_FORM_OPEN_BUTTON_LABEL }));
+
+			await waitFor(() => {
+				expect(
+					screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+				).toBeInTheDocument();
+			});
+		});
 	});
 
 	describe("create recipe", () => {
-		it("creates a recipe, closes the form, and refreshes the list after a successful request", async () => {
-			mockGetRecipes();
-			mockGetIngredients();
+		describe("happy path", () => {
+			it("creates a recipe, closes the form, and refreshes the list after a successful request", async () => {
+				mockAndRenderAll();
 
-			const createRecipePayload: CreateRecipePayload = {
-				name: "Pasta Aglio e Olio",
-				ingredients: [
-					{
-						ingredientId: "",
-						name: recipeIngredientPasta.ingredient.name,
-						quantity: 999,
-						unit: "GRAM",
-					},
-				],
-				method: "Fry garlic in oil and toss with pasta",
-				prepTime: {
-					time: 5,
-					unit: "MINUTES",
-				},
-				cookTime: {
-					time: 15,
-					unit: "MINUTES",
-				},
-				shelfLife: {
-					time: 2,
-					unit: "DAYS",
-				},
-				numberOfPortions: 2,
-			};
-			const createdRecipe: Recipe = {
-				createdAt: "2026-05-22T20:21:46.197Z",
-				updatedAt: "2026-05-22T20:21:46.197Z",
-				userId: "4a888465-46e0-4feb-bc55-eaccb755a88d",
-				id: recipeIngredientPastaRecipeId,
-				name: createRecipePayload.name,
-				ingredients: [
-					{
-						...recipeIngredientPasta,
-					},
-				],
-				method: createRecipePayload.method,
-				prepTime: createRecipePayload.prepTime.time,
-				prepTimeUnit: createRecipePayload.prepTime.unit,
-				cookTime: createRecipePayload.cookTime.time,
-				cookTimeUnit: createRecipePayload.cookTime.unit,
-				shelfLife: createRecipePayload.shelfLife.time,
-				shelfLifeUnit: createRecipePayload.shelfLife.unit,
-				portions: createRecipePayload.numberOfPortions,
-			};
-			vi.mocked(recipesApi.createRecipe).mockResolvedValueOnce(createdRecipe);
+				vi.mocked(recipesApi.createRecipe).mockResolvedValueOnce(createdRecipe);
 
-			renderRecipes();
+				const user = userEvent.setup();
 
-			const user = userEvent.setup();
+				await openAndPopulateRecipeForm(user, createdRecipe);
 
-			await user.click(screen.getByRole("button", { name: /add recipe/i }));
-			await user.clear(screen.getByLabelText("Name")); // TODO: swap out for constant
-			await user.type(screen.getByLabelText("Name"), createdRecipe.name);
+				await user.click(
+					screen.getByRole("button", { name: RECIPE_FORM_CREATE_BUTTON_LABEL }),
+				);
 
-			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
-			await user.click(addIngredientBtn);
+				await waitFor(() => {
+					const errorMessages = screen.queryByText(RECIPE_INGREDIENTS_REQUIRED);
+					if (errorMessages) {
+						console.log("Form validation failed");
+					} else if (screen.queryByText(createdRecipe.name)) {
+						expect(screen.getByText(createdRecipe.name)).toBeInTheDocument();
+					}
+				});
 
-			const ingredientNameInput = screen.getByTestId("ingredient-name-autocomplete");
-			await user.clear(ingredientNameInput);
-			await user.type(ingredientNameInput, recipeIngredientPasta.ingredient.name);
-
-			const ingredientQuantityInput = screen.getByLabelText(/quantity/i);
-			await user.clear(ingredientQuantityInput);
-			await user.type(ingredientQuantityInput, recipeIngredientPasta.quantity.toString());
-
-			await user.clear(screen.getByLabelText("Method")); // TODO: swap out for constant
-			await user.type(screen.getByLabelText("Method"), createdRecipe.method);
-
-			const prepTimeValueInput = screen.getByLabelText(RECIPE_FORM_PREP_TIME_VALUE_LABEL);
-			await user.clear(prepTimeValueInput);
-			await user.type(prepTimeValueInput, createdRecipe.prepTime.toString());
-
-			const cookTimeValueInput = screen.getByLabelText(RECIPE_FORM_COOK_TIME_VALUE_LABEL);
-			await user.clear(cookTimeValueInput);
-			await user.type(cookTimeValueInput, createdRecipe.cookTime.toString());
-
-			const shelfLifeValueInput = screen.getByLabelText(RECIPE_FORM_SHELF_LIFE_VALUE_LABEL);
-			await user.clear(shelfLifeValueInput);
-			await user.type(shelfLifeValueInput, createdRecipe.shelfLife.toString());
-
-			const portionsValueInput = screen.getByLabelText(RECIPE_FORM_PORTIONS_LABEL);
-			await user.clear(portionsValueInput);
-			await user.type(portionsValueInput, createdRecipe.portions.toString());
-
-			await user.click(screen.getByRole("button", { name: /create/i }));
-
-			// Check if there's an error message instead
-			await waitFor(() => {
-				const errorMessages = screen.queryByText(/please add at least one ingredient/i);
-				if (errorMessages) {
-					console.log("Form validation failed");
-				} else if (screen.queryByText("Pasta Aglio e Olio")) {
-					expect(screen.getByText("Pasta Aglio e Olio")).toBeInTheDocument();
-				} else {
-					// Log what text is actually in the document
-					console.log("Recipe not found, DOM content:", document.body.textContent);
-				}
-			});
-
-			expect(vi.mocked(recipesApi.createRecipe)).toHaveBeenCalledOnce();
-			expect(vi.mocked(recipesApi.createRecipe).mock.calls[0][0]).toEqual(
-				createRecipePayload,
-			);
-		});
-
-		it("displays a validation error when name is missing", async () => {
-			mockGetRecipes();
-			mockGetIngredients();
-
-			renderRecipes();
-
-			const user = userEvent.setup();
-
-			await user.click(screen.getByRole("button", { name: /add recipe/i }));
-			await user.clear(screen.getByLabelText("Name")); // TODO: swap out for constant
-
-			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
-			await user.click(addIngredientBtn);
-
-			const ingredientNameInput = screen.getByTestId("ingredient-name-autocomplete");
-			await user.clear(ingredientNameInput);
-			await user.type(ingredientNameInput, recipeIngredientPasta.ingredient.name);
-
-			const ingredientQuantityInput = screen.getByLabelText(/quantity/i);
-			await user.clear(ingredientQuantityInput);
-			await user.type(ingredientQuantityInput, recipeIngredientPasta.quantity.toString());
-
-			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
-
-			await waitFor(() => {
-				expect(screen.getByText(RECIPE_NAME_REQUIRED)).toBeInTheDocument();
+				expect(vi.mocked(recipesApi.createRecipe)).toHaveBeenCalledOnce();
+				expect(vi.mocked(recipesApi.createRecipe).mock.calls[0][0]).toEqual(
+					createRecipePayload,
+				);
 			});
 		});
 
-		it("displays a form error when no ingredients are provided", async () => {
-			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
-			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+		describe("recipe ingredients", () => {
+			it("appends an empty item to the ingredients list when the add ingredient button is clicked", async () => {
+				mockAndRenderAll();
 
-			renderRecipes();
+				expect(
+					screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+				).not.toBeInTheDocument();
 
-			fireEvent.click(screen.getByRole("button", { name: /add recipe/i }));
-			expect(
-				screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
-			).toBeInTheDocument();
+				const user = userEvent.setup();
 
-			fireEvent.change(screen.getByLabelText("Name"), {
-				target: { value: "Empty Recipe" },
+				user.click(screen.getByRole("button", { name: RECIPE_FORM_OPEN_BUTTON_LABEL }));
+
+				await waitFor(() => {
+					expect(
+						screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+					).toBeInTheDocument();
+				});
+
+				expect(
+					screen.queryByRole("listitem", {
+						name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 1`,
+					}),
+				).not.toBeInTheDocument();
+				expect(
+					screen.queryByRole("listitem", {
+						name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 2`,
+					}),
+				).not.toBeInTheDocument();
+
+				const addIngredientBtn = screen.getByRole("button", {
+					name: RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL,
+				});
+				await user.click(addIngredientBtn);
+
+				expect(
+					screen.getByRole("listitem", { name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 1` }),
+				).toBeInTheDocument();
+
+				await user.click(addIngredientBtn);
+
+				expect(
+					screen.getByRole("listitem", { name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 1` }),
+				).toBeInTheDocument();
+				expect(
+					screen.getByRole("listitem", { name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 2` }),
+				).toBeInTheDocument();
 			});
-			fireEvent.change(screen.getByLabelText("Method"), {
-				target: { value: "Do something" },
+
+			it("removes the correct item from the ingredients list when the item's delete button is clicked", async () => {
+				mockAndRenderAll();
+
+				expect(
+					screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+				).not.toBeInTheDocument();
+
+				const user = userEvent.setup();
+
+				user.click(screen.getByRole("button", { name: RECIPE_FORM_OPEN_BUTTON_LABEL }));
+
+				await waitFor(() => {
+					expect(
+						screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+					).toBeInTheDocument();
+				});
+
+				expect(
+					screen.queryByRole("listitem", { name: "ingredient 1" }),
+				).not.toBeInTheDocument();
+				expect(
+					screen.queryByRole("listitem", { name: "ingredient 2" }),
+				).not.toBeInTheDocument();
+
+				const addIngredientBtn = screen.getByRole("button", {
+					name: RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL,
+				});
+				await user.click(addIngredientBtn);
+				await user.click(addIngredientBtn);
+				await user.click(addIngredientBtn);
+
+				const item1 = screen.getByRole("listitem", {
+					name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 1`,
+				});
+				const item2 = screen.getByRole("listitem", {
+					name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 2`,
+				});
+				const item3 = screen.getByRole("listitem", {
+					name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 3`,
+				});
+
+				expect(item1).toBeInTheDocument();
+				expect(item2).toBeInTheDocument();
+				expect(item3).toBeInTheDocument();
+
+				await user.click(
+					within(item2).getByRole("button", { name: RECIPE_INGREDIENT_DELETE_LABEL }),
+				);
+
+				await waitFor(() => {
+					expect(item1).toBeInTheDocument();
+					expect(item3).toBeInTheDocument();
+					expect(item2).not.toBeInTheDocument();
+				});
 			});
 
-			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
+			it("renders the correct aria-label for ingredient list items based on whether or not they have text populated in the name field", async () => {
+				mockAndRenderAll();
 
-			await waitFor(() => {
-				expect(screen.getByText(/please add at least one ingredient/i)).toBeInTheDocument();
+				expect(
+					screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+				).not.toBeInTheDocument();
+
+				const user = userEvent.setup();
+
+				user.click(screen.getByRole("button", { name: RECIPE_FORM_OPEN_BUTTON_LABEL }));
+
+				await waitFor(() => {
+					expect(
+						screen.queryByRole("form", { name: CREATE_RECIPE_FORM_LABEL }),
+					).toBeInTheDocument();
+				});
+
+				const addIngredientBtn = screen.getByRole("button", {
+					name: RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL,
+				});
+				await user.click(addIngredientBtn);
+
+				expect(
+					screen.getByRole("listitem", {
+						name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 1`,
+					}),
+				).toBeInTheDocument();
+
+				const ingredientNameInput = screen.getByTestId("ingredient-name-autocomplete");
+				await user.clear(ingredientNameInput);
+				await user.type(ingredientNameInput, "test ingredient name");
+
+				expect(
+					screen.queryByRole("listitem", {
+						name: `${RECIPE_INGREDIENT_UNTITLED_LABEL} 1`,
+					}),
+				).not.toBeInTheDocument();
+				expect(
+					screen.getByRole("listitem", {
+						name: "test ingredient name",
+					}),
+				).toBeInTheDocument();
 			});
 		});
 
-		// TODO: add test for "displays a form error when no method is provided"
-		// TODO: add test for "displays a form error when prep time value is negative"
-		// TODO: add test for "displays a form error when cook time value is negative"
-		// TODO: add test for "displays a form error when shelf life value is negative"
-		// TODO: add test for "displays a form error when portions value is negative"
+		// TODO: describe block for prep time, cook time, shelf life, and portions - time field value resets to zero when cleared (to check type coercion and avoid NaN issue)
 
-		it("displays a form error when the API returns an error response", async () => {
-			vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
-			vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
-			vi.mocked(recipesApi.createRecipe).mockRejectedValueOnce(
-				new Error("Method is required"),
-			);
+		describe("validation", () => {
+			it("displays a validation error when no name is provided", async () => {
+				mockAndRenderAll();
 
-			renderRecipes();
+				const user = userEvent.setup();
 
-			fireEvent.click(screen.getByRole("button", { name: /add recipe/i }));
-			fireEvent.change(screen.getByLabelText("Name"), {
-				target: { value: "Test Recipe" },
-			});
-			fireEvent.change(screen.getByLabelText("Method"), {
-				target: { value: "Do something" },
+				await openAndPopulateRecipeForm(user, createdRecipe);
+				await user.clear(screen.getByLabelText(RECIPE_FORM_NAME_LABEL));
+
+				await user.click(
+					screen.getByRole("button", { name: RECIPE_FORM_CREATE_BUTTON_LABEL }),
+				);
+
+				await waitFor(() => {
+					expect(screen.getByText(RECIPE_NAME_REQUIRED)).toBeInTheDocument();
+				});
 			});
 
-			// Add an ingredient using the add button
-			const addIngredientBtn = screen.getByRole("button", { name: /add ingredient/i });
-			fireEvent.click(addIngredientBtn);
+			it("displays a form error when no ingredients are provided", async () => {
+				mockAndRenderAll();
 
-			// Get the autocomplete input
-			const combobox = await screen.findByTestId("ingredient-name-autocomplete");
+				const user = userEvent.setup();
 
-			fireEvent.change(combobox, {
-				target: { value: ingredientCheddarCheese.name },
+				await openAndPopulateRecipeForm(user, createdRecipe);
+
+				await user.click(
+					within(
+						screen.getByRole("listitem", {
+							name: recipeIngredientPasta.ingredient.name,
+						}),
+					).getByRole("button", { name: RECIPE_INGREDIENT_DELETE_LABEL }),
+				);
+
+				await user.click(
+					screen.getByRole("button", { name: RECIPE_FORM_CREATE_BUTTON_LABEL }),
+				);
+
+				await waitFor(() => {
+					expect(screen.getByText(RECIPE_INGREDIENTS_REQUIRED)).toBeInTheDocument();
+				});
 			});
 
-			// Get the quantity input and set its value
-			const quantityInput = screen.getByLabelText(RECIPE_INGREDIENT_QUANTITY_LABEL);
-			fireEvent.change(quantityInput, { target: { value: "1" } });
+			it("displays a form error when no method is provided", async () => {
+				mockAndRenderAll();
 
-			fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
+				const user = userEvent.setup();
 
-			await waitFor(() => {
-				expect(screen.getByText(/method is required/i)).toBeInTheDocument();
+				await openAndPopulateRecipeForm(user, createdRecipe);
+				await user.clear(screen.getByLabelText(RECIPE_FORM_METHOD_LABEL));
+
+				await user.click(
+					screen.getByRole("button", { name: RECIPE_FORM_CREATE_BUTTON_LABEL }),
+				);
+
+				await waitFor(() => {
+					expect(screen.getByText(RECIPE_METHOD_REQUIRED)).toBeInTheDocument();
+				});
+			});
+
+			// it("displays a form error when prep time value is zero", async () => {
+			// TODO
+			// });
+
+			// it("displays a form error when cook time value is zero", () => {
+			// TODO
+			// });
+
+			// it("displays a form error when shelf life value is zero", () => {
+			// TODO
+			// });
+
+			// it("displays a form error when portions value is zero", () => {
+			// TODO
+			// });
+
+			it("displays a form error when the API returns an error response", async () => {
+				vi.mocked(recipesApi.getRecipes).mockResolvedValueOnce([]);
+				vi.mocked(ingredientsApi.getIngredients).mockResolvedValueOnce(ingredients);
+				vi.mocked(recipesApi.createRecipe).mockRejectedValueOnce(
+					new Error(RECIPE_NAME_REQUIRED),
+				);
+
+				renderRecipes();
+
+				// TODO: convert to use userEvent
+				fireEvent.click(
+					screen.getByRole("button", { name: RECIPE_FORM_OPEN_BUTTON_LABEL }),
+				);
+				fireEvent.change(screen.getByLabelText(RECIPE_FORM_NAME_LABEL), {
+					target: { value: "Test Recipe" },
+				});
+				fireEvent.change(screen.getByLabelText(RECIPE_FORM_METHOD_LABEL), {
+					target: { value: "Do something" },
+				});
+
+				const addIngredientBtn = screen.getByRole("button", {
+					name: RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL,
+				});
+				fireEvent.click(addIngredientBtn);
+
+				const combobox = await screen.findByTestId("ingredient-name-autocomplete");
+
+				fireEvent.change(combobox, {
+					target: { value: ingredientCheddarCheese.name },
+				});
+
+				const quantityInput = screen.getByLabelText(RECIPE_INGREDIENT_QUANTITY_LABEL);
+				fireEvent.change(quantityInput, { target: { value: "1" } });
+
+				fireEvent.submit(screen.getByRole("form", { name: CREATE_RECIPE_FORM_LABEL }));
+
+				await waitFor(() => {
+					expect(screen.getByText(RECIPE_NAME_REQUIRED)).toBeInTheDocument();
+				});
 			});
 		});
 	});

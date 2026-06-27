@@ -6,8 +6,16 @@ import { Textarea } from "@/components/ui/textarea/textarea";
 import { useState } from "react";
 import z from "zod";
 import { mapIssuesToFieldErrors } from "@/lib/validation/errors";
-import { recipeNameSchema } from "@/lib/validation/fields";
-import type { CreateRecipeIngredientPayload, Duration } from "@recipe-book/shared/types/recipe";
+import {
+	recipeCookTimeSchema,
+	recipeFormIngredientsSchema,
+	recipeMethodSchema,
+	recipeNameSchema,
+	recipeNumberOfPortionsSchema,
+	recipePrepTimeSchema,
+	recipeShelfLifeSchema,
+} from "@/lib/validation/fields";
+import type { RecipeFormIngredient, Duration } from "@recipe-book/shared/types/recipe";
 import {
 	Select,
 	SelectTrigger,
@@ -18,7 +26,7 @@ import {
 import type { Ingredient } from "@recipe-book/shared/types/ingredient";
 import { PURCHASE_UNITS, TIME_UNITS } from "@recipe-book/shared/lib/units";
 import { getErrorMessage } from "@/lib/utils";
-import { RecipeFormIngredient } from "../recipe-ingredient/recipe-ingredient";
+import { RecipeFormIngredientItem } from "../recipe-ingredient/recipe-ingredient";
 import { LoadingSpinner } from "../loading-spinner/loading-spinner";
 import {
 	INGREDIENTS_LIST_NO_RESULTS,
@@ -56,8 +64,8 @@ interface RecipeFormProps {
 	ingredientOptions: Ingredient[];
 	isIngredientsPending: boolean;
 	ingredientsError: Error | null;
-	ingredients: CreateRecipeIngredientPayload[];
-	setIngredients: (value: CreateRecipeIngredientPayload[]) => void;
+	ingredients: RecipeFormIngredient[];
+	setIngredients: (value: RecipeFormIngredient[]) => void;
 	method: string;
 	setMethod: (value: string) => void;
 	prepTime: Duration;
@@ -77,6 +85,12 @@ interface RecipeFormProps {
 
 const recipeSchema = z.object({
 	name: recipeNameSchema,
+	method: recipeMethodSchema,
+	ingredients: recipeFormIngredientsSchema,
+	prepTime: recipePrepTimeSchema,
+	cookTime: recipeCookTimeSchema,
+	shelfLife: recipeShelfLifeSchema,
+	numberOfPortions: recipeNumberOfPortionsSchema,
 });
 
 type RecipeFormValues = z.infer<typeof recipeSchema>;
@@ -115,9 +129,16 @@ export function RecipeForm({
 
 		const parsedRecipeData = recipeSchema.safeParse({
 			name,
+			method,
+			ingredients,
+			prepTime,
+			cookTime,
+			shelfLife,
+			numberOfPortions,
 		});
 
 		if (!parsedRecipeData.success) {
+			console.log(parsedRecipeData.error.issues);
 			setFieldErrors(mapIssuesToFieldErrors<RecipeField>(parsedRecipeData.error.issues));
 			return;
 		}
@@ -139,8 +160,8 @@ export function RecipeForm({
 					autoComplete="off"
 					value={name}
 					onChange={(e) => {
-						setName(e.target.value);
 						setFormError(null);
+						setName(e.target.value);
 					}}
 					placeholder={RECIPE_FORM_NAME_PLACEHOLDER}
 				/>
@@ -159,24 +180,37 @@ export function RecipeForm({
 						{INGREDIENTS_LIST_NO_RESULTS}
 					</p>
 				) : (
-					<>
+					<ul className="list-none p-0">
 						{ingredients.map((ingredient, index) => (
-							<RecipeFormIngredient
-								key={`${ingredient.ingredientId}-${index}`}
+							<RecipeFormIngredientItem
+								key={`${ingredient.userInterfaceId}`}
 								ingredient={ingredient}
 								index={index}
 								ingredients={ingredients}
 								setIngredients={setIngredients}
 								ingredientOptions={ingredientOptions}
 								setFormError={setFormError}
+								onDelete={() => {
+									setIngredients(
+										ingredients.filter(
+											(_ingredient) =>
+												_ingredient.userInterfaceId !==
+												ingredient.userInterfaceId,
+										),
+									);
+								}}
 							/>
 						))}
-					</>
+					</ul>
+				)}
+				{fieldErrors.ingredients && (
+					<InlineError alert>{fieldErrors.ingredients}</InlineError>
 				)}
 				<Button
 					type="button"
 					className="mt-2"
-					onClick={() =>
+					onClick={() => {
+						setFormError(null);
 						setIngredients([
 							...ingredients,
 							{
@@ -184,9 +218,10 @@ export function RecipeForm({
 								name: "",
 								quantity: 1,
 								unit: PURCHASE_UNITS[0],
+								userInterfaceId: crypto.randomUUID(),
 							},
-						])
-					}
+						]);
+					}}
 				>
 					{RECIPE_FORM_ADD_INGREDIENT_BUTTON_LABEL}
 				</Button>
@@ -198,11 +233,12 @@ export function RecipeForm({
 					autoComplete="off"
 					value={method}
 					onChange={(e) => {
-						setMethod(e.target.value);
 						setFormError(null);
+						setMethod(e.target.value);
 					}}
 					placeholder={RECIPE_FORM_METHOD_PLACEHOLDER}
 				/>
+				{fieldErrors.method && <InlineError alert>{fieldErrors.method}</InlineError>}
 			</Field>
 			<div className="grid gap-6 grid-cols-[1fr_1fr]">
 				<FieldSet>
@@ -217,13 +253,13 @@ export function RecipeForm({
 								type="text"
 								autoComplete="off"
 								inputMode="numeric"
-								value={prepTime.time}
+								value={prepTime.time.toString()}
 								onChange={(e) => {
+									setFormError(null);
 									setPrepTime({
 										...prepTime,
 										time: parseInt(e.target.value || "0", 10),
 									});
-									setFormError(null);
 								}}
 								placeholder={RECIPE_FORM_PREP_TIME_VALUE_LABEL}
 							/>
@@ -237,11 +273,11 @@ export function RecipeForm({
 								defaultValue={prepTime.unit}
 								value={prepTime.unit}
 								onValueChange={(value) => {
+									setFormError(null);
 									setPrepTime({
 										...prepTime,
 										unit: value as (typeof TIME_UNITS)[number],
 									});
-									setFormError(null);
 								}}
 							>
 								<SelectTrigger id={`prepTimeUnit`} className="w-full">
@@ -258,6 +294,9 @@ export function RecipeForm({
 								</SelectContent>
 							</Select>
 						</Field>
+						{fieldErrors.prepTime && (
+							<InlineError alert>{fieldErrors.prepTime}</InlineError>
+						)}
 					</FieldGroup>
 				</FieldSet>
 				<FieldSet>
@@ -272,13 +311,13 @@ export function RecipeForm({
 								type="text"
 								autoComplete="off"
 								inputMode="numeric"
-								value={cookTime.time}
+								value={cookTime.time.toString()}
 								onChange={(e) => {
+									setFormError(null);
 									setCookTime({
 										...cookTime,
 										time: parseInt(e.target.value || "0", 10),
 									});
-									setFormError(null);
 								}}
 								placeholder={RECIPE_FORM_COOK_TIME_VALUE_LABEL}
 							/>
@@ -292,11 +331,11 @@ export function RecipeForm({
 								defaultValue={cookTime.unit}
 								value={cookTime.unit}
 								onValueChange={(value) => {
+									setFormError(null);
 									setCookTime({
 										...cookTime,
 										unit: value as (typeof TIME_UNITS)[number],
 									});
-									setFormError(null);
 								}}
 							>
 								<SelectTrigger id={`cookTimeUnit`} className="w-full">
@@ -313,6 +352,9 @@ export function RecipeForm({
 								</SelectContent>
 							</Select>
 						</Field>
+						{fieldErrors.cookTime && (
+							<InlineError alert>{fieldErrors.cookTime}</InlineError>
+						)}
 					</FieldGroup>
 				</FieldSet>
 			</div>
@@ -329,7 +371,7 @@ export function RecipeForm({
 								type="text"
 								autoComplete="off"
 								inputMode="numeric"
-								value={shelfLife.time}
+								value={shelfLife.time.toString()}
 								onChange={(e) => {
 									setShelfLife({
 										...shelfLife,
@@ -370,6 +412,9 @@ export function RecipeForm({
 								</SelectContent>
 							</Select>
 						</Field>
+						{fieldErrors.shelfLife && (
+							<InlineError alert>{fieldErrors.shelfLife}</InlineError>
+						)}
 					</FieldGroup>
 				</FieldSet>
 				<Field>
@@ -380,13 +425,16 @@ export function RecipeForm({
 						type="text"
 						autoComplete="off"
 						inputMode="numeric"
-						value={numberOfPortions}
+						value={numberOfPortions.toString()}
 						onChange={(e) => {
 							setNumberOfPortions(parseInt(e.target.value || "0", 10));
 							setFormError(null);
 						}}
 						placeholder={RECIPE_FORM_PORTIONS_LABEL}
 					/>
+					{fieldErrors.numberOfPortions && (
+						<InlineError alert>{fieldErrors.numberOfPortions}</InlineError>
+					)}
 				</Field>
 			</div>
 			<Field>

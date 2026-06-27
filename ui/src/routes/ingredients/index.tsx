@@ -11,6 +11,8 @@ import {
 	INGREDIENTS_LIST_COLUMN_LABEL_NAME,
 	INGREDIENTS_LIST_COLUMN_LABEL_UNIT,
 	INGREDIENTS_LIST_NO_RESULTS,
+	INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_CLOSED,
+	INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_OPEN,
 	INGREDIENTS_PAGE_HEADING,
 } from "@/lib/content-strings";
 import { IngredientForm } from "@/components/ingredient-form/ingredient-form";
@@ -86,18 +88,17 @@ export default function Ingredients() {
 					type="button"
 					variant="outline"
 					onClick={onAddIngredient}
-					aria-label="Add ingredient"
 					aria-expanded={addIngredientUIOpen}
 					aria-controls="add-ingredient-form-container"
 				>
 					{addIngredientUIOpen ? <Minus /> : <Plus />}
-					<span>{addIngredientUIOpen ? "Close" : "Add ingredient"}</span>
+					<span>
+						{addIngredientUIOpen
+							? INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_OPEN
+							: INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_CLOSED}
+					</span>
 				</Button>
-				<div
-					id="add-ingredient-form-container"
-					role="region"
-					aria-label="Add ingredient form"
-				>
+				<div id="add-ingredient-form-container" role="region">
 					{addIngredientUIOpen && (
 						<IngredientForm
 							label={CREATE_INGREDIENT_FORM_LABEL}

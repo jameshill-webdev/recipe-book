@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button/button";
 import {
 	FORM_CLOSE_BUTTON_LABEL,
 	CREATE_RECIPE_FORM_LABEL,
-	RECIPE_FORM_NO_VALID_INGREDIENTS,
+	RECIPE_INGREDIENTS_REQUIRED,
 	RECIPE_FORM_OPEN_BUTTON_LABEL,
 	RECIPES_PAGE_HEADING,
 	RECIPE_LIST_LOADING,
@@ -13,7 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { getIngredients } from "@/lib/api/ingredients";
-import type { CreateRecipeIngredientPayload, Duration } from "@recipe-book/shared/types/recipe";
+import type { Duration, RecipeFormIngredient } from "@recipe-book/shared/types/recipe";
 import { createRecipe, getRecipes } from "@/lib/api/recipes";
 import { getErrorMessage } from "@/lib/utils";
 import { useCreateIngredient } from "@/hooks/use-create-ingredient";
@@ -51,7 +51,7 @@ export default function Recipes() {
 
 	const [name, setName] = useState("");
 	// TODO: add validation to prevent user adding duplicate ingredients (name or purchase unit must be different)
-	const [ingredients, setIngredients] = useState<CreateRecipeIngredientPayload[]>([]);
+	const [ingredients, setIngredients] = useState<RecipeFormIngredient[]>([]);
 	const [method, setMethod] = useState("");
 	const [prepTime, setPrepTime] = useState<Duration>({ time: 1, unit: DEFAULT_PREP_TIME_UNIT });
 	const [cookTime, setCookTime] = useState<Duration>({ time: 1, unit: DEFAULT_COOK_TIME_UNIT });
@@ -96,7 +96,7 @@ export default function Recipes() {
 		const validIngredients = ingredients.filter((ingredient) => ingredient.name.trim() !== "");
 
 		if (validIngredients.length === 0) {
-			setFormError(RECIPE_FORM_NO_VALID_INGREDIENTS);
+			setFormError(RECIPE_INGREDIENTS_REQUIRED);
 			return;
 		}
 
@@ -152,7 +152,8 @@ export default function Recipes() {
 
 		createRecipeMutation.mutate({
 			name: name.trim(),
-			ingredients: updatedIngredients,
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			ingredients: updatedIngredients.map(({ userInterfaceId, ...rest }) => rest),
 			method: method.trim(),
 			prepTime,
 			cookTime,

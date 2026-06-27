@@ -16,5 +16,7 @@ export function mapIssuesToFieldErrors<TField extends string>(
 		}
 	}
 
+	console.log(validationErrors);
+
 	return validationErrors;
 }

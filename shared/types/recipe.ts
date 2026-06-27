@@ -24,6 +24,10 @@ export type CreateRecipeIngredientPayload = {
 	unit: PurchaseUnit;
 };
 
+export type RecipeFormIngredient = CreateRecipeIngredientPayload & {
+	userInterfaceId: string;
+};
+
 export interface Recipe {
 	id: string;
 	createdAt: string;

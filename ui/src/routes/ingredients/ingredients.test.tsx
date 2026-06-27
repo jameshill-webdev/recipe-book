@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,6 +11,8 @@ import {
 	INGREDIENT_COST_PER_UNIT_POSITIVE,
 	INGREDIENT_COST_PER_UNIT_REQUIRED,
 	INGREDIENT_NAME_REQUIRED,
+	INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_CLOSED,
+	INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_OPEN,
 } from "@/lib/content-strings";
 import {
 	ingredientBread,
@@ -81,14 +84,38 @@ describe("Ingredients", () => {
 			mockGetIngredients();
 
 			renderIngredients();
+
 			expect(screen.getByRole("button", { name: /add ingredient/i })).toBeInTheDocument();
 		});
 	});
 
-	// describe("conditional UI", () => {
-	// 	// TODO: add test for "does not render the create ingredient form by default"
-	// 	// TODO: add test for "renders the create ingredient form when the add ingredient button is clicked"
-	// });
+	describe("conditional UI", () => {
+		it("renders the create ingredient form when the add ingredient button is clicked", async () => {
+			const user = userEvent.setup();
+
+			mockGetIngredients();
+			renderIngredients();
+
+			expect(
+				screen.queryByRole("form", { name: /Create ingredient form/i }),
+			).not.toBeInTheDocument();
+
+			await user.click(
+				screen.getByRole("button", { name: INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_CLOSED }),
+			);
+
+			await waitFor(() => {
+				expect(
+					screen.queryByRole("form", { name: /Create ingredient form/i }),
+				).toBeInTheDocument();
+				expect(
+					screen.queryByRole("button", {
+						name: INGREDIENTS_PAGE_CREATE_BUTTON_LABEL_OPEN,
+					}),
+				).toBeInTheDocument();
+			});
+		});
+	});
 
 	describe("ingredients list", () => {
 		it("loads and renders ingredient names returned by the API", async () => {
